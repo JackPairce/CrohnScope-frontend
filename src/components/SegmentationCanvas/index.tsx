@@ -2,7 +2,12 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { UseDriveList, useDriveUpload, useFolderCreate } from "./api";
+import {
+  useDriveDelete,
+  UseDriveList,
+  useDriveUpload,
+  useFolderCreate,
+} from "./api";
 import DrawPreview from "./DrawPreview";
 import { matrix2File } from "./MaskUtils";
 import { Mask, Mode, modes, Tab } from "./types";
@@ -132,8 +137,6 @@ function ImagesNavigate({
       });
       listFilesDrive(masksFolderId).then((fetchedMasks) => {
         if (!fetchedMasks) return;
-        console.log("Fetched masks", fetchedMasks);
-
         setLoadedMasksFolders(fetchedMasks);
       });
     });
@@ -145,13 +148,19 @@ function ImagesNavigate({
       return;
     }
     // create sub mask folder as image name
-    createFolderAsync({
-      name: image.name.split(".")[0],
-      ParentDirectoryId: masksFolderId,
-    }).then((folderId) => {
-      console.log("Created folder", folderId);
-      if (!folderId) return;
-      setSubMasksFolderId(folderId);
+    listFilesDrive(masksFolderId).then((fileListResponse) => {
+      const foldername = image.name.split(".")[0];
+      const imagesFolderId = fileListResponse?.find(
+        (file) => file.name === foldername
+      )?.id;
+      if (imagesFolderId) return;
+      createFolderAsync({
+        name: foldername,
+        ParentDirectoryId: masksFolderId,
+      }).then((folderId) => {
+        if (!folderId) return;
+        setSubMasksFolderId(folderId);
+      });
     });
 
     setSelectedImage(image);
@@ -221,10 +230,14 @@ function SegmentationCanvas({
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [mode, setMode] = useState<Mode>("draw");
   const [brushSize, setBrushSize] = useState(15);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [toggleupdate, setToggleUpdate] = useState(false);
   const [selectedTab, setSelectedTab] = useState(-1);
-  const { mutate: uploadFile } = useDriveUpload();
+  const driveList = new UseDriveList();
+  const { mutateAsync: listFilesDrive } = driveList.listDriveFiles();
+  const { mutateAsync: uploadFile } = useDriveUpload();
+  const { mutateAsync: deleteFile } = useDriveDelete();
 
   useEffect(() => {
     const img = new Image();
@@ -316,16 +329,27 @@ function SegmentationCanvas({
           className="save"
           onClick={async () => {
             if (selectedTab === -1 || !maskFolderId) return;
-            // TODO: replace with mask folder id
-            tabs.forEach(async (tab) => {
-              uploadFile({
-                file: await matrix2File(tab.mask, tab.name),
-                inFolderId: maskFolderId,
-              });
-            });
+            setIsSaving(true);
+            // get file in the folder
+            const filestodelete = await listFilesDrive(maskFolderId);
+            // delete all files in the folder
+            await Promise.all(
+              filestodelete.map(async (file) => {
+                await deleteFile(file.id!);
+              })
+            );
+            await Promise.all(
+              tabs.map(async (tab) => {
+                await uploadFile({
+                  file: await matrix2File(tab.mask, tab.name),
+                  inFolderId: maskFolderId,
+                });
+              })
+            );
+            setIsSaving(false);
           }}
         >
-          Save Mask
+          {isSaving ? "Saving..." : "Save Masks"}
         </button>
       </nav>
       <nav className="tabs">

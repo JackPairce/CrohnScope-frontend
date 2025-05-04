@@ -1,5 +1,6 @@
 import {
   CreateFolder,
+  DeleteFile,
   listAsRawFiles,
   listDriveFiles,
   listWithData,
@@ -15,6 +16,11 @@ export const useFolderCreate = () =>
 export const useDriveUpload = () =>
   useMutation({
     mutationFn: UploadFile,
+  });
+
+export const useDriveDelete = () =>
+  useMutation({
+    mutationFn: DeleteFile,
   });
 
 export class UseDriveList {
