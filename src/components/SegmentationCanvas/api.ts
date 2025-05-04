@@ -1,10 +1,16 @@
 import {
+  CreateFolder,
   listAsRawFiles,
   listDriveFiles,
   listWithData,
   UploadFile,
 } from "@/app/api/drive";
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+
+export const useFolderCreate = () =>
+  useMutation({
+    mutationFn: CreateFolder,
+  });
 
 export const useDriveUpload = () =>
   useMutation({

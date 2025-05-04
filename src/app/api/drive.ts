@@ -2,7 +2,7 @@
 
 import { drive_v3 } from "googleapis";
 import { Readable } from "stream";
-import { DownloadFileFromDrive, DriveFile, getDriveClient } from "../_lib/googledrive";
+import { DownloadFileFromDrive, getDriveClient } from "../_lib/googledrive";
 
 // TODO: Use env variable
 const ParentFolderId = "1Tj0eBH6Ih7CyXl2TueAWRd6z5dU030WT";
@@ -65,12 +65,18 @@ export async function listDriveFiles(folderId: string) {
   return fileLister.listDriveFiles(folderId);
 }
 
-export async function CreateFolder(name: string) {
+export async function CreateFolder({
+  name,
+  ParentDirectoryId,
+}: {
+  name: string;
+  ParentDirectoryId: string;
+}) {
   const drive = await getDriveClient();
   const fileMetadata = {
     name: name,
     mimeType: "application/vnd.google-apps.folder",
-    parents: [ParentFolderId],
+    parents: [ParentDirectoryId],
   };
   const res = await drive.files.create({
     requestBody: fileMetadata,
@@ -88,7 +94,7 @@ export async function UploadFile({
 }) {
   const drive = await getDriveClient();
   const fileMetadata = {
-    name: file.name,
+    name: file.name.split(".")[0],
     parents: [inFolderId],
   };
   const media = {
@@ -117,7 +123,10 @@ export async function GetFile(fileId: string, name?: string) {
   } catch (error: any) {
     if (error.response?.status === 404 && name) {
       // File not found, create a new one
-      const newFileId = await CreateFolder(name);
+      const newFileId = await CreateFolder({
+        name,
+        ParentDirectoryId: ParentFolderId,
+      });
       return { message: "File not found. Created a new folder.", newFileId };
     }
     throw error; // Re-throw other errors

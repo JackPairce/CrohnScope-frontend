@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { UseDriveList, useDriveUpload } from "./api";
+import { UseDriveList, useDriveUpload, useFolderCreate } from "./api";
 import DrawPreview from "./DrawPreview";
 import { matrix2File } from "./MaskUtils";
 import { Mask, Mode, modes, Tab } from "./types";
@@ -37,6 +37,7 @@ const queryClient = new QueryClient();
 export default function Index() {
   const [selectedImage, setSelectedImage] = useState<DriveFile | null>(null);
   const [loadedMasks, setLoadedMasks] = useState<drive_v3.Schema$File[]>([]);
+  const [subMasksFolderId, setSubMasksFolderId] = useState<string | null>(null);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -47,9 +48,13 @@ export default function Index() {
         <ImagesNavigate
           setSelectedImage={setSelectedImage}
           setLoadedMasks={setLoadedMasks}
+          setSubMasksFolderId={setSubMasksFolderId}
         />
         {selectedImage ? (
-          <SegmentationCanvas image={selectedImage} />
+          <SegmentationCanvas
+            image={selectedImage}
+            maskFolderId={subMasksFolderId}
+          />
         ) : (
           <div className="empty-state">
             <h2>Select an image</h2>
@@ -64,15 +69,18 @@ export default function Index() {
 function ImagesNavigate({
   setSelectedImage,
   setLoadedMasks,
+  setSubMasksFolderId,
 }: {
   setSelectedImage: (image: DriveFile | null) => void;
   setLoadedMasks: (masks: drive_v3.Schema$File[]) => void;
+  setSubMasksFolderId: (folderId: string | null) => void;
 }) {
   const [selectImage, setSelectImage] = useState<number>(NaN);
   const [images, setImages] = useState<DriveFile[]>([]);
   const [loadedMasksFolders, setLoadedMasksFolders] = useState<
     drive_v3.Schema$File[]
   >([]);
+  const [masksFolderId, setMasksFolderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +101,7 @@ function ImagesNavigate({
   const { mutateAsync: listFiles } = driveList.listWithData();
   const { mutateAsync: listFilesDrive } = driveList.listDriveFiles();
 
+  const { mutateAsync: createFolderAsync } = useFolderCreate();
   useEffect(() => {
     // get all images from the folder
     listFilesDrive(FolderID).then((fileListResponse) => {
@@ -114,24 +123,36 @@ function ImagesNavigate({
         setLoading(false);
         return;
       }
+      setMasksFolderId(masksFolderId);
 
       listFiles(imagesFolderId).then((fetchedImages) => {
         if (!fetchedImages) return;
         setImages(fetchedImages);
         setLoading(false);
-        fetchedImages.forEach((image) => {
-          console.log("image", image.name);
-        });
       });
       listFilesDrive(masksFolderId).then((fetchedMasks) => {
         if (!fetchedMasks) return;
+        console.log("Fetched masks", fetchedMasks);
+
         setLoadedMasksFolders(fetchedMasks);
       });
     });
   }, []);
 
   const handleImageSelection = (image: DriveFile, index: number) => {
-    // get image index
+    if (!masksFolderId) {
+      console.error("Masks folder not found");
+      return;
+    }
+    // create sub mask folder as image name
+    createFolderAsync({
+      name: image.name.split(".")[0],
+      ParentDirectoryId: masksFolderId,
+    }).then((folderId) => {
+      console.log("Created folder", folderId);
+      if (!folderId) return;
+      setSubMasksFolderId(folderId);
+    });
 
     setSelectedImage(image);
     setSelectImage(index);
@@ -187,7 +208,13 @@ function ImagesNavigate({
   );
 }
 
-function SegmentationCanvas({ image }: { image: DriveFile }) {
+function SegmentationCanvas({
+  image,
+  maskFolderId,
+}: {
+  image: DriveFile;
+  maskFolderId: string | null;
+}) {
   //   const baseRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const [imageData, setImageData] = useState<ImageData | null>(null);
@@ -288,11 +315,13 @@ function SegmentationCanvas({ image }: { image: DriveFile }) {
         <button
           className="save"
           onClick={async () => {
-            if (selectedTab === -1) return;
+            if (selectedTab === -1 || !maskFolderId) return;
             // TODO: replace with mask folder id
-            uploadFile({
-              file: await matrix2File(tabs[selectedTab].mask, image.name),
-              inFolderId: FolderID,
+            tabs.forEach(async (tab) => {
+              uploadFile({
+                file: await matrix2File(tab.mask, tab.name),
+                inFolderId: maskFolderId,
+              });
             });
           }}
         >
