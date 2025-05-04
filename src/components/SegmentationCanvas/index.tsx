@@ -7,6 +7,8 @@ import DrawPreview from "./DrawPreview";
 import { matrix2File } from "./MaskUtils";
 import { Mask, Mode, modes, Tab } from "./types";
 
+import type { DriveFile } from "@/app/_lib/googledrive";
+import { drive_v3 } from "googleapis";
 import "./styles.scss";
 
 // TODO: Use env variable
@@ -33,7 +35,8 @@ const datasetMetadataFile = "metadata.csv";
 const queryClient = new QueryClient();
 
 export default function Index() {
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedImage, setSelectedImage] = useState<DriveFile | null>(null);
+  const [loadedMasks, setLoadedMasks] = useState<drive_v3.Schema$File[]>([]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -41,7 +44,10 @@ export default function Index() {
         <header>
           <h1>Segmentation Canvas</h1>
         </header>
-        <ImagesNavigate setSelectedImage={setSelectedImage} />
+        <ImagesNavigate
+          setSelectedImage={setSelectedImage}
+          setLoadedMasks={setLoadedMasks}
+        />
         {selectedImage ? (
           <SegmentationCanvas image={selectedImage} />
         ) : (
@@ -57,37 +63,79 @@ export default function Index() {
 
 function ImagesNavigate({
   setSelectedImage,
+  setLoadedMasks,
 }: {
-  setSelectedImage: (image: File | null) => void;
+  setSelectedImage: (image: DriveFile | null) => void;
+  setLoadedMasks: (masks: drive_v3.Schema$File[]) => void;
 }) {
   const [selectImage, setSelectImage] = useState<number>(NaN);
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<DriveFile[]>([]);
+  const [loadedMasksFolders, setLoadedMasksFolders] = useState<
+    drive_v3.Schema$File[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files === null) return;
-    setImages((prev) => [...prev, ...Array.from(files)]);
+    setImages((prev) => [
+      ...prev,
+      ...Array.from(files).map((file) => ({
+        id: file.name, // Assign a unique ID, e.g., file name
+        mimeType: file.type,
+        name: file.name,
+        size: file.size,
+        lastModified: file.lastModified,
+      })),
+    ]);
   };
   const driveList = new UseDriveList();
   const { mutateAsync: listFiles } = driveList.listWithData();
-  //   const { mutateAsync: listFilesRaw } = driveList.listAsRawFiles();
   const { mutateAsync: listFilesDrive } = driveList.listDriveFiles();
 
   useEffect(() => {
     // get all images from the folder
-    listFilesDrive(FolderID).then((res) => {
-      const id = res?.find((file) => file.name === imagesFolder)?.id;
-      if (!id) return;
-      listFiles(id).then((res) => {
-        if (!res) return;
-        // convert to file
-        setImages(res);
+    listFilesDrive(FolderID).then((fileListResponse) => {
+      const imagesFolderId = fileListResponse?.find(
+        (file) => file.name === imagesFolder
+      )?.id;
+      const masksFolderId = fileListResponse?.find(
+        (file) => file.name === masksFolder
+      )?.id;
+      //   const datasetSchemaFileId = fileListResponse?.find(
+      //     (file) => file.name === datasetSchemaFile
+      //   )?.id;
+      //   const datasetMetadataFileId = fileListResponse?.find(
+      //     (file) => file.name === datasetMetadataFile
+      //   )?.id;
+      console.log("Downloading images from folder", imagesFolderId);
+      if (!imagesFolderId || !masksFolderId) {
+        console.error("Images or masks folder not found");
         setLoading(false);
+        return;
+      }
+
+      listFiles(imagesFolderId).then((fetchedImages) => {
+        if (!fetchedImages) return;
+        setImages(fetchedImages);
+        setLoading(false);
+        fetchedImages.forEach((image) => {
+          console.log("image", image.name);
+        });
+      });
+      listFilesDrive(masksFolderId).then((fetchedMasks) => {
+        if (!fetchedMasks) return;
+        setLoadedMasksFolders(fetchedMasks);
       });
     });
   }, []);
 
+  const handleImageSelection = (image: DriveFile, index: number) => {
+    // get image index
+
+    setSelectedImage(image);
+    setSelectImage(index);
+  };
   return (
     <aside>
       <label htmlFor="image-upload">Upload Images</label>
@@ -98,7 +146,9 @@ function ImagesNavigate({
         onChange={handleImageUpload}
       />
       {loading ? (
-        <p>Loading images...</p>
+        <div>
+          <div className="loader"></div>
+        </div>
       ) : (
         <>
           {images.length === 0 ? (
@@ -112,12 +162,9 @@ function ImagesNavigate({
                     className={selectImage === index ? "active" : ""}
                   >
                     <img
-                      src={URL.createObjectURL(image)}
+                      src={image.data ? URL.createObjectURL(image.data) : ""}
                       alt={image.name}
-                      onClick={() => {
-                        setSelectedImage(image);
-                        setSelectImage(index);
-                      }}
+                      onClick={() => handleImageSelection(image, index)}
                     />
                     <p>{image.name}</p>
                   </li>
@@ -140,7 +187,7 @@ function ImagesNavigate({
   );
 }
 
-function SegmentationCanvas({ image }: { image: File }) {
+function SegmentationCanvas({ image }: { image: DriveFile }) {
   //   const baseRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const [imageData, setImageData] = useState<ImageData | null>(null);
@@ -154,7 +201,7 @@ function SegmentationCanvas({ image }: { image: File }) {
 
   useEffect(() => {
     const img = new Image();
-    img.src = URL.createObjectURL(image);
+    img.src = image.data ? URL.createObjectURL(image.data) : "";
     img.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
@@ -310,7 +357,7 @@ function SegmentationCanvas({ image }: { image: File }) {
       </nav>
       <div className="canvas-container">
         <img
-          src={URL.createObjectURL(image)}
+          src={image.data ? URL.createObjectURL(image.data) : ""}
           alt={image.name}
           //   ref={baseRef}
           //   width={512}

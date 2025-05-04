@@ -11,13 +11,6 @@ export const useDriveUpload = () =>
     mutationFn: UploadFile,
   });
 
-function mutate<Variables, Result>(
-  fn: (variables: Variables) => Promise<Result>
-): UseMutationResult<Result, unknown, Variables> {
-  return useMutation({
-    mutationFn: fn,
-  });
-}
 export class UseDriveList {
   listDriveFiles() {
     return useMutation({
