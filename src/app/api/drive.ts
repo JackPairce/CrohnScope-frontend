@@ -40,12 +40,12 @@ class FileLister {
 
   async listWithData(folderId: string): Promise<File[]> {
     const driveFiles = await this.listDriveFiles(folderId);
-    // return Promise.all(
-    //   driveFiles.map(
-    //     async (file) => await DownloadFileFromDrive(this.driveClient, file.id!)
-    //   )
-    // );
-    return [await DownloadFileFromDrive(this.driveClient, driveFiles[0].id!)];
+    return Promise.all(
+      driveFiles.map(
+        async (file) => await DownloadFileFromDrive(this.driveClient, file.id!)
+      )
+    );
+    // return [await DownloadFileFromDrive(this.driveClient, driveFiles[0].id!)];
   }
 }
 export async function listWithData(folderId: string) {
