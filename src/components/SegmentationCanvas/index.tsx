@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { UseDriveList, useDriveUpload } from "./api";
 import DrawPreview from "./DrawPreview";
-import { drawMaskToCanvas, matrix2File } from "./MaskUtils";
-import { Mask, Mode, Tab } from "./types";
+import { matrix2File } from "./MaskUtils";
+import { Mask, Mode, modes, Tab } from "./types";
 
 import "./styles.scss";
 
@@ -40,10 +40,6 @@ export default function Index() {
       <main>
         <header>
           <h1>Segmentation Canvas</h1>
-          <p>
-            This is a segmentation canvas. You can draw on the canvas and save
-            the mask.
-          </p>
         </header>
         <ImagesNavigate setSelectedImage={setSelectedImage} />
         {selectedImage ? (
@@ -64,8 +60,9 @@ function ImagesNavigate({
 }: {
   setSelectedImage: (image: File | null) => void;
 }) {
+  const [selectImage, setSelectImage] = useState<number>(NaN);
   const [images, setImages] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -79,7 +76,6 @@ function ImagesNavigate({
 
   useEffect(() => {
     // get all images from the folder
-    setLoading(true);
     listFilesDrive(FolderID).then((res) => {
       const id = res?.find((file) => file.name === imagesFolder)?.id;
       if (!id) return;
@@ -94,7 +90,6 @@ function ImagesNavigate({
 
   return (
     <aside>
-      <h2>Images</h2>
       <label htmlFor="image-upload">Upload Images</label>
       <input
         type="file"
@@ -112,12 +107,16 @@ function ImagesNavigate({
             <>
               <ul>
                 {images.map((image, index) => (
-                  <li key={index}>
+                  <li
+                    key={index}
+                    className={selectImage === index ? "active" : ""}
+                  >
                     <img
                       src={URL.createObjectURL(image)}
                       alt={image.name}
                       onClick={() => {
                         setSelectedImage(image);
+                        setSelectImage(index);
                       }}
                     />
                     <p>{image.name}</p>
@@ -215,24 +214,32 @@ function SegmentationCanvas({ image }: { image: File }) {
   return (
     <>
       <nav className="tools">
+        <div className="tools-buttons">
+          <div className="modes">
+            {modes.map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={mode === m ? "active" : ""}
+              >
+                {m === "draw" ? "🖌️" : "🧼"}
+              </button>
+            ))}
+          </div>
+          <label className="brush-size">
+            Brush Size:
+            <input
+              type="range"
+              min={10}
+              max={100}
+              value={brushSize}
+              onChange={(e) => setBrushSize(Number(e.target.value))}
+            />
+            <span>{brushSize}</span>
+          </label>
+        </div>
         <button
-          onClick={() =>
-            setMode((prev) => (prev === "draw" ? "erase" : "draw"))
-          }
-        >
-          {mode === "draw" ? "🧼 Erase" : "🖌️ Draw"}
-        </button>
-        <label>
-          Brush Size:
-          <input
-            type="range"
-            min={10}
-            max={100}
-            value={brushSize}
-            onChange={(e) => setBrushSize(Number(e.target.value))}
-          />
-        </label>
-        <button
+          className="save"
           onClick={async () => {
             if (selectedTab === -1) return;
             // TODO: replace with mask folder id
@@ -246,82 +253,60 @@ function SegmentationCanvas({ image }: { image: File }) {
         </button>
       </nav>
       <nav className="tabs">
-        {tabs.map((tab, index) => (
+        <div>
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              className={selectedTab === index ? "active" : ""}
+              onClick={() => {
+                setToggleUpdate(true);
+                setSelectedTab(index);
+                setToggleUpdate(false);
+              }}
+              onDoubleClick={() => {
+                setTabs((prev) => {
+                  prev[index].isRename = true;
+                  return [...prev];
+                });
+              }}
+            >
+              {tab.isRename ? (
+                <input
+                  type="text"
+                  value={tab.name}
+                  onChange={(e) => {
+                    setTabs((prev) => {
+                      prev[index].name = e.target.value;
+                      return [...prev];
+                    });
+                  }}
+                  onBlur={() => {
+                    setTabs((prev) => {
+                      prev[index].isRename = false;
+                      return [...prev];
+                    });
+                  }}
+                />
+              ) : (
+                <span>{tab.name}</span>
+              )}
+            </button>
+          ))}
+          {/* add button */}
           <button
-            key={index}
-            style={{
-              backgroundColor: selectedTab === index ? "blue" : "gray",
-              color: "white",
-              margin: "0.5rem",
-              padding: "0.5rem",
-              border: "none",
-              borderRadius: "0.5rem",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: "bold",
-              transition: "background-color 0.3s",
-            }}
+            className="add-tab"
             onClick={() => {
-              setToggleUpdate(true);
-              setSelectedTab(index);
-              setToggleUpdate(false);
+              setTabs((prev) => [
+                ...prev,
+                {
+                  name: `New Tab ${prev.length + 1}`,
+                  mask: [],
+                  isRename: true,
+                },
+              ]);
             }}
-            onDoubleClick={() => {
-              setTabs((prev) => {
-                prev[index].isRename = true;
-                return [...prev];
-              });
-            }}
-          >
-            {tab.isRename ? (
-              <input
-                type="text"
-                value={tab.name}
-                onChange={(e) => {
-                  setTabs((prev) => {
-                    prev[index].name = e.target.value;
-                    return [...prev];
-                  });
-                }}
-                onBlur={() => {
-                  setTabs((prev) => {
-                    prev[index].isRename = false;
-                    return [...prev];
-                  });
-                }}
-              />
-            ) : (
-              <span>{tab.name}</span>
-            )}
-          </button>
-        ))}
-        {/* add button */}
-        <button
-          style={{
-            backgroundColor: "green",
-            color: "white",
-            margin: "0.5rem",
-            padding: "0.5rem",
-            border: "none",
-            borderRadius: "0.5rem",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontWeight: "bold",
-            transition: "background-color 0.3s",
-          }}
-          onClick={() => {
-            setTabs((prev) => [
-              ...prev,
-              {
-                name: `New Tab ${prev.length + 1}`,
-                mask: [],
-                isRename: true,
-              },
-            ]);
-          }}
-        >
-          +
-        </button>
+          ></button>
+        </div>
       </nav>
       <div className="canvas-container">
         <img
