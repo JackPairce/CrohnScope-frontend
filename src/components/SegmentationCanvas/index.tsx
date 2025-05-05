@@ -12,9 +12,9 @@ import DrawPreview from "./DrawPreview";
 import { matrix2File } from "./MaskUtils";
 import { Mask, Mode, modes, Tab } from "./types";
 
-import type { DriveFile } from "@/app/_lib/googledrive";
 import { drive_v3 } from "googleapis";
 import "./styles.scss";
+import { DriveFileData } from "@/app/_lib/googledrive";
 
 // TODO: Use env variable
 const FolderID = "1AA8UCcJfSOo4h7wagO24ShEwJEVop43s";
@@ -40,7 +40,9 @@ const datasetMetadataFile = "metadata.csv";
 const queryClient = new QueryClient();
 
 export default function Index() {
-  const [selectedImage, setSelectedImage] = useState<DriveFile | null>(null);
+  const [selectedImage, setSelectedImage] = useState<DriveFileData | null>(
+    null,
+  );
   const [loadedMasks, setLoadedMasks] = useState<drive_v3.Schema$File[]>([]);
   const [subMasksFolderId, setSubMasksFolderId] = useState<string | null>(null);
 
@@ -76,12 +78,12 @@ function ImagesNavigate({
   setLoadedMasks,
   setSubMasksFolderId,
 }: {
-  setSelectedImage: (image: DriveFile | null) => void;
+  setSelectedImage: (image: DriveFileData | null) => void;
   setLoadedMasks: (masks: drive_v3.Schema$File[]) => void;
   setSubMasksFolderId: (folderId: string | null) => void;
 }) {
   const [selectImage, setSelectImage] = useState<number>(NaN);
-  const [images, setImages] = useState<DriveFile[]>([]);
+  const [images, setImages] = useState<DriveFileData[]>([]);
   const [loadedMasksFolders, setLoadedMasksFolders] = useState<
     drive_v3.Schema$File[]
   >([]);
@@ -93,13 +95,15 @@ function ImagesNavigate({
     if (files === null) return;
     setImages((prev) => [
       ...prev,
-      ...Array.from(files).map((file) => ({
-        id: file.name, // Assign a unique ID, e.g., file name
-        mimeType: file.type,
-        name: file.name,
-        size: file.size,
-        lastModified: file.lastModified,
-      })),
+      ...Array.from(files).map(
+        (file) =>
+          ({
+            id: file.name, // Assign a unique ID, e.g., file name
+            mimeType: file.type,
+            name: file.name,
+            src: URL.createObjectURL(file),
+          }) as DriveFileData,
+      ),
     ]);
   };
   const driveList = new UseDriveList();
@@ -111,10 +115,10 @@ function ImagesNavigate({
     // get all images from the folder
     listFilesDrive(FolderID).then((fileListResponse) => {
       const imagesFolderId = fileListResponse?.find(
-        (file) => file.name === imagesFolder
+        (file) => file.name === imagesFolder,
       )?.id;
       const masksFolderId = fileListResponse?.find(
-        (file) => file.name === masksFolder
+        (file) => file.name === masksFolder,
       )?.id;
       //   const datasetSchemaFileId = fileListResponse?.find(
       //     (file) => file.name === datasetSchemaFile
@@ -142,7 +146,7 @@ function ImagesNavigate({
     });
   }, []);
 
-  const handleImageSelection = (image: DriveFile, index: number) => {
+  const handleImageSelection = (image: DriveFileData, index: number) => {
     if (!masksFolderId) {
       console.error("Masks folder not found");
       return;
@@ -151,7 +155,7 @@ function ImagesNavigate({
     listFilesDrive(masksFolderId).then((fileListResponse) => {
       const foldername = image.name.split(".")[0];
       const imagesFolderId = fileListResponse?.find(
-        (file) => file.name === foldername
+        (file) => file.name === foldername,
       )?.id;
       if (imagesFolderId) return;
       createFolderAsync({
@@ -192,7 +196,7 @@ function ImagesNavigate({
                     className={selectImage === index ? "active" : ""}
                   >
                     <img
-                      src={image.data ? URL.createObjectURL(image.data) : ""}
+                      src={image.src}
                       alt={image.name}
                       onClick={() => handleImageSelection(image, index)}
                     />
@@ -221,10 +225,9 @@ function SegmentationCanvas({
   image,
   maskFolderId,
 }: {
-  image: DriveFile;
+  image: DriveFileData;
   maskFolderId: string | null;
 }) {
-  //   const baseRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const [imageData, setImageData] = useState<ImageData | null>(null);
   const [tabs, setTabs] = useState<Tab[]>([]);
@@ -241,7 +244,7 @@ function SegmentationCanvas({
 
   useEffect(() => {
     const img = new Image();
-    img.src = image.data ? URL.createObjectURL(image.data) : "";
+    img.src = image.src;
     img.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
@@ -259,9 +262,9 @@ function SegmentationCanvas({
               name,
               isRename: false,
               mask: Array.from({ length: data.height }, () =>
-                Array.from({ length: data.width }, () => 0)
+                Array.from({ length: data.width }, () => 0),
               ),
-            }))
+            })),
         );
         setSelectedTab(0);
       }
@@ -281,9 +284,9 @@ function SegmentationCanvas({
           name,
           isRename: false,
           mask: Array.from({ length: height }, () =>
-            Array.from({ length: width }, () => 0)
+            Array.from({ length: width }, () => 0),
           ),
-        }))
+        })),
     );
   }, [overlayRef.current]);
 
@@ -336,7 +339,7 @@ function SegmentationCanvas({
             await Promise.all(
               filestodelete.map(async (file) => {
                 await deleteFile(file.id!);
-              })
+              }),
             );
             await Promise.all(
               tabs.map(async (tab) => {
@@ -344,7 +347,7 @@ function SegmentationCanvas({
                   file: await matrix2File(tab.mask, tab.name),
                   inFolderId: maskFolderId,
                 });
-              })
+              }),
             );
             setIsSaving(false);
           }}
@@ -410,7 +413,7 @@ function SegmentationCanvas({
       </nav>
       <div className="canvas-container">
         <img
-          src={image.data ? URL.createObjectURL(image.data) : ""}
+          src={image.src}
           alt={image.name}
           //   ref={baseRef}
           //   width={512}
