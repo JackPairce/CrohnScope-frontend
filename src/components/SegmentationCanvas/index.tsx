@@ -295,6 +295,7 @@ function SegmentationCanvas({
   const saveMasks = async () => {
     if (selectedTab === -1 || !maskFolderId) return;
     setIsSaving(true);
+    // TODO: Move the job to the backend
     // get file in the folder
     const filestodelete = await listFilesDrive(maskFolderId);
     // delete all files in the folder

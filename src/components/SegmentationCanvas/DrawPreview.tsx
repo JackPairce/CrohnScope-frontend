@@ -50,13 +50,9 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       const scaleX = drawPreviewCanvasRef.current.width / rect.width;
       const scaleY = drawPreviewCanvasRef.current.height / rect.height;
       setLastPoint({
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY,
+        x: (e.clientX - rect.left) * (mode == "draw" ? scaleX : 1),
+        y: (e.clientY - rect.top) * (mode == "draw" ? scaleY : 1),
       });
-      // setLastPoint({
-      //   x: e.clientX - rect.left,
-      //   y: e.clientY - rect.top,
-      // });
     };
 
     const stopDrawing = async () => {
@@ -76,13 +72,9 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       const scaleX = drawPreviewCanvasRef.current!.width / rect.width;
       const scaleY = drawPreviewCanvasRef.current!.height / rect.height;
       drawingPath.push({
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY,
+        x: (e.clientX - rect.left) * (mode == "draw" ? scaleX : 1),
+        y: (e.clientY - rect.top) * (mode == "draw" ? scaleY : 1),
       });
-      // drawingPath.push({
-      //   x: e.clientX - rect.left,
-      //   y: e.clientY - rect.top,
-      // });
     };
 
     const draw = (e: React.MouseEvent) => {
@@ -182,30 +174,26 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
     const handleResize = () => {
       if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
         return;
-      drawPreviewCanvasRef.current.width = drawPreviewCanvasRef.current.width;
-      drawPreviewCanvasRef.current.height = drawPreviewCanvasRef.current.height;
-      eraserCanvasPreviewRef.current.width = drawPreviewCanvasRef.current.width;
-      eraserCanvasPreviewRef.current.height =
-        drawPreviewCanvasRef.current.height;
+
+      const eraserPreviewRect =
+        eraserCanvasPreviewRef.current.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      drawPreviewCanvasRef.current.width = eraserPreviewRect.width * dpr;
+      drawPreviewCanvasRef.current.height = eraserPreviewRect.height * dpr;
+      eraserCanvasPreviewRef.current.width = eraserPreviewRect.width * dpr;
+      eraserCanvasPreviewRef.current.height = eraserPreviewRect.height * dpr;
+      let ctx = drawPreviewCanvasRef.current.getContext("2d");
+      if (!ctx) return;
+      ctx.scale(dpr, dpr);
+      ctx = eraserCanvasPreviewRef.current.getContext("2d");
+      if (!ctx) return;
+      ctx.scale(dpr, dpr);
     };
 
     useEffect(() => {
       if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
         return;
-      // const drawPreviewRect =
-      //   drawPreviewCanvasRef.current.getBoundingClientRect();
-      // const dpr = window.devicePixelRatio || 1;
-      // drawPreviewCanvasRef.current.width = drawPreviewRect.width * dpr;
-      // drawPreviewCanvasRef.current.height = drawPreviewRect.height * dpr;
-      // eraserCanvasPreviewRef.current.width = drawPreviewRect.width * dpr;
-      // eraserCanvasPreviewRef.current.height = drawPreviewRect.height * dpr;
-      // let ctx = drawPreviewCanvasRef.current.getContext("2d");
-      // if (!ctx) return;
-      // ctx.scale(dpr, dpr);
-      // ctx = eraserCanvasPreviewRef.current.getContext("2d");
-      // if (!ctx) return;
-      // ctx.scale(dpr, dpr);
-
+      handleResize();
       drawPreviewCTX.current = drawPreviewCanvasRef.current.getContext("2d", {
         willReadFrequently: true,
       });
@@ -254,8 +242,8 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
         />
         <canvas
           ref={eraserCanvasPreviewRef}
-          width={currentMask.width}
-          height={currentMask.height}
+          width={drawPreviewCanvasRef.current?.width || currentMask.width}
+          height={drawPreviewCanvasRef.current?.height || currentMask.height}
           style={{
             position: "absolute",
             top: 0,

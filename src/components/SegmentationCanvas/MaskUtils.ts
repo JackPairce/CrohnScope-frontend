@@ -31,42 +31,6 @@ export const CanvasToMask = (canvas: HTMLCanvasElement): Promise<Mask> => {
     };
   });
 };
-
-// export const updateMask = (
-//   visibleCanvas: HTMLCanvasElement,
-//   currentMask: Mask
-// ) => {
-//   const width = currentMask.width;
-//   const height = currentMask.height;
-
-//   // Create an offscreen canvas at original resolution
-//   const tempCanvas = document.createElement("canvas");
-//   tempCanvas.width = width;
-//   tempCanvas.height = height;
-//   const tempCtx = tempCanvas.getContext("2d");
-//   if (!tempCtx) throw new Error("Failed to get canvas context");
-
-//   // Scale visible canvas into original resolution
-//   tempCtx.drawImage(visibleCanvas, 0, 0, width, height);
-
-//   const data = tempCtx.getImageData(0, 0, width, height);
-//   const newMask = NewMask(width, height);
-
-//   for (let i = 0; i < width * height; i++) {
-//     const r = data.data[i * 4 + 0];
-//     const g = data.data[i * 4 + 1];
-//     const b = data.data[i * 4 + 2];
-//     const a = data.data[i * 4 + 3];
-//     const x = i % width;
-//     const y = Math.floor(i / width);
-//     if (a > 0 && r > 0 && g === 0 && b === 0) {
-//       newMask[y][x] = 1;
-//     }
-//   }
-
-//   return newMask;
-// };
-
 export function drawMaskToCanvas(
   mask: Mask,
   canvas: HTMLCanvasElement,
@@ -89,14 +53,12 @@ export function drawMaskToCanvas(
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   // draw mask on canvas
   ctx.drawImage(mask, 0, 0, canvas.width, canvas.height);
-  console.log("drawMaskToCanvas", colorMap);
 
   if (!ctx) throw new Error("Failed to get canvas context");
   // get image data
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
   for (const [key, value] of Object.entries(colorMap)) {
-    console.log("key", key, "value", value);
     const [R_target, G_target, B_target, _] = key.split(",").map(Number);
     const [R_replace, G_replace, B_replace, A_replace] = value
       .split(",")
