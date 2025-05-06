@@ -9,15 +9,8 @@ import {
   useFolderCreate,
 } from "./api";
 import DrawPreview from "./DrawPreview";
-import { ExtractRealMask, Mask2File, NewMask } from "./MaskUtils";
-import {
-  CellsNames,
-  labelMaskPairs,
-  LoadedMask,
-  Mode,
-  modes,
-  Tab,
-} from "./types";
+import { ExtractRealMask, Img2Mask, Mask2File, NewMask } from "./MaskUtils";
+import { CellsNames, labelMaskPairs, Mode, modes, Tab } from "./types";
 
 import { DriveFileData } from "@/app/_lib/googledrive";
 import { drive_v3 } from "googleapis";
@@ -169,18 +162,10 @@ function ImagesNavigate({
     // get all files in the folder
     getFileListData(imagesFolderId).then(async (fetchedMasks) =>
       Promise.all(
-        fetchedMasks.map(async (mask) => {
-          const img = new Image();
-          img.src = mask.src;
-          return await new Promise((resolve: (value: LoadedMask) => void) => {
-            img.onload = () => {
-              resolve({
-                name: mask.name,
-                mask: img,
-              });
-            };
-          });
-        })
+        fetchedMasks.map(async (mask) => ({
+          name: mask.name,
+          mask: await Img2Mask(mask.src),
+        }))
       ).then((resolvedMasks) =>
         setLoadedMasks(
           resolvedMasks.reduce((acc, imageMatrix) => {

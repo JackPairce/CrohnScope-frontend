@@ -52,6 +52,13 @@ export function drawMaskToCanvas(
   // clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   // draw mask on canvas
+  if (mask instanceof Promise) {
+    mask.then((mask) => {
+      drawMaskToCanvas(mask, canvas, colorMap);
+    });
+    return;
+  }
+
   ctx.drawImage(mask, 0, 0, canvas.width, canvas.height);
 
   if (!ctx) throw new Error("Failed to get canvas context");
@@ -113,5 +120,9 @@ export async function Mask2File(mask: Mask, filename: string): Promise<File> {
 export function Img2Mask(imageSrc: string) {
   const img = new Image();
   img.src = imageSrc;
-  return img;
+  return new Promise<Mask>((resolve) => {
+    img.onload = () => {
+      resolve(img);
+    };
+  });
 }
