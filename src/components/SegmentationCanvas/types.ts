@@ -8,10 +8,30 @@ export type Shape = {
   mode: Mode;
 };
 
-export type Mask = (0 | 1)[][];
+export type Mask = HTMLImageElement;
 
-export type Tab = {
+export type LoadedMask = {
   name: string;
   mask: Mask;
+};
+
+export type Tab = LoadedMask & {
   isRename: boolean;
+};
+
+export enum CellsNames {
+  "Cryptes",
+  "Granulom",
+}
+
+export type DatasetSchema = {
+  image_id: string;
+  cell_id: string;
+  cell_state: "healthy" | "unhealthy";
+  cell_name: CellsNames;
+  mask_path: string;
+};
+
+export type labelMaskPairs = {
+  [label: string]: Mask;
 };
