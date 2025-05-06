@@ -13,7 +13,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { drawMaskToCanvas, updateMask } from "./MaskUtils";
+import {
+  CanvasToMask,
+  colorMappingToUser,
+  drawMaskToCanvas,
+} from "./MaskUtils";
 
 const Red = "rgba(255, 0, 0, 1)";
 const White = "rgba(255, 255, 255, 0)";
@@ -25,22 +29,10 @@ type Props = {
   mode: Mode;
   mask: Mask;
   setMask: (mask: Mask) => void;
-  toggleupdate: boolean;
-  setToggleUpdate: (toggle: boolean) => void;
 };
 
 const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
-  (
-    {
-      brushSize,
-      mode,
-      mask: currentMask,
-      setMask,
-      toggleupdate,
-      setToggleUpdate,
-    },
-    ref
-  ) => {
+  ({ brushSize, mode, mask: currentMask, setMask }, ref) => {
     const drawPreviewCanvasRef = useRef<HTMLCanvasElement>(null);
     const eraserCanvasPreviewRef = useRef<HTMLCanvasElement>(null);
     const drawPreviewCTX = useRef<CanvasRenderingContext2D | null>(null);
@@ -55,25 +47,23 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       setIsDrawing(true);
       if (!drawPreviewCanvasRef.current) return;
       const rect = drawPreviewCanvasRef.current.getBoundingClientRect();
-      setLastPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+      const scaleX = drawPreviewCanvasRef.current.width / rect.width;
+      const scaleY = drawPreviewCanvasRef.current.height / rect.height;
+      setLastPoint({
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+      });
+      // setLastPoint({
+      //   x: e.clientX - rect.left,
+      //   y: e.clientY - rect.top,
+      // });
     };
 
-    const stopDrawing = () => {
+    const stopDrawing = async () => {
       if (!isDrawing) return;
       setIsDrawing(false);
       setLastPoint(null);
-      setMask(
-        updateMask(
-          // {
-          //   points: drawingPath,
-          //   mode,
-          // },
-          drawPreviewCTX.current,
-          currentMask
-          // drawPreviewCanvasRef.current!
-          // drawShape
-        )
-      );
+      setMask(await CanvasToMask(drawPreviewCanvasRef.current!));
       drawingPath = [];
     };
 
@@ -83,13 +73,16 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
 
     const addPoint = (e: React.MouseEvent) => {
       const rect = drawPreviewCanvasRef.current!.getBoundingClientRect();
+      const scaleX = drawPreviewCanvasRef.current!.width / rect.width;
+      const scaleY = drawPreviewCanvasRef.current!.height / rect.height;
       drawingPath.push({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
       });
-      // get last one pushed
-      // const lastPoint = drawingPath[drawingPath.length - 1];
-      // console.log("lastPoint", lastPoint);
+      // drawingPath.push({
+      //   x: e.clientX - rect.left,
+      //   y: e.clientY - rect.top,
+      // });
     };
 
     const draw = (e: React.MouseEvent) => {
@@ -97,42 +90,26 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       if (!isDrawing) return;
       addPoint(e);
       renderCurrentPath(drawingPath);
-      // each 10ms update the mask
-      // if (!toggleupdate && mode === "erase") {
-      //   setToggleUpdate(true);
-      //   setTimeout(() => {
-      //     setToggleUpdate(false);
-      //     setMask(
-      //       updateMask(
-      //         {
-      //           points: drawingPath,
-      //           mode,
-      //         },
-      //         currentMask,
-      //         drawShape
-      //       )
-      //     );
-      //   }, 10);
-      // }
     };
 
     const renderCurrentPath = (currentPath: Point[] = []) => {
-      if (!drawPreviewCTX.current || !drawPreviewCanvasRef.current) return;
+      if (!drawPreviewCanvasRef.current) return;
 
       // Draw current one in progress
       if (currentPath.length > 1)
         drawShape(
-          drawPreviewCTX.current,
+          drawPreviewCanvasRef.current,
           { points: currentPath, mode } as Shape,
           mode === "draw" ? Red : White
         );
     };
 
     const drawShape = (
-      ctx: CanvasRenderingContext2D | null,
+      canvas: HTMLCanvasElement,
       shape: Shape,
       fill: string
     ) => {
+      const ctx = canvas.getContext("2d");
       if (!ctx) return;
       if (shape.mode === "draw") {
         if (shape.points.length < 1) return;
@@ -202,22 +179,32 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
 
+    const handleResize = () => {
+      if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
+        return;
+      drawPreviewCanvasRef.current.width = drawPreviewCanvasRef.current.width;
+      drawPreviewCanvasRef.current.height = drawPreviewCanvasRef.current.height;
+      eraserCanvasPreviewRef.current.width = drawPreviewCanvasRef.current.width;
+      eraserCanvasPreviewRef.current.height =
+        drawPreviewCanvasRef.current.height;
+    };
+
     useEffect(() => {
       if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
         return;
-      const drawPreviewRect =
-        drawPreviewCanvasRef.current.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      drawPreviewCanvasRef.current.width = drawPreviewRect.width * dpr;
-      drawPreviewCanvasRef.current.height = drawPreviewRect.height * dpr;
-      eraserCanvasPreviewRef.current.width = drawPreviewRect.width * dpr;
-      eraserCanvasPreviewRef.current.height = drawPreviewRect.height * dpr;
-      let ctx = drawPreviewCanvasRef.current.getContext("2d");
-      if (!ctx) return;
-      ctx.scale(dpr, dpr);
-      ctx = eraserCanvasPreviewRef.current.getContext("2d");
-      if (!ctx) return;
-      ctx.scale(dpr, dpr);
+      // const drawPreviewRect =
+      //   drawPreviewCanvasRef.current.getBoundingClientRect();
+      // const dpr = window.devicePixelRatio || 1;
+      // drawPreviewCanvasRef.current.width = drawPreviewRect.width * dpr;
+      // drawPreviewCanvasRef.current.height = drawPreviewRect.height * dpr;
+      // eraserCanvasPreviewRef.current.width = drawPreviewRect.width * dpr;
+      // eraserCanvasPreviewRef.current.height = drawPreviewRect.height * dpr;
+      // let ctx = drawPreviewCanvasRef.current.getContext("2d");
+      // if (!ctx) return;
+      // ctx.scale(dpr, dpr);
+      // ctx = eraserCanvasPreviewRef.current.getContext("2d");
+      // if (!ctx) return;
+      // ctx.scale(dpr, dpr);
 
       drawPreviewCTX.current = drawPreviewCanvasRef.current.getContext("2d", {
         willReadFrequently: true,
@@ -230,20 +217,19 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
 
     useEffect(() => {
       if (!drawPreviewCanvasRef.current) return;
-      drawMaskToCanvas(currentMask, drawPreviewCTX.current, {
-        0: [255, 255, 255, 0],
-        1: [255, 0, 0, 255],
-      });
-    }, [currentMask, toggleupdate]);
-
-    if (currentMask.length === 0) return null;
+      drawMaskToCanvas(
+        currentMask,
+        drawPreviewCanvasRef.current,
+        colorMappingToUser
+      );
+    }, [currentMask]);
 
     return (
       <>
         <canvas
           ref={drawPreviewCanvasRef}
-          width={currentMask[0].length}
-          height={currentMask.length}
+          width={currentMask.width}
+          height={currentMask.height}
           style={{
             position: "absolute",
             left: 0,
@@ -251,9 +237,9 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
             zIndex: 2,
 
             border: "1px solid black",
-            // cursor: "crosshair",
             cursor: mode === "erase" && mouseInCanvas ? "none" : "crosshair",
             opacity: ".5",
+            // imageRendering: "pixelated",
           }}
           onMouseDown={startDrawing}
           onMouseUp={stopDrawing}
@@ -264,18 +250,21 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
             setMouseInCanvas(false);
             clearBrushPreview();
           }}
+          onResize={handleResize}
         />
         <canvas
           ref={eraserCanvasPreviewRef}
-          width={currentMask[0].length}
-          height={currentMask.length}
+          width={currentMask.width}
+          height={currentMask.height}
           style={{
             position: "absolute",
             top: 0,
             left: 0,
             zIndex: 3,
             pointerEvents: "none",
+            // imageRendering: "pixelated",
           }}
+          onResize={handleResize}
         />
       </>
     );

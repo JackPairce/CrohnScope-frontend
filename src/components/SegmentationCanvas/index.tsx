@@ -9,28 +9,23 @@ import {
   useFolderCreate,
 } from "./api";
 import DrawPreview from "./DrawPreview";
-import { matrix2File } from "./MaskUtils";
-import { Mask, Mode, modes, Tab } from "./types";
+import { ExtractRealMask, Mask2File, NewMask } from "./MaskUtils";
+import {
+  CellsNames,
+  labelMaskPairs,
+  LoadedMask,
+  Mode,
+  modes,
+  Tab,
+} from "./types";
 
-import { drive_v3 } from "googleapis";
-import "./styles.scss";
 import { DriveFileData } from "@/app/_lib/googledrive";
+import { drive_v3 } from "googleapis";
+import Loader from "../loader";
+import "./styles.scss";
 
 // TODO: Use env variable
 const FolderID = "1AA8UCcJfSOo4h7wagO24ShEwJEVop43s";
-
-enum CellsNames {
-  "Cryptes",
-  "Granulom",
-}
-
-type DatasetSchema = {
-  image_id: string;
-  cell_id: string;
-  cell_state: "healthy" | "unhealthy";
-  cell_name: CellsNames;
-  mask_path: string;
-};
 
 const imagesFolder = "images";
 const masksFolder = "masks";
@@ -41,9 +36,9 @@ const queryClient = new QueryClient();
 
 export default function Index() {
   const [selectedImage, setSelectedImage] = useState<DriveFileData | null>(
-    null,
+    null
   );
-  const [loadedMasks, setLoadedMasks] = useState<drive_v3.Schema$File[]>([]);
+  const [loadedMasks, setLoadedMasks] = useState<labelMaskPairs | null>(null);
   const [subMasksFolderId, setSubMasksFolderId] = useState<string | null>(null);
 
   return (
@@ -58,10 +53,15 @@ export default function Index() {
           setSubMasksFolderId={setSubMasksFolderId}
         />
         {selectedImage ? (
-          <SegmentationCanvas
-            image={selectedImage}
-            maskFolderId={subMasksFolderId}
-          />
+          loadedMasks ? (
+            <SegmentationCanvas
+              image={selectedImage}
+              maskFolderId={subMasksFolderId}
+              loadedMasks={loadedMasks}
+            />
+          ) : (
+            <Loader />
+          )
         ) : (
           <div className="empty-state">
             <h2>Select an image</h2>
@@ -79,7 +79,7 @@ function ImagesNavigate({
   setSubMasksFolderId,
 }: {
   setSelectedImage: (image: DriveFileData | null) => void;
-  setLoadedMasks: (masks: drive_v3.Schema$File[]) => void;
+  setLoadedMasks: (masks: labelMaskPairs | null) => void;
   setSubMasksFolderId: (folderId: string | null) => void;
 }) {
   const [selectImage, setSelectImage] = useState<number>(NaN);
@@ -102,74 +102,99 @@ function ImagesNavigate({
             mimeType: file.type,
             name: file.name,
             src: URL.createObjectURL(file),
-          }) as DriveFileData,
+          } as DriveFileData)
       ),
     ]);
   };
-  const driveList = new UseDriveList();
-  const { mutateAsync: listFiles } = driveList.listWithData();
-  const { mutateAsync: listFilesDrive } = driveList.listDriveFiles();
 
+  const driveList = new UseDriveList();
+  const { mutateAsync: getFileListData } = driveList.listWithData();
+  const { mutateAsync: retrieveDriveFileList } = driveList.listDriveFiles();
   const { mutateAsync: createFolderAsync } = useFolderCreate();
+
   useEffect(() => {
     // get all images from the folder
-    listFilesDrive(FolderID).then((fileListResponse) => {
+    retrieveDriveFileList(FolderID).then((fileListResponse) => {
       const imagesFolderId = fileListResponse?.find(
-        (file) => file.name === imagesFolder,
+        (file) => file.name === imagesFolder
       )?.id;
-      const masksFolderId = fileListResponse?.find(
-        (file) => file.name === masksFolder,
+      const masksDirectoryId = fileListResponse?.find(
+        (file) => file.name === masksFolder
       )?.id;
-      //   const datasetSchemaFileId = fileListResponse?.find(
-      //     (file) => file.name === datasetSchemaFile
-      //   )?.id;
-      //   const datasetMetadataFileId = fileListResponse?.find(
-      //     (file) => file.name === datasetMetadataFile
-      //   )?.id;
-      console.log("Downloading images from folder", imagesFolderId);
-      if (!imagesFolderId || !masksFolderId) {
+      if (!imagesFolderId || !masksDirectoryId) {
         console.error("Images or masks folder not found");
         setLoading(false);
         return;
       }
-      setMasksFolderId(masksFolderId);
+      setMasksFolderId(masksDirectoryId);
 
-      listFiles(imagesFolderId).then((fetchedImages) => {
+      // get all images from the folder
+      getFileListData(imagesFolderId).then((fetchedImages) => {
         if (!fetchedImages) return;
         setImages(fetchedImages);
         setLoading(false);
       });
-      listFilesDrive(masksFolderId).then((fetchedMasks) => {
-        if (!fetchedMasks) return;
-        setLoadedMasksFolders(fetchedMasks);
-      });
     });
   }, []);
 
-  const handleImageSelection = (image: DriveFileData, index: number) => {
+  useEffect(() => {
+    if (!masksFolderId) return;
+    // get all masks from the folder
+    retrieveDriveFileList(masksFolderId).then((fetchedMasks) => {
+      if (!fetchedMasks) return;
+      setLoadedMasksFolders(fetchedMasks);
+    });
+  }, [masksFolderId]);
+
+  const handleImageSelection = async (image: DriveFileData, index: number) => {
     if (!masksFolderId) {
       console.error("Masks folder not found");
       return;
     }
+    setLoadedMasks(null);
     // create sub mask folder as image name
-    listFilesDrive(masksFolderId).then((fileListResponse) => {
-      const foldername = image.name.split(".")[0];
-      const imagesFolderId = fileListResponse?.find(
-        (file) => file.name === foldername,
-      )?.id;
-      if (imagesFolderId) return;
-      createFolderAsync({
+    const foldername = image.name.split(".")[0];
+    let imagesFolderId = loadedMasksFolders?.find(
+      (file) => file.name === foldername
+    )?.id;
+
+    if (!imagesFolderId) {
+      imagesFolderId = await createFolderAsync({
         name: foldername,
         ParentDirectoryId: masksFolderId,
-      }).then((folderId) => {
-        if (!folderId) return;
-        setSubMasksFolderId(folderId);
       });
-    });
+    }
+    if (!imagesFolderId) throw new Error("Images folder not found");
 
+    // get all files in the folder
+    getFileListData(imagesFolderId).then(async (fetchedMasks) =>
+      Promise.all(
+        fetchedMasks.map(async (mask) => {
+          const img = new Image();
+          img.src = mask.src;
+          return await new Promise((resolve: (value: LoadedMask) => void) => {
+            img.onload = () => {
+              resolve({
+                name: mask.name,
+                mask: img,
+              });
+            };
+          });
+        })
+      ).then((resolvedMasks) =>
+        setLoadedMasks(
+          resolvedMasks.reduce((acc, imageMatrix) => {
+            acc[imageMatrix.name] = imageMatrix.mask;
+            return acc;
+          }, {} as labelMaskPairs)
+        )
+      )
+    );
+    setSubMasksFolderId(imagesFolderId);
     setSelectedImage(image);
     setSelectImage(index);
   };
+
   return (
     <aside>
       <label htmlFor="image-upload">Upload Images</label>
@@ -180,9 +205,7 @@ function ImagesNavigate({
         onChange={handleImageUpload}
       />
       {loading ? (
-        <div>
-          <div className="loader"></div>
-        </div>
+        <Loader />
       ) : (
         <>
           {images.length === 0 ? (
@@ -224,18 +247,18 @@ function ImagesNavigate({
 function SegmentationCanvas({
   image,
   maskFolderId,
+  loadedMasks,
 }: {
   image: DriveFileData;
   maskFolderId: string | null;
+  loadedMasks: labelMaskPairs;
 }) {
   const overlayRef = useRef<HTMLCanvasElement>(null);
-  const [imageData, setImageData] = useState<ImageData | null>(null);
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [mode, setMode] = useState<Mode>("draw");
   const [brushSize, setBrushSize] = useState(15);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [toggleupdate, setToggleUpdate] = useState(false);
   const [selectedTab, setSelectedTab] = useState(-1);
   const driveList = new UseDriveList();
   const { mutateAsync: listFilesDrive } = driveList.listDriveFiles();
@@ -246,59 +269,51 @@ function SegmentationCanvas({
     const img = new Image();
     img.src = image.src;
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        setImageData(data);
-        // set mask
-        setTabs(
-          Object.values(CellsNames)
-            .filter((v) => typeof v === "string")
-            .map((name) => ({
-              name,
-              isRename: false,
-              mask: Array.from({ length: data.height }, () =>
-                Array.from({ length: data.width }, () => 0),
-              ),
-            })),
-        );
-        setSelectedTab(0);
-      }
+      // set mask
+      setTabs(
+        Object.values(CellsNames)
+          .filter((v) => typeof v === "string")
+          .map((name) => ({
+            name,
+            isRename: false,
+            mask:
+              loadedMasks[name] ?? NewMask(img.naturalWidth, img.naturalHeight),
+          }))
+      );
+      setSelectedTab(0);
     };
-  }, [image]);
+  }, []);
 
-  useEffect(() => {
-    if (!overlayRef.current) return;
-    const height = overlayRef.current.clientHeight;
-    const width = overlayRef.current.clientWidth;
-    console.log("height", height, "width", width);
-
-    setTabs(
-      Object.values(CellsNames)
-        .filter((v) => typeof v === "string")
-        .map((name) => ({
-          name,
-          isRename: false,
-          mask: Array.from({ length: height }, () =>
-            Array.from({ length: width }, () => 0),
-          ),
-        })),
-    );
-  }, [overlayRef.current]);
-
-  const setCurrentMask = (mask: Mask) => {
+  const setCurrentMask = (mask: HTMLImageElement) => {
     if (selectedTab === -1) return;
     setTabs((prev) => {
       prev[selectedTab].mask = mask;
-      return prev;
+      return [...prev];
     });
   };
 
-  //  TODO: set loading state
+  const saveMasks = async () => {
+    if (selectedTab === -1 || !maskFolderId) return;
+    setIsSaving(true);
+    // get file in the folder
+    const filestodelete = await listFilesDrive(maskFolderId);
+    // delete all files in the folder
+    await Promise.all(
+      filestodelete.map(async (file) => {
+        await deleteFile(file.id!);
+      })
+    );
+    await Promise.all(
+      tabs.map(async (tab) => {
+        await uploadFile({
+          file: await Mask2File(await ExtractRealMask(tab.mask), tab.name),
+          inFolderId: maskFolderId,
+        });
+      })
+    );
+    setIsSaving(false);
+  };
+
   if (tabs.length === 0 || selectedTab == -1 || !image) return null;
 
   return (
@@ -328,30 +343,7 @@ function SegmentationCanvas({
             <span>{brushSize}</span>
           </label>
         </div>
-        <button
-          className="save"
-          onClick={async () => {
-            if (selectedTab === -1 || !maskFolderId) return;
-            setIsSaving(true);
-            // get file in the folder
-            const filestodelete = await listFilesDrive(maskFolderId);
-            // delete all files in the folder
-            await Promise.all(
-              filestodelete.map(async (file) => {
-                await deleteFile(file.id!);
-              }),
-            );
-            await Promise.all(
-              tabs.map(async (tab) => {
-                await uploadFile({
-                  file: await matrix2File(tab.mask, tab.name),
-                  inFolderId: maskFolderId,
-                });
-              }),
-            );
-            setIsSaving(false);
-          }}
-        >
+        <button className="save" onClick={saveMasks}>
           {isSaving ? "Saving..." : "Save Masks"}
         </button>
       </nav>
@@ -361,11 +353,7 @@ function SegmentationCanvas({
             <button
               key={index}
               className={selectedTab === index ? "active" : ""}
-              onClick={() => {
-                setToggleUpdate(true);
-                setSelectedTab(index);
-                setToggleUpdate(false);
-              }}
+              onClick={() => setSelectedTab(index)}
               onDoubleClick={() => {
                 setTabs((prev) => {
                   prev[index].isRename = true;
@@ -398,12 +386,16 @@ function SegmentationCanvas({
           {/* add button */}
           <button
             className="add-tab"
-            onClick={() => {
+            onClick={async () => {
+              const newmask = await NewMask(
+                overlayRef.current?.width!,
+                overlayRef.current?.height!
+              );
               setTabs((prev) => [
                 ...prev,
                 {
                   name: `New Tab ${prev.length + 1}`,
-                  mask: [],
+                  mask: newmask,
                   isRename: true,
                 },
               ]);
@@ -415,9 +407,6 @@ function SegmentationCanvas({
         <img
           src={image.src}
           alt={image.name}
-          //   ref={baseRef}
-          //   width={512}
-          //   height={512}
           style={{ position: "absolute", zIndex: 1 }}
         />
         <DrawPreview
@@ -426,8 +415,6 @@ function SegmentationCanvas({
           mode={mode}
           mask={tabs[selectedTab].mask}
           setMask={setCurrentMask}
-          toggleupdate={toggleupdate}
-          setToggleUpdate={setToggleUpdate}
         />
       </div>
     </>
