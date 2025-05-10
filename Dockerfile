@@ -23,11 +23,14 @@ RUN npm ci --omit=dev
 # 7. Copy built app from builder
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.js ./next.config.js
+COPY --from=builder /app/next.config.ts ./next.config.ts
 
 # 8. Expose port 80
-ENV PORT 80
+ENV PORT=80
 EXPOSE 80
 
-# 9. Start the app
+# 9. Load environment variables from .env
+COPY .env .env
+
+# 10. Start the app
 CMD ["npx", "next", "start", "-p", "80"]
