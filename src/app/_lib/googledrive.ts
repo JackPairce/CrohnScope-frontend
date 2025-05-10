@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 import { drive_v3, google } from "googleapis";
 import path from "path";
-import { encode } from "querystring";
 
 export type DriveFile = {
   id: string;
@@ -13,24 +12,38 @@ export type DriveFileData = DriveFile & {
   src: string;
 };
 
+import fs from "fs";
+
+export function writeServiceKeyTempFile() {
+  const keyPath =
+    process.env.NODE_ENV === "production"
+      ? path.join("/tmp", "service-key.json")
+      : path.join(process.cwd(), "secure", "service-key.json");
+  if (!fs.existsSync(keyPath)) {
+    const base64 = process.env.GOOGLE_SERVICE_ACCOUNT_BASE64!;
+    const json = Buffer.from(base64, "base64").toString("utf-8");
+    fs.writeFileSync(keyPath, json);
+  }
+  return keyPath;
+}
+
 export async function getDriveClient() {
+  const keyPath = writeServiceKeyTempFile();
   const auth = new google.auth.GoogleAuth({
-    keyFile: path.join(process.cwd(), "secure/crohnscope-f769ed5b75f3.json"),
+    keyFile: keyPath,
     scopes: ["https://www.googleapis.com/auth/drive"],
   });
-
-  const drive = google.drive({ version: "v3", auth });
-  return drive;
+  return google.drive({ version: "v3", auth });
 }
 
 export async function DownloadFileFromDrive(
   drive: drive_v3.Drive,
   fileId: string,
-  name: string,
+  name: string
 ): Promise<DriveFileData> {
   const res = await drive.files.get(
     { fileId, alt: "media" },
-    { responseType: "stream" },
+    { responseType: "stream" }
   );
 
   const chunks: Buffer[] = [];
@@ -44,7 +57,7 @@ export async function DownloadFileFromDrive(
   const base64 = buffer.toString("base64");
   const mimeType = res.headers["content-type"] || "application/octet-stream";
   const lastModified = new Date(
-    res.headers["last-modified"] || Date.now(),
+    res.headers["last-modified"] || Date.now()
   ).getTime();
 
   return {
