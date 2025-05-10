@@ -36,9 +36,9 @@ export default async function RootLayout({
   const isAuthPage = (await headers())
     .get("x-current-path")
     ?.startsWith("/auth/");
+  console.log(!isAuthPage);
 
-  if (!isAuthPage && !(!uid || !getUserByUsername(uid)))
-    redirect("/auth/login");
+  if (!isAuthPage && !(uid && getUserByUsername(uid))) redirect("/auth/login");
   return (
     <html lang="en">
       <body
