@@ -3,7 +3,10 @@ import fs from "fs";
 import path from "path";
 
 // Path to our users JSON file
-const usersFilePath = path.join(process.cwd(), "secure", "users.json");
+const usersFilePath =
+  process.env.NODE_ENV === "production"
+    ? path.join("/tmp", "users.json")
+    : path.join(process.cwd(), "secure", "users.json");
 
 type LocalUser = {
   id: string;
@@ -23,23 +26,38 @@ export type Response = {
   message: string;
   uid?: string;
 };
-
-// Read users from JSON file
-export function readUsersFromFile(): LocalUser[] {
-  const fileData = fs.readFileSync(usersFilePath, "utf8");
-  const data: LocalUser[] = JSON.parse(fileData);
-  return data;
-}
-
-// Write users to JSON file
-export function writeUsersToFile(data: LocalUser[]) {
-  const dirPath = path.join(process.cwd(), "secure");
+function ensureDirectoryExists() {
+  const dirPath =
+    process.env.NODE_ENV === "production"
+      ? path.join("/tmp")
+      : path.join(process.cwd(), "secure");
 
   // Create directory if it doesn't exist
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }
 
+  // check if the file is not empty
+  if (fs.existsSync(usersFilePath)) {
+    const fileData = fs.readFileSync(usersFilePath, "utf8");
+    if (fileData.trim() !== "") {
+      return; // File already exists and is not empty
+    }
+  }
+  // If the file doesn't exist or is empty, create it with an empty array
+  fs.writeFileSync(usersFilePath, JSON.stringify([])); // Initialize with an empty array
+  console.log("File created successfully");
+}
+
+// Read users from JSON file
+export function readUsersFromFile(): LocalUser[] {
+  ensureDirectoryExists(); // Ensure the file exists
+  const fileData = fs.readFileSync(usersFilePath, "utf8");
+  return JSON.parse(fileData) as LocalUser[];
+}
+// Write users to JSON file
+export function writeUsersToFile(data: LocalUser[]) {
+  ensureDirectoryExists(); // Ensure the directory exists
   fs.writeFileSync(usersFilePath, JSON.stringify(data, null, 2));
 }
 
@@ -49,9 +67,9 @@ export function AddUser(user: LocalUser) {
   writeUsersToFile(data);
 }
 
-export const getUserByUsername = (username: string) => {
+export const getUserById = (id: string) => {
   const users = readUsersFromFile();
-  return users.find((user) => user.username === username);
+  return users.find((user) => user.id === id);
 };
 
 // Register a new user
@@ -60,7 +78,7 @@ export async function registerUser({
   password,
 }: User): Promise<Response> {
   // Check if user already exists
-  if (getUserByUsername(username)) {
+  if (getUserById(username)) {
     return { success: false, message: "Username already exists" };
   }
 

@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
 
   // Redirect root path to datagen
   if (url.pathname === "/") {
-    url.pathname = "/datagen";
+    url.pathname = "/data";
     return NextResponse.redirect(url, { headers });
   }
 
@@ -27,7 +27,6 @@ export async function middleware(req: NextRequest) {
   if (req.method === "GET" && !req.nextUrl.pathname.startsWith("/_next/")) {
     return NextResponse.next({ headers });
   }
-
   return NextResponse.next();
 }
 export const config = {
