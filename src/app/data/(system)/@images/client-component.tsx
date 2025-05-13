@@ -57,8 +57,6 @@ function Imagesnav({
     setIsLoading(true);
     setSelectedImage(index);
     setImg(imgData);
-
-    setIsLoading(false);
     redirect(
       `${window.location.pathname}?Mid=${MaskFolderID}&img=${
         imgData.name.split(".")[0]

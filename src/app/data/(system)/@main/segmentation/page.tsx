@@ -13,30 +13,24 @@ const SegmentationCanvas = async ({
 }: {
   searchParams: { [key: string]: string };
 }) => {
-  const { Mid, img: foldername } = await searchParams;
-  return (
-    <>
-      <header>{metadata.title}</header>
-      {Mid ? <>{InitializeCanvas(Mid, foldername)}</> : <EmptyState />}
-    </>
-  );
-};
-
-export default SegmentationCanvas;
-
-const InitializeCanvas = async (MaskFolderID: string, foldername: string) => {
-  console.log("MaskFolderID", MaskFolderID);
-
+  const { Mid: MaskFolderID, img: foldername } = await searchParams;
   const driveList = new FileLister();
   await driveList.init();
 
   if (!MaskFolderID) {
-    console.error("Masks folder not found");
-    return;
+    return (
+      <>
+        <header>{metadata.title}</header>
+        <EmptyState />
+      </>
+    );
   }
 
   const fetchedMasks = await driveList.listDriveFiles(MaskFolderID);
-  if (!fetchedMasks) return;
+  if (!fetchedMasks) {
+    console.error("Fetched masks not found");
+    return;
+  }
 
   // create sub mask folder as image name
   let imagesFolderId = fetchedMasks.find(
@@ -59,6 +53,20 @@ const InitializeCanvas = async (MaskFolderID: string, foldername: string) => {
       }))
     )
   );
+  return (
+    <>
+      <header>{metadata.title}</header>
+      {InitializeCanvas(imagesFolderId, Masks)}
+    </>
+  );
+};
+
+export default SegmentationCanvas;
+
+const InitializeCanvas = async (
+  imagesFolderId: string,
+  Masks: { name: string; mask: string }[]
+) => {
   return (
     <DrawCanvas
       subMasksFolderId={imagesFolderId}

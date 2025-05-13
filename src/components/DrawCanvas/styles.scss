@@ -13,11 +13,16 @@ main {
     overflow: hidden;
     background-color: #04090d;
 
-    &:has(.empty-state) {
+    &:has(.empty-state),
+    &:has(.loader) {
         grid-template-rows: 80px 1fr;
         grid-template-areas:
             "header header"
             "sidebar empty";
+    }
+
+    .loader {
+        grid-area: empty;
     }
 
     header {

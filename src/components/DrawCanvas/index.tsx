@@ -30,26 +30,26 @@ export default function SegmentationCanvas({
   loadedMasks: { [key: string]: string };
   subMasksFolderId: string | null;
 }) {
-  const { img } = useData();
+  const { img, isLoading, setIsLoading } = useData();
 
   const [processedMasks, setProcessedMasks] = useState<labelMaskPairs>({});
 
   useEffect(() => {
-    const processMasks = async () => {
+    (async () => {
       const masks: labelMaskPairs = {};
       for (const [label, src] of Object.entries(loadedMasks)) {
         masks[label] = await Img2Mask(src);
       }
       setProcessedMasks(masks);
-    };
-    processMasks();
-  }, [img]);
+      setIsLoading(false);
+    })();
+  }, [loadedMasks]);
 
   if (!img) redirect(document.location.pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {img && loadedMasks ? (
+      {img && loadedMasks && !isLoading ? (
         <MaskDrawingCanvas
           image={img}
           maskFolderId={subMasksFolderId}
