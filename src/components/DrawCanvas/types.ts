@@ -35,3 +35,5 @@ export type DatasetSchema = {
 export type labelMaskPairs = {
   [label: string]: Mask;
 };
+
+export type DataProcessingMode = "segmentation" | "classification";

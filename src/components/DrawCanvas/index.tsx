@@ -5,12 +5,14 @@ import { useEffect, useRef, useState } from "react";
 import { useDriveDelete, UseDriveList, useDriveUpload } from "./api";
 import DrawPreview from "./DrawPreview";
 import { ExtractRealMask, Img2Mask, Mask2File, NewMask } from "./MaskUtils";
-import { CellsNames, labelMaskPairs, Mode, modes, Tab } from "./types";
+import ToolBar from "./ToolBar";
+import { CellsNames, labelMaskPairs, Mode, Tab } from "./types";
 
 import { DriveFileData } from "@/app/_lib/googledrive";
 import { redirect } from "next/navigation";
 import Loader from "../loader";
 import { useData } from "./DataContext";
+import RenderTabNavigation from "./RenderTabNavigation";
 import "./styles.scss";
 
 // TODO: Use env variable
@@ -137,91 +139,21 @@ function MaskDrawingCanvas({
 
   return (
     <>
-      <nav className="tools">
-        <div className="tools-buttons">
-          <div className="modes">
-            {modes.map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={mode === m ? "active" : ""}
-              >
-                {m === "draw" ? "🖌️" : "🧼"}
-              </button>
-            ))}
-          </div>
-          <label className="brush-size">
-            Brush Size:
-            <input
-              type="range"
-              min={10}
-              max={100}
-              value={brushSize}
-              onChange={(e) => setBrushSize(Number(e.target.value))}
-            />
-            <span>{brushSize}</span>
-          </label>
-        </div>
-        <button className="save" onClick={saveMasks}>
-          {isSaving ? "Saving..." : "Save Masks"}
-        </button>
-      </nav>
-      <nav className="tabs">
-        <div>
-          {tabs.map((tab, index) => (
-            <button
-              key={index}
-              className={selectedTab === index ? "active" : ""}
-              onClick={() => setSelectedTab(index)}
-              onDoubleClick={() => {
-                setTabs((prev) => {
-                  prev[index].isRename = true;
-                  return [...prev];
-                });
-              }}
-            >
-              {tab.isRename ? (
-                <input
-                  type="text"
-                  value={tab.name}
-                  onChange={(e) => {
-                    setTabs((prev) => {
-                      prev[index].name = e.target.value;
-                      return [...prev];
-                    });
-                  }}
-                  onBlur={() => {
-                    setTabs((prev) => {
-                      prev[index].isRename = false;
-                      return [...prev];
-                    });
-                  }}
-                />
-              ) : (
-                <span>{tab.name}</span>
-              )}
-            </button>
-          ))}
-          {/* add button */}
-          <button
-            className="add-tab"
-            onClick={async () => {
-              const newmask = await NewMask(
-                overlayRef.current?.width!,
-                overlayRef.current?.height!
-              );
-              setTabs((prev) => [
-                ...prev,
-                {
-                  name: `New Tab ${prev.length + 1}`,
-                  mask: newmask,
-                  isRename: true,
-                },
-              ]);
-            }}
-          ></button>
-        </div>
-      </nav>
+      <ToolBar
+        mode={mode}
+        setMode={setMode}
+        brushSize={brushSize}
+        setBrushSize={setBrushSize}
+        saveMasks={saveMasks}
+        isSaving={isSaving}
+      />
+      <RenderTabNavigation
+        tabs={tabs}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+        setTabs={setTabs}
+        overlayRef={overlayRef}
+      />
       <div className="canvas-container">
         <img
           src={image.src}
@@ -235,6 +167,39 @@ function MaskDrawingCanvas({
           mask={tabs[selectedTab].mask}
           setMask={setCurrentMask}
         />
+      </div>
+    </>
+  );
+}
+
+function ClassifficationCanvas({ image }: { image: DriveFileData }) {
+  const [tabs, setTabs] = useState<Tab[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const healthyRef = useRef<HTMLCanvasElement>(null);
+  const unhealthyRef = useRef<HTMLCanvasElement>(null);
+  const coordinatesRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    // get masks and set tabs
+  }, [image]);
+  return (
+    <>
+      <RenderTabNavigation
+        tabs={tabs}
+        selectedTab={0}
+        setSelectedTab={() => {}}
+        setTabs={setTabs}
+        overlayRef={coordinatesRef}
+      />
+      <div className="canvas-container">
+        <img
+          src={image.src}
+          alt={image.name}
+          style={{ position: "absolute", zIndex: 1 }}
+        />
+        <canvas ref={healthyRef} />
+        <canvas ref={unhealthyRef} />
+        <canvas ref={coordinatesRef} />
       </div>
     </>
   );
