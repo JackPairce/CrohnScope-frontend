@@ -2,19 +2,15 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import {
-  useDriveDelete,
-  UseDriveList,
-  useDriveUpload,
-  useFolderCreate,
-} from "./api";
+import { useDriveDelete, UseDriveList, useDriveUpload } from "./api";
 import DrawPreview from "./DrawPreview";
 import { ExtractRealMask, Img2Mask, Mask2File, NewMask } from "./MaskUtils";
 import { CellsNames, labelMaskPairs, Mode, modes, Tab } from "./types";
 
 import { DriveFileData } from "@/app/_lib/googledrive";
-import { drive_v3 } from "googleapis";
+import { redirect } from "next/navigation";
 import Loader from "../loader";
+import { useData } from "./DataContext";
 import "./styles.scss";
 
 // TODO: Use env variable
@@ -27,209 +23,45 @@ const datasetMetadataFile = "metadata.csv";
 
 const queryClient = new QueryClient();
 
-export default function Index() {
-  const [selectedImage, setSelectedImage] = useState<DriveFileData | null>(
-    null
-  );
-  const [loadedMasks, setLoadedMasks] = useState<labelMaskPairs | null>(null);
-  const [subMasksFolderId, setSubMasksFolderId] = useState<string | null>(null);
+export default function SegmentationCanvas({
+  loadedMasks,
+  subMasksFolderId,
+}: {
+  loadedMasks: { [key: string]: string };
+  subMasksFolderId: string | null;
+}) {
+  const { img } = useData();
+
+  const [processedMasks, setProcessedMasks] = useState<labelMaskPairs>({});
+
+  useEffect(() => {
+    const processMasks = async () => {
+      const masks: labelMaskPairs = {};
+      for (const [label, src] of Object.entries(loadedMasks)) {
+        masks[label] = await Img2Mask(src);
+      }
+      setProcessedMasks(masks);
+    };
+    processMasks();
+  }, [img]);
+
+  if (!img) redirect(document.location.pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <main>
-        <header>
-          <h1>Segmentation Canvas</h1>
-        </header>
-        <ImagesNavigate
-          setSelectedImage={setSelectedImage}
-          setLoadedMasks={setLoadedMasks}
-          setSubMasksFolderId={setSubMasksFolderId}
+      {img && loadedMasks ? (
+        <MaskDrawingCanvas
+          image={img}
+          maskFolderId={subMasksFolderId}
+          loadedMasks={processedMasks}
         />
-        {selectedImage ? (
-          loadedMasks ? (
-            <SegmentationCanvas
-              image={selectedImage}
-              maskFolderId={subMasksFolderId}
-              loadedMasks={loadedMasks}
-            />
-          ) : (
-            <Loader />
-          )
-        ) : (
-          <div className="empty-state">
-            <h2>Select an image</h2>
-            <p>Please select an image to start segmentation.</p>
-          </div>
-        )}
-      </main>
+      ) : (
+        <Loader />
+      )}
     </QueryClientProvider>
   );
 }
-
-function ImagesNavigate({
-  setSelectedImage,
-  setLoadedMasks,
-  setSubMasksFolderId,
-}: {
-  setSelectedImage: (image: DriveFileData | null) => void;
-  setLoadedMasks: (masks: labelMaskPairs | null) => void;
-  setSubMasksFolderId: (folderId: string | null) => void;
-}) {
-  const [selectImage, setSelectImage] = useState<number>(NaN);
-  const [images, setImages] = useState<DriveFileData[]>([]);
-  const [loadedMasksFolders, setLoadedMasksFolders] = useState<
-    drive_v3.Schema$File[]
-  >([]);
-  const [masksFolderId, setMasksFolderId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files === null) return;
-    setImages((prev) => [
-      ...prev,
-      ...Array.from(files).map(
-        (file) =>
-          ({
-            id: file.name, // Assign a unique ID, e.g., file name
-            mimeType: file.type,
-            name: file.name,
-            src: URL.createObjectURL(file),
-          } as DriveFileData)
-      ),
-    ]);
-  };
-
-  const driveList = new UseDriveList();
-  const { mutateAsync: getFileListData } = driveList.listWithData();
-  const { mutateAsync: retrieveDriveFileList } = driveList.listDriveFiles();
-  const { mutateAsync: createFolderAsync } = useFolderCreate();
-
-  useEffect(() => {
-    // get all images from the folder
-    retrieveDriveFileList(FolderID).then((fileListResponse) => {
-      const imagesFolderId = fileListResponse?.find(
-        (file) => file.name === imagesFolder
-      )?.id;
-      const masksDirectoryId = fileListResponse?.find(
-        (file) => file.name === masksFolder
-      )?.id;
-      if (!imagesFolderId || !masksDirectoryId) {
-        console.error("Images or masks folder not found");
-        setLoading(false);
-        return;
-      }
-      setMasksFolderId(masksDirectoryId);
-
-      // get all images from the folder
-      getFileListData(imagesFolderId).then((fetchedImages) => {
-        if (!fetchedImages) return;
-        setImages(fetchedImages);
-        setLoading(false);
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!masksFolderId) return;
-    // get all masks from the folder
-    retrieveDriveFileList(masksFolderId).then((fetchedMasks) => {
-      if (!fetchedMasks) return;
-      setLoadedMasksFolders(fetchedMasks);
-    });
-  }, [masksFolderId]);
-
-  const handleImageSelection = async (image: DriveFileData, index: number) => {
-    if (!masksFolderId) {
-      console.error("Masks folder not found");
-      return;
-    }
-    setLoadedMasks(null);
-    // create sub mask folder as image name
-    const foldername = image.name.split(".")[0];
-    let imagesFolderId = loadedMasksFolders?.find(
-      (file) => file.name === foldername
-    )?.id;
-
-    if (!imagesFolderId) {
-      imagesFolderId = await createFolderAsync({
-        name: foldername,
-        ParentDirectoryId: masksFolderId,
-      });
-    }
-    if (!imagesFolderId) throw new Error("Images folder not found");
-
-    // get all files in the folder
-    getFileListData(imagesFolderId).then(async (fetchedMasks) =>
-      Promise.all(
-        fetchedMasks.map(async (mask) => ({
-          name: mask.name,
-          mask: await Img2Mask(mask.src),
-        }))
-      ).then((resolvedMasks) =>
-        setLoadedMasks(
-          resolvedMasks.reduce((acc, imageMatrix) => {
-            acc[imageMatrix.name] = imageMatrix.mask;
-            return acc;
-          }, {} as labelMaskPairs)
-        )
-      )
-    );
-    setSubMasksFolderId(imagesFolderId);
-    setSelectedImage(image);
-    setSelectImage(index);
-  };
-
-  return (
-    <aside>
-      <label htmlFor="image-upload">Upload Images</label>
-      <input
-        type="file"
-        id="image-upload"
-        accept="image/*"
-        onChange={handleImageUpload}
-      />
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          {images.length === 0 ? (
-            <p>No images found</p>
-          ) : (
-            <>
-              <ul>
-                {images.map((image, index) => (
-                  <li
-                    key={index}
-                    className={selectImage === index ? "active" : ""}
-                  >
-                    <img
-                      src={image.src}
-                      alt={image.name}
-                      onClick={() => handleImageSelection(image, index)}
-                    />
-                    <p>{image.name}</p>
-                  </li>
-                ))}
-              </ul>
-              {/* TODO: images that has been done */}
-              {/* <ul>
-        {images.map((image, index) => (
-          <li key={index}>
-            <img src={URL.createObjectURL(image)} alt={image.name} />
-            <p>{image.name}</p>
-          </li>
-        ))}
-      </ul> */}
-            </>
-          )}
-        </>
-      )}
-    </aside>
-  );
-}
-
-function SegmentationCanvas({
+function MaskDrawingCanvas({
   image,
   maskFolderId,
   loadedMasks,
@@ -249,8 +81,9 @@ function SegmentationCanvas({
   const { mutateAsync: listFilesDrive } = driveList.listDriveFiles();
   const { mutateAsync: uploadFile } = useDriveUpload();
   const { mutateAsync: deleteFile } = useDriveDelete();
-
   useEffect(() => {
+    console.log("loadedMasks Effect", loadedMasks);
+
     const img = new Image();
     img.src = image.src;
     img.onload = () => {
@@ -267,7 +100,7 @@ function SegmentationCanvas({
       );
       setSelectedTab(0);
     };
-  }, []);
+  }, [image]);
 
   const setCurrentMask = (mask: HTMLImageElement) => {
     if (selectedTab === -1) return;

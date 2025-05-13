@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Mask,
-  Mode,
-  Point,
-  Shape,
-} from "@/components/SegmentationCanvas/types";
+import { Mask, Mode, Point, Shape } from "@/components/DrawCanvas/types";
 import {
   forwardRef,
   useEffect,

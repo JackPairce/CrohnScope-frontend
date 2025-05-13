@@ -1,0 +1,26 @@
+.upload-label {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    }
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-input {
+        display: none;
+    }
+}
