@@ -77,8 +77,8 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       const scaleX = drawPreviewCanvasRef.current!.width / rect.width;
       const scaleY = drawPreviewCanvasRef.current!.height / rect.height;
       drawingPath.push({
-        x: (e.clientX - rect.left) * (mode == "draw" ? scaleX : 1),
-        y: (e.clientY - rect.top) * (mode == "draw" ? scaleY : 1),
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
       });
     };
 

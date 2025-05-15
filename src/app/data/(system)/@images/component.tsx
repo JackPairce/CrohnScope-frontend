@@ -4,7 +4,7 @@ import { ApiImage, getImages } from "@/components/AnnotationCanvas/api";
 import { useData } from "@/components/AnnotationCanvas/DataContext";
 import Loader from "@/components/loader";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import "./styles.scss";
 
 const queryClient = new QueryClient();
@@ -27,7 +27,7 @@ function Imagesnav({
   setHide,
 }: {
   hide: boolean;
-  setHide: (prev: boolean) => void;
+  setHide: Dispatch<SetStateAction<boolean>>;
   done?: true;
 }) {
   const { setImg } = useData();
@@ -79,9 +79,28 @@ function Imagesnav({
 
   return (
     <>
-      <h4 className="text-center" onClick={() => setHide((prev) => !prev)}>
-        {done ? `${pageLength} Finished Images` : `${pageLength} Not Finished`}
-      </h4>
+      <div
+        className="flex justify-between p-1 px-2 border-amber-50 border-1 cursor-pointer"
+        onClick={() => setHide((prev) => !prev)}
+      >
+        <h4>
+          {done
+            ? `${pageLength} Finished Images`
+            : `${pageLength} Not Finished`}
+        </h4>
+        <span
+          style={{
+            fontSize: "1.2rem",
+            fontWeight: "bold",
+            transform: hide ? "rotate(-90deg)" : "rotate(90deg)",
+            transition: "transform 0.3s ease",
+            display: "inline-block",
+            marginLeft: "10px",
+          }}
+        >
+          {">"}
+        </span>
+      </div>
       <ul style={{ display: hide ? "none" : "block" }}>
         {images.map((image, index) => (
           <li
