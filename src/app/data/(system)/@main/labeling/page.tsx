@@ -1,20 +1,16 @@
-// import EmptyState from "../../empty";
+import EmptyState from "@/components/AnnotationCanvas/empty";
 
 export const metadata = {
   title: "Cell Lableling Canvas",
   description: "Cell Labeling Canvas for CrohnScope",
 };
 
-const CellLabelingCanvas = async ({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string };
-}) => {
+const CellLabelingCanvas = async () => {
   return (
     <>
       <header>{metadata.title}</header>
 
-      {/*{searchParams.id ? <div>Cell Labeling Canvas</div> : <EmptyState />}*/}
+      <EmptyState />
     </>
   );
 };
