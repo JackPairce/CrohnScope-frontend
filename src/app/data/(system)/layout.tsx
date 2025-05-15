@@ -1,5 +1,4 @@
-import { DataProvider } from "@/components/DrawCanvas/DataContext";
-import { headers } from "next/headers";
+import { DataProvider } from "@/components/AnnotationCanvas/DataContext";
 import "./styles.scss";
 
 export const metadata = {

@@ -1,0 +1,139 @@
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import Loader from "../loader";
+import { ApiImage, getCells, getMask, uploadMasks } from "./api";
+import { useData } from "./DataContext";
+import DrawPreview from "./DrawPreview";
+import EmptyState from "./empty";
+import { ExtractRealMask, Img2Mask, NewMask } from "./MaskUtils";
+import RenderTabNavigation from "./RenderTabNavigation";
+import ToolBar from "./ToolBar";
+import { Mode, Tab } from "./types";
+
+export default function renderMaskDrawingCanvas() {
+  const { img } = useData();
+  return (
+    <QueryClientProvider client={new QueryClient()}>
+      {img ? <MaskDrawingCanvas image={img} /> : <EmptyState />}
+    </QueryClientProvider>
+  );
+}
+
+function MaskDrawingCanvas({ image }: { image: ApiImage }) {
+  const overlayRef = useRef<HTMLCanvasElement>(null);
+  const [tabs, setTabs] = useState<Tab[]>([]);
+  const [mode, setMode] = useState<Mode>("draw");
+  const [brushSize, setBrushSize] = useState(15);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [imgDim, setImgDim] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+
+  const [selectedTab, setSelectedTab] = useState(NaN);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const img = new Image();
+    img.src = image.src;
+    img.onload = async () => {
+      setImgDim({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      });
+      console.table({
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      });
+
+      const cells = await getCells(image.id);
+      const masks = await getMask(image.id);
+      const tabs = await Promise.all(
+        cells.map(async (cell) => {
+          const mask = masks.find((mask) => mask.cell_id === cell.id);
+          let currentMask = mask
+            ? await Img2Mask(mask.src)
+            : await NewMask(img.naturalWidth, img.naturalHeight);
+          currentMask =
+            currentMask.width == img.naturalWidth &&
+            currentMask.height == img.naturalHeight
+              ? currentMask
+              : await NewMask(img.naturalWidth, img.naturalHeight);
+          return {
+            mask_id: mask?.id,
+            cell_id: cell.id,
+            name: cell.name,
+            isRename: false,
+            mask: currentMask,
+          } as Tab;
+        })
+      );
+      setTabs(tabs);
+      setSelectedTab(tabs.length ? 0 : NaN);
+      setIsLoading(false);
+    };
+  }, [image]);
+
+  const setCurrentMask = (mask: HTMLImageElement) => {
+    if (selectedTab === -1) return;
+    setTabs((prev) => {
+      prev[selectedTab].mask = mask;
+      return [...prev];
+    });
+  };
+
+  const saveMasks = async () => {
+    if (selectedTab === -1) return;
+    setIsSaving(true);
+    await uploadMasks(
+      image.id,
+      await Promise.all(
+        tabs.map(async (tab) => ({
+          id: tab.mask_id,
+          cell_id: tab.cell_id,
+          src: await ExtractRealMask(tab.mask.src),
+        }))
+      )
+    );
+    setIsSaving(false);
+  };
+  if (isLoading || isNaN(selectedTab) || !imgDim) return <Loader />;
+
+  return (
+    <>
+      <ToolBar
+        mode={mode}
+        setMode={setMode}
+        brushSize={brushSize}
+        setBrushSize={setBrushSize}
+        saveMasks={saveMasks}
+        isSaving={isSaving}
+      />
+      <RenderTabNavigation
+        tabs={tabs}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+        setTabs={setTabs}
+        overlayRef={overlayRef}
+      />
+      <div className="canvas-container">
+        <img
+          src={image.src}
+          alt={image.filename}
+          style={{ position: "absolute", zIndex: 1 }}
+        />
+        <DrawPreview
+          imageDim={imgDim}
+          ref={overlayRef}
+          brushSize={brushSize}
+          mode={mode}
+          mask={tabs[selectedTab].mask}
+          setMask={setCurrentMask}
+        />
+      </div>
+    </>
+  );
+}

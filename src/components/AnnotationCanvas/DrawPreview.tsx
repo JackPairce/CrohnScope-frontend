@@ -1,6 +1,6 @@
 "use client";
 
-import { Mask, Mode, Point, Shape } from "@/components/DrawCanvas/types";
+import { Mask, Mode, Point, Shape } from "@/components/AnnotationCanvas/types";
 import {
   forwardRef,
   useEffect,
@@ -20,6 +20,7 @@ const White = "rgba(255, 255, 255, 0)";
 const FolderID = "1AA8UCcJfSOo4h7wagO24ShEwJEVop43s";
 
 type Props = {
+  imageDim: { width: number; height: number };
   brushSize: number;
   mode: Mode;
   mask: Mask;
@@ -27,7 +28,16 @@ type Props = {
 };
 
 const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
-  ({ brushSize, mode, mask: currentMask, setMask }, ref) => {
+  (
+    {
+      brushSize,
+      mode,
+      mask: currentMask,
+      setMask,
+      imageDim: { height: ImgHeight, width: ImgWidth },
+    },
+    ref
+  ) => {
     const drawPreviewCanvasRef = useRef<HTMLCanvasElement>(null);
     const eraserCanvasPreviewRef = useRef<HTMLCanvasElement>(null);
     const drawPreviewCTX = useRef<CanvasRenderingContext2D | null>(null);
@@ -148,8 +158,11 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const scaleX = drawPreviewCanvasRef.current!.width / rect.width;
+      const scaleY = drawPreviewCanvasRef.current!.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
       ctx.beginPath();
       ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
       ctx.fillStyle = "white";
@@ -185,21 +198,24 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       ctx.scale(dpr, dpr);
     };
 
-    useEffect(() => {
-      if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
-        return;
-      handleResize();
-      drawPreviewCTX.current = drawPreviewCanvasRef.current.getContext("2d", {
-        willReadFrequently: true,
-      });
-      eraserPreviewCTX.current = eraserCanvasPreviewRef.current.getContext(
-        "2d",
-        { willReadFrequently: true }
-      );
-    }, [drawPreviewCanvasRef, eraserCanvasPreviewRef]);
+    // useEffect(() => {
+    //   if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
+    //     return;
+    //   // handleResize();
+    //   drawPreviewCTX.current = drawPreviewCanvasRef.current.getContext("2d", {
+    //     willReadFrequently: true,
+    //   });
+    //   eraserPreviewCTX.current = eraserCanvasPreviewRef.current.getContext(
+    //     "2d",
+    //     { willReadFrequently: true }
+    //   );
+    // }, [drawPreviewCanvasRef, eraserCanvasPreviewRef]);
 
     useEffect(() => {
       if (!drawPreviewCanvasRef.current) return;
+      drawPreviewCanvasRef.current.width = ImgWidth;
+      drawPreviewCanvasRef.current.height = ImgHeight;
+
       drawMaskToCanvas(
         currentMask,
         drawPreviewCanvasRef.current,
@@ -211,12 +227,9 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       <>
         <canvas
           ref={drawPreviewCanvasRef}
-          width={currentMask.width}
-          height={currentMask.height}
+          width={ImgWidth}
+          height={ImgHeight}
           style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
             zIndex: 2,
 
             border: "1px solid black",
@@ -237,12 +250,9 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
         />
         <canvas
           ref={eraserCanvasPreviewRef}
-          width={drawPreviewCanvasRef.current?.width || currentMask.width}
-          height={drawPreviewCanvasRef.current?.height || currentMask.height}
+          width={ImgWidth}
+          height={ImgHeight}
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
             zIndex: 3,
             pointerEvents: "none",
             // imageRendering: "pixelated",

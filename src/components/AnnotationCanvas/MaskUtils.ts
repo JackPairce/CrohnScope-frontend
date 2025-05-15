@@ -25,12 +25,14 @@ export const NewMask = async (width: number, height: number): Promise<Mask> => {
 export const CanvasToMask = (canvas: HTMLCanvasElement): Promise<Mask> => {
   const img = new Image();
   img.src = canvas.toDataURL();
+
   return new Promise((resolve) => {
     img.onload = () => {
       resolve(img);
     };
   });
 };
+
 export function drawMaskToCanvas(
   mask: Mask,
   canvas: HTMLCanvasElement,
@@ -51,7 +53,7 @@ export function drawMaskToCanvas(
   if (!ctx) throw new Error("Failed to get canvas context");
   // clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // draw mask on canvas
+
   if (mask instanceof Promise) {
     mask.then((mask) => {
       drawMaskToCanvas(mask, canvas, colorMap);
@@ -89,32 +91,13 @@ export function drawMaskToCanvas(
   ctx.putImageData(imageData, 0, 0);
 }
 
-export async function ExtractRealMask(mask: Mask): Promise<Mask> {
+export async function ExtractRealMask(base64: string): Promise<string> {
+  const mask = await Img2Mask(base64);
   const canvas = document.createElement("canvas");
-  canvas.width = mask.width;
-  canvas.height = mask.height;
-
+  canvas.width = mask.naturalWidth;
+  canvas.height = mask.naturalHeight;
   drawMaskToCanvas(mask, canvas, colorMappingToModel);
-  return await CanvasToMask(canvas);
-}
-
-export async function Mask2File(mask: Mask, filename: string): Promise<File> {
-  return new Promise<File>((resolve, reject) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = mask.width;
-    canvas.height = mask.height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Failed to get canvas context");
-    ctx.drawImage(mask, 0, 0);
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], filename, { type: "image/png" });
-        resolve(file);
-      } else {
-        reject(new Error("Failed to convert mask to blob"));
-      }
-    }, "image/png");
-  });
+  return (await CanvasToMask(canvas)).src;
 }
 
 export function Img2Mask(imageSrc: string) {

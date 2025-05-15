@@ -1,5 +1,5 @@
 "use client";
-import { useData } from "@/components/DrawCanvas/DataContext";
+import { useData } from "@/components/AnnotationCanvas/DataContext";
 import Loader from "@/components/loader";
 
 export default function EmptyState() {

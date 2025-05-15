@@ -10,12 +10,11 @@ export type Shape = {
 
 export type Mask = HTMLImageElement;
 
-export type LoadedMask = {
+export type Tab = {
+  mask_id: number;
+  cell_id: number;
   name: string;
   mask: Mask;
-};
-
-export type Tab = LoadedMask & {
   isRename: boolean;
 };
 

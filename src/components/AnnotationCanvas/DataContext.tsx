@@ -1,11 +1,10 @@
 "use client";
-
-import { DriveFileData } from "@/app/_lib/googledrive";
 import { createContext, ReactNode, useContext, useState } from "react";
+import { ApiImage } from "./api";
 
 type DataContextType = {
-  img: DriveFileData | null;
-  setImg: (val: DriveFileData | null) => void;
+  img: ApiImage | null;
+  setImg: (val: ApiImage | null) => void;
   isLoading: boolean;
   setIsLoading: (val: boolean) => void;
 };
@@ -19,7 +18,7 @@ export function useData() {
 }
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [img, setImg] = useState<DriveFileData | null>(null);
+  const [img, setImg] = useState<ApiImage | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   return (
     <DataContext.Provider value={{ img, setImg, isLoading, setIsLoading }}>

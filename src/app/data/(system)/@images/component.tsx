@@ -1,123 +1,90 @@
 "use client";
 
-import { DriveFile, DriveFileData } from "@/app/_lib/googledrive";
-import { DownloadFiles } from "@/app/api/drive/useServer";
-import { UseDriveList, useFolderCreate } from "@/components/DrawCanvas/api";
-import { useData } from "@/components/DrawCanvas/DataContext";
+import { ApiImage, getImages } from "@/components/AnnotationCanvas/api";
+import { useData } from "@/components/AnnotationCanvas/DataContext";
 import Loader from "@/components/loader";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
-import { drive_v3 } from "googleapis";
-import { redirect } from "next/navigation";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import "./styles.scss";
 
 const queryClient = new QueryClient();
 
-export default function ImagesNav(props: {
-  FileImages: drive_v3.Schema$File[];
-  MaskFolderID: string;
-}) {
+export default function ImagesNav() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Imagesnav {...props} />
+      <aside>
+        <Imagesnav />
+        <Imagesnav done />
+      </aside>
     </QueryClientProvider>
   );
 }
 
-function Imagesnav({
-  FileImages,
-  MaskFolderID,
-}: {
-  FileImages: drive_v3.Schema$File[];
-  MaskFolderID: string;
-}) {
-  const { setImg, setIsLoading } = useData();
+function Imagesnav({ done }: { done?: true }) {
+  const { setImg } = useData();
+  const [isError, setIsError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(NaN);
-  const [images, setImages] = useState<
-    (DriveFile & {
-      src: string;
-    })[]
-  >([]);
-  const [page, setPage] = useState(0);
+  const [images, setImages] = useState<(ApiImage & { mimetype: string })[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageLength, setPageLength] = useState(NaN);
 
   const NextPage = () => {
-    setImages((prev) => [...prev, ...DowloadedImages]);
     setPage((prev) => prev + 1);
   };
 
-  const driveList = new UseDriveList();
-  const { mutateAsync: getFileListData } = driveList.listWithData();
-  const { mutateAsync: retrieveDriveFileList } = driveList.listDriveFiles();
-  const { mutateAsync: createFolderAsync } = useFolderCreate();
-
-  const SelectImage = async (imgData: DriveFileData, index: number) => {
-    setIsLoading(true);
+  const SelectImage = async (imgData: ApiImage, index: number) => {
     setSelectedImage(index);
     setImg(imgData);
-    redirect(
-      `${window.location.pathname}?Mid=${MaskFolderID}&img=${
-        imgData.name.split(".")[0]
-      }`
-    );
   };
 
-  const {
-    data: DowloadedImages = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["images", page],
-    queryFn: () =>
-      DownloadFiles(
-        FileImages.slice(page * 10, page * 10 + 10).map((file) => ({
-          id: file.id || "",
-          name: file.name || "",
-          modifiedTime: file.modifiedTime || "",
-        }))
-      ),
-    staleTime: Infinity,
-  });
-
   useEffect(() => {
-    if (!MaskFolderID) return;
-    // get all masks from the folder
-  }, [MaskFolderID]);
+    setIsLoading(true);
+    getImages(page, done)
+      .then((res) => {
+        if (res.total !== pageLength) setPageLength(res.total);
+        setImages((prev) => [
+          // For page 1, replace existing images, for others append
+          ...(page === 1 ? [] : prev),
+          ...res.images.map((item) => ({
+            id: item.id,
+            filename: item.filename.split(".")[0],
+            mimetype: item.src.split(":")[1].split(";")[0],
+            src: item.src,
+            is_done: item.is_done,
+          })),
+        ]);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsError(error.message || "Failed to load images");
+        setIsLoading(false);
+      });
+  }, [page, done, pageLength]); // Added done and pageLength to dependency array
 
-  if (isLoading && images.length === 0) return <Loader />;
-  if (FileImages.length === 0) {
-    return <p>No images found</p>;
-  }
+  if (isLoading && images.length === 0) return <Loader className="h-0.5" />;
+
   if (isError) {
-    return <p>Error loading images</p>;
+    return <p>Error loading images: {isError}</p>;
   }
 
   return (
-    <aside>
+    <>
+      <h4 className="text-center">
+        {done ? `${pageLength} Finished Images` : `${pageLength} Not Finished`}
+      </h4>
       <ul>
-        {[...images, ...DowloadedImages].map((image, index) => (
+        {images.map((image, index) => (
           <li
             key={index}
             className={selectedImage == index ? "active" : ""}
-            onClick={() =>
-              SelectImage(
-                {
-                  id: image.id,
-                  name: image.name,
-                  mimeType: image.mimeType,
-                  src: image.src,
-                },
-                index
-              )
-            }
+            onClick={() => SelectImage(image, index)}
           >
-            <img src={image.src} alt={image.name} />
-            <p>{image.name}</p>
+            <img src={image.src} alt={image.filename} />
+            <p>{image.filename}</p>
           </li>
         ))}
-        {FileImages.slice(page * 10, page * 10 + 10).length > 0 && (
+        {pageLength > images.length && (
           <button
             className={
               "px-4 py-2 mt-4 text-white bg-blue-500 rounded w-full " +
@@ -136,6 +103,6 @@ function Imagesnav({
           </button>
         )}
       </ul>
-    </aside>
+    </>
   );
 }
