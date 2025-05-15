@@ -10,17 +10,26 @@ import "./styles.scss";
 const queryClient = new QueryClient();
 
 export default function ImagesNav() {
+  const [hide, setHide] = useState(false);
   return (
     <QueryClientProvider client={queryClient}>
       <aside>
-        <Imagesnav />
-        <Imagesnav done />
+        <Imagesnav hide={hide} setHide={setHide} />
+        <Imagesnav hide={!hide} setHide={setHide} done />
       </aside>
     </QueryClientProvider>
   );
 }
 
-function Imagesnav({ done }: { done?: true }) {
+function Imagesnav({
+  done,
+  hide,
+  setHide,
+}: {
+  hide: boolean;
+  setHide: (prev: boolean) => void;
+  done?: true;
+}) {
   const { setImg } = useData();
   const [isError, setIsError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -70,10 +79,10 @@ function Imagesnav({ done }: { done?: true }) {
 
   return (
     <>
-      <h4 className="text-center">
+      <h4 className="text-center" onClick={() => setHide((prev) => !prev)}>
         {done ? `${pageLength} Finished Images` : `${pageLength} Not Finished`}
       </h4>
-      <ul>
+      <ul style={{ display: hide ? "none" : "block" }}>
         {images.map((image, index) => (
           <li
             key={index}

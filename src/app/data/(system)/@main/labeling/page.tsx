@@ -1,4 +1,4 @@
-import EmptyState from "../../empty";
+// import EmptyState from "../../empty";
 
 export const metadata = {
   title: "Cell Lableling Canvas",
@@ -14,7 +14,7 @@ const CellLabelingCanvas = async ({
     <>
       <header>{metadata.title}</header>
 
-      {searchParams.id ? <div>Cell Labeling Canvas</div> : <EmptyState />}
+      {/*{searchParams.id ? <div>Cell Labeling Canvas</div> : <EmptyState />}*/}
     </>
   );
 };
