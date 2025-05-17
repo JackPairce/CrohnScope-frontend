@@ -15,7 +15,7 @@ export default function CardNavigationMenu() {
           </div>
         </Link>
 
-        <Link href="/data/cell-labeling">
+        <Link href="/data/labeling">
           <div className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border-t-4 border-emerald-500">
             <h3 className="font-semibold text-lg text-gray-800">
               Cell Labeling

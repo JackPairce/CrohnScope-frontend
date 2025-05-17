@@ -37,6 +37,7 @@ export default async function RootLayout({
     ?.startsWith("/auth/");
 
   if (!isAuthPage && !(uid && getUserById(uid))) redirect("/auth/login");
+
   return (
     <html lang="en">
       <body

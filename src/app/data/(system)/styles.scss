@@ -146,23 +146,34 @@ main {
             &:hover {
                 background-color: #0040a4;
             }
+
+            &.done {
+                // green gradient
+                background: linear-gradient(90deg, #00a400, #006800);
+            }
         }
     }
 
     .tabs {
         grid-area: tabs;
-        grid-area: tabs;
         color: white;
         padding: 10px 20px;
 
-        div {
+        .tab-buttons {
             border: 1px solid #6e6e6e;
             width: fit-content;
             border-radius: 10px;
+            display: flex;
+            overflow-x: auto;
 
             button {
                 padding: 10px;
                 position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 120px;
+                transition: all 0.2s ease;
 
                 &:hover {
                     background-color: rgba(0, 0, 0, 0.212);
@@ -170,7 +181,17 @@ main {
 
                 &.active {
                     border-radius: 10px;
-                    background-color: #131622;
+                    color: black;
+                    background-color: whitesmoke;
+                    font-weight: bold;
+                }
+
+                &.done {
+                    border-bottom: 3px solid #4caf50;
+                }
+
+                &.not-done {
+                    border-bottom: 3px solid #ff9800;
                 }
 
                 &:not(.active, .add-tab, :has(~ .active))::before {
@@ -186,13 +207,12 @@ main {
                 &.add-tab {
                     position: relative;
                     width: 40px;
-                    height: 30px;
 
                     &::after,
                     &::before {
                         content: '';
                         position: absolute;
-                        top: 50%;
+                        top: calc(50% - 1px);
                         left: 10px;
                         height: 0;
                         width: 20px;
@@ -202,6 +222,120 @@ main {
                     &::after {
                         transform: rotate(90deg);
                     }
+                }
+
+                // Styles for tab rename input
+                .tab-rename-input {
+                    width: 90%;
+                    border: none;
+                    background: transparent;
+                    outline: none;
+                    border-bottom: 1px solid #2196f3;
+                    padding: 2px;
+                    font-size: 0.9rem;
+                    // color: white;
+
+                    &:focus {
+                        border-bottom: 2px solid #2196f3;
+                    }
+                }
+
+                // Styles for close button
+                .close-tab-btn {
+                    border: none;
+                    background: transparent;
+                    color: #bdc3c7;
+                    font-size: 1.2rem;
+                    font-weight: bold;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    margin-left: 8px;
+                    user-select: none;
+                    line-height: 1;
+
+                    &:hover {
+                        background-color: rgba(255, 255, 255, 0.1);
+                        color: #e74c3c;
+                    }
+
+                    &:focus {
+                        outline: 2px solid #3498db;
+                        outline-offset: 1px;
+                    }
+                }
+            }
+        }
+    }
+
+    // Confirmation Dialog
+    .confirm-dialog-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .confirm-dialog {
+        background-color: #0d1118;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #6e6e6e;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 90%;
+
+        h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        p {
+            color: #bdc3c7;
+            margin-bottom: 1.5rem;
+        }
+
+        .confirm-dialog-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+
+            .cancel-btn {
+                padding: 0.5rem 1rem;
+                background-color: #2c3e50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #34495e;
+                }
+            }
+
+            .delete-btn {
+                padding: 0.5rem 1rem;
+                background-color: #c0392b;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #e74c3c;
                 }
             }
         }

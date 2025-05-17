@@ -1,4 +1,5 @@
-import EmptyState from "@/components/AnnotationCanvas/empty";
+import ClassifficationCanvas from "@/components/AnnotationCanvas/ClasssificationCanvas";
+import Header from "@/components/Header";
 
 export const metadata = {
   title: "Cell Lableling Canvas",
@@ -8,9 +9,8 @@ export const metadata = {
 const CellLabelingCanvas = async () => {
   return (
     <>
-      <header>{metadata.title}</header>
-
-      <EmptyState />
+      <Header title={metadata.title} />
+      <ClassifficationCanvas />
     </>
   );
 };

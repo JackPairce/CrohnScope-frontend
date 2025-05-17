@@ -12,8 +12,7 @@ export const metadata = {
 // TODO: make a aside for images fetching
 // TODO:
 
-// TODO: Use env variable
-const FolderID = "1AA8UCcJfSOo4h7wagO24ShEwJEVop43s";
+// const FolderID = "1AA8UCcJfSOo4h7wagO24ShEwJEVop43s";
 
 const Index = async ({
   children,
