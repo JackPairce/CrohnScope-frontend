@@ -1,4 +1,6 @@
-import type { Mask } from "./types";
+import { Dispatch, SetStateAction } from "react";
+import { getCells, getMask } from "./api";
+import type { Mask, Tab } from "./types";
 
 export const colorMappingToUser = {
   "0,0,0": "0,0,0,0",
@@ -108,4 +110,62 @@ export function Img2Mask(imageSrc: string) {
       resolve(img);
     };
   });
+}
+
+export function LoadMasks(
+  image: {
+    id: number;
+    filename: string;
+    src: string;
+    is_done: boolean;
+  },
+  setIsLoading: Dispatch<SetStateAction<boolean>>,
+  setImgDim: Dispatch<
+    SetStateAction<{
+      width: number;
+      height: number;
+    } | null>
+  >,
+  setTabs: Dispatch<SetStateAction<Tab[]>>,
+  setSelectedTab: Dispatch<SetStateAction<number>>
+) {
+  setIsLoading(true);
+  const img = new Image();
+  img.src = image.src;
+  img.onload = async () => {
+    setImgDim({
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+    });
+    console.table({
+      width: img.naturalWidth,
+      height: img.naturalHeight,
+    });
+
+    const cells = await getCells(image.id);
+    const masks = await getMask(image.id);
+    const tabs = await Promise.all(
+      cells.map(async (cell) => {
+        const mask = masks.find((mask) => mask.cell_id === cell.id);
+        let currentMask = mask
+          ? await Img2Mask(mask.src)
+          : await NewMask(img.naturalWidth, img.naturalHeight);
+        currentMask =
+          currentMask.width == img.naturalWidth &&
+          currentMask.height == img.naturalHeight
+            ? currentMask
+            : await NewMask(img.naturalWidth, img.naturalHeight);
+        return {
+          mask_id: mask?.id,
+          cell_id: cell.id,
+          name: cell.name,
+          isRename: false,
+          mask: currentMask,
+        } as Tab;
+      })
+    );
+    setTabs(tabs);
+    setSelectedTab(tabs.length ? 0 : NaN);
+    setIsLoading(false);
+  };
 }

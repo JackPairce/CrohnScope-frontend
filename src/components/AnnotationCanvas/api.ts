@@ -2,7 +2,7 @@ import { components, paths } from "@/api";
 import axios from "axios";
 
 // TODO Replace with your actual API base URL
-const API_BASE_URL = "http://localhost:4000";
+const API_BASE_URL = "http://105.101.74.8:4000"; // 105.101.74.8
 
 // Types
 export type ApiImage = components["schemas"]["ApiImage"];

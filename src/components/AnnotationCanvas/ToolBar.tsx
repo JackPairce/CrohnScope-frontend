@@ -1,4 +1,4 @@
-import { Mode, modes } from "./types";
+import { Mode, modes, SaveSatues } from "./types";
 
 interface ToolBarProps {
   mode: Mode;
@@ -6,7 +6,9 @@ interface ToolBarProps {
   brushSize: number;
   setBrushSize: (size: number) => void;
   saveMasks: () => void;
-  isSaving: boolean;
+  saveStatus: SaveSatues;
+  isAllDone: boolean;
+  MarkAllDone: () => void;
 }
 
 export default function renderToolBar({
@@ -15,7 +17,9 @@ export default function renderToolBar({
   brushSize,
   setBrushSize,
   saveMasks,
-  isSaving,
+  saveStatus,
+  isAllDone,
+  MarkAllDone,
 }: ToolBarProps) {
   return (
     <nav className="tools">
@@ -43,9 +47,15 @@ export default function renderToolBar({
           <span>{brushSize}</span>
         </label>
       </div>
-      <button className="save" onClick={saveMasks}>
-        {isSaving ? "Saving..." : "Save Masks"}
-      </button>
+      {saveStatus.isModified ? (
+        <button className="save" onClick={saveMasks}>
+          {saveStatus.isSaving ? "Saving..." : "Save"}
+        </button>
+      ) : !isAllDone ? (
+        <button className="save done" onClick={MarkAllDone}>
+          Mark All As Done
+        </button>
+      ) : null}
     </nav>
   );
 }

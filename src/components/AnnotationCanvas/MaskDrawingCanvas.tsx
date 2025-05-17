@@ -3,14 +3,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import Loader from "../loader";
-import { ApiImage, getCells, getMask, uploadMasks } from "./api";
+import { ApiImage, uploadMasks } from "./api";
 import { useData } from "./DataContext";
 import DrawPreview from "./DrawPreview";
 import EmptyState from "./empty";
-import { ExtractRealMask, Img2Mask, NewMask } from "./MaskUtils";
+import { ExtractRealMask, LoadMasks } from "./MaskUtils";
 import RenderTabNavigation from "./RenderTabNavigation";
 import ToolBar from "./ToolBar";
-import { Mode, Tab } from "./types";
+import { Mode, SaveSatues, Tab } from "./types";
 
 export default function renderMaskDrawingCanvas() {
   const { img } = useData();
@@ -26,7 +26,10 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [mode, setMode] = useState<Mode>("draw");
   const [brushSize, setBrushSize] = useState(15);
-  const [isSaving, setIsSaving] = useState(false);
+  const [canvasSaveStatus, setCanvasSaveStatus] = useState<SaveSatues>({
+    isSaving: false,
+    isModified: false,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [imgDim, setImgDim] = useState<{
     width: number;
@@ -36,45 +39,7 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
   const [selectedTab, setSelectedTab] = useState(NaN);
 
   useEffect(() => {
-    setIsLoading(true);
-    const img = new Image();
-    img.src = image.src;
-    img.onload = async () => {
-      setImgDim({
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      });
-      console.table({
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      });
-
-      const cells = await getCells(image.id);
-      const masks = await getMask(image.id);
-      const tabs = await Promise.all(
-        cells.map(async (cell) => {
-          const mask = masks.find((mask) => mask.cell_id === cell.id);
-          let currentMask = mask
-            ? await Img2Mask(mask.src)
-            : await NewMask(img.naturalWidth, img.naturalHeight);
-          currentMask =
-            currentMask.width == img.naturalWidth &&
-            currentMask.height == img.naturalHeight
-              ? currentMask
-              : await NewMask(img.naturalWidth, img.naturalHeight);
-          return {
-            mask_id: mask?.id,
-            cell_id: cell.id,
-            name: cell.name,
-            isRename: false,
-            mask: currentMask,
-          } as Tab;
-        })
-      );
-      setTabs(tabs);
-      setSelectedTab(tabs.length ? 0 : NaN);
-      setIsLoading(false);
-    };
+    LoadMasks(image, setIsLoading, setImgDim, setTabs, setSelectedTab);
   }, [image]);
 
   const setCurrentMask = (mask: HTMLImageElement) => {
@@ -87,7 +52,10 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
 
   const saveMasks = async () => {
     if (selectedTab === -1) return;
-    setIsSaving(true);
+    setCanvasSaveStatus((prev) => ({
+      ...prev,
+      isSaving: true,
+    }));
     await uploadMasks(
       image.id,
       await Promise.all(
@@ -98,7 +66,21 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
         }))
       )
     );
-    setIsSaving(false);
+    setCanvasSaveStatus({
+      isSaving: false,
+      isModified: false,
+    });
+  };
+
+  const MarkAllDone = async () => {
+    if (selectedTab === -1) return;
+    // TODO: Add backend API call to mark all masks as done
+    setTabs((prev) => {
+      return prev.map((tab) => ({
+        ...tab,
+        isDone: true,
+      }));
+    });
   };
   if (isLoading || isNaN(selectedTab) || !imgDim) return <Loader />;
 
@@ -110,7 +92,9 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
         brushSize={brushSize}
         setBrushSize={setBrushSize}
         saveMasks={saveMasks}
-        isSaving={isSaving}
+        saveStatus={canvasSaveStatus}
+        isAllDone={tabs.every((tab) => tab.isDone)}
+        MarkAllDone={MarkAllDone}
       />
       <RenderTabNavigation
         tabs={tabs}
@@ -132,6 +116,10 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
           mode={mode}
           mask={tabs[selectedTab].mask}
           setMask={setCurrentMask}
+          stateSave={{
+            value: canvasSaveStatus,
+            setValue: setCanvasSaveStatus,
+          }}
         />
       </div>
     </>

@@ -10,12 +10,18 @@ export type Shape = {
 
 export type Mask = HTMLImageElement;
 
+export type SaveSatues = {
+  isSaving: boolean;
+  isModified: boolean;
+};
+
 export type Tab = {
   mask_id: number;
   cell_id: number;
   name: string;
   mask: Mask;
   isRename: boolean;
+  isDone: boolean;
 };
 
 export enum CellsNames {

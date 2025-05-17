@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { NewMask } from "./MaskUtils";
 import { Tab } from "./types";
 
@@ -16,13 +16,46 @@ export default function RenderTabNavigation({
   setTabs: React.Dispatch<React.SetStateAction<Tab[]>>;
   overlayRef: React.RefObject<HTMLCanvasElement | null>;
 }) {
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [tabToDelete, setTabToDelete] = useState<number | null>(null);
+
+  const handleDeleteTab = (index: number) => {
+    setTabToDelete(index);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmDelete = () => {
+    if (tabToDelete !== null) {
+      // TODO: Add backend API call to delete the tab data from the database
+      setTabs((prev) => {
+        const newTabs = [...prev];
+        newTabs.splice(tabToDelete, 1);
+        return newTabs;
+      });
+
+      // If we're deleting the selected tab or one before it, adjust the selected tab
+      if (tabToDelete <= selectedTab) {
+        setSelectedTab(Math.max(0, selectedTab - 1));
+      }
+    }
+    setShowConfirmDialog(false);
+    setTabToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmDialog(false);
+    setTabToDelete(null);
+  };
+
   return (
     <nav className="tabs">
-      <div>
+      <div className="tab-buttons">
         {tabs.map((tab, index) => (
           <button
             key={index}
-            className={selectedTab === index ? "active" : ""}
+            className={`tab-button ${selectedTab === index ? "active" : ""} ${
+              tab.isDone ? "done" : "not-done"
+            }`}
             onClick={() => setSelectedTab(index)}
             onDoubleClick={() => {
               setTabs((prev) => {
@@ -34,6 +67,7 @@ export default function RenderTabNavigation({
             {tab.isRename ? (
               <input
                 type="text"
+                className="tab-rename-input"
                 value={tab.name}
                 onChange={(e) => {
                   setTabs((prev) => {
@@ -47,9 +81,31 @@ export default function RenderTabNavigation({
                     return [...prev];
                   });
                 }}
+                autoFocus
+                onClick={(e) => e.stopPropagation()}
               />
             ) : (
-              <span>{tab.name}</span>
+              <>
+                <span>{tab.name}</span>
+                <span
+                  className="close-tab-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteTab(index);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.stopPropagation();
+                      handleDeleteTab(index);
+                    }
+                  }}
+                  role="button"
+                  aria-label="Close tab"
+                  tabIndex={0}
+                >
+                  ×
+                </span>
+              </>
             )}
           </button>
         ))}
@@ -64,13 +120,35 @@ export default function RenderTabNavigation({
             setTabs((prev) => [
               ...prev,
               {
+                cell_id: NaN,
+                mask_id: NaN,
                 name: `New Tab ${prev.length + 1}`,
                 mask: newmask,
                 isRename: true,
+                isDone: false,
               },
             ]);
           }}
         ></button>
+        {showConfirmDialog && (
+          <div className="confirm-dialog-backdrop">
+            <div className="confirm-dialog">
+              <h3>Confirm Deletion</h3>
+              <p>
+                This action can delete many important data. Are you sure you
+                want to continue?
+              </p>
+              <div className="confirm-dialog-buttons">
+                <button className="cancel-btn" onClick={cancelDelete}>
+                  Cancel
+                </button>
+                <button className="delete-btn" onClick={confirmDelete}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

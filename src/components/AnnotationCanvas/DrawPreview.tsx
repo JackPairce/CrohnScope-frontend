@@ -1,6 +1,12 @@
 "use client";
 
-import { Mask, Mode, Point, Shape } from "@/components/AnnotationCanvas/types";
+import {
+  Mask,
+  Mode,
+  Point,
+  SaveSatues,
+  Shape,
+} from "@/components/AnnotationCanvas/types";
 import {
   forwardRef,
   useEffect,
@@ -17,14 +23,16 @@ import {
 const Red = "rgba(255, 0, 0, 1)";
 const White = "rgba(255, 255, 255, 0)";
 
-const FolderID = "1AA8UCcJfSOo4h7wagO24ShEwJEVop43s";
-
 type Props = {
   imageDim: { width: number; height: number };
   brushSize: number;
   mode: Mode;
   mask: Mask;
   setMask: (mask: Mask) => void;
+  stateSave: {
+    value: SaveSatues;
+    setValue: (value: SaveSatues) => void;
+  };
 };
 
 const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
@@ -35,13 +43,12 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       mask: currentMask,
       setMask,
       imageDim: { height: ImgHeight, width: ImgWidth },
+      stateSave,
     },
     ref
   ) => {
     const drawPreviewCanvasRef = useRef<HTMLCanvasElement>(null);
     const eraserCanvasPreviewRef = useRef<HTMLCanvasElement>(null);
-    const drawPreviewCTX = useRef<CanvasRenderingContext2D | null>(null);
-    const eraserPreviewCTX = useRef<CanvasRenderingContext2D | null>(null);
     useImperativeHandle(ref, () => drawPreviewCanvasRef.current!);
     const [isDrawing, setIsDrawing] = useState(false);
     const [mouseInCanvas, setMouseInCanvas] = useState(false);
@@ -50,6 +57,11 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
 
     const startDrawing = (e: React.MouseEvent) => {
       setIsDrawing(true);
+      if (!stateSave.value.isModified)
+        stateSave.setValue({
+          isSaving: false,
+          isModified: true,
+        });
       if (!drawPreviewCanvasRef.current) return;
       const rect = drawPreviewCanvasRef.current.getBoundingClientRect();
       const scaleX = drawPreviewCanvasRef.current.width / rect.width;
@@ -179,38 +191,6 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
 
-    const handleResize = () => {
-      if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
-        return;
-
-      const eraserPreviewRect =
-        eraserCanvasPreviewRef.current.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      drawPreviewCanvasRef.current.width = eraserPreviewRect.width * dpr;
-      drawPreviewCanvasRef.current.height = eraserPreviewRect.height * dpr;
-      eraserCanvasPreviewRef.current.width = eraserPreviewRect.width * dpr;
-      eraserCanvasPreviewRef.current.height = eraserPreviewRect.height * dpr;
-      let ctx = drawPreviewCanvasRef.current.getContext("2d");
-      if (!ctx) return;
-      ctx.scale(dpr, dpr);
-      ctx = eraserCanvasPreviewRef.current.getContext("2d");
-      if (!ctx) return;
-      ctx.scale(dpr, dpr);
-    };
-
-    // useEffect(() => {
-    //   if (!drawPreviewCanvasRef.current || !eraserCanvasPreviewRef.current)
-    //     return;
-    //   // handleResize();
-    //   drawPreviewCTX.current = drawPreviewCanvasRef.current.getContext("2d", {
-    //     willReadFrequently: true,
-    //   });
-    //   eraserPreviewCTX.current = eraserCanvasPreviewRef.current.getContext(
-    //     "2d",
-    //     { willReadFrequently: true }
-    //   );
-    // }, [drawPreviewCanvasRef, eraserCanvasPreviewRef]);
-
     useEffect(() => {
       if (!drawPreviewCanvasRef.current) return;
       drawPreviewCanvasRef.current.width = ImgWidth;
@@ -235,7 +215,6 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
             border: "1px solid black",
             cursor: mode === "erase" && mouseInCanvas ? "none" : "crosshair",
             opacity: ".5",
-            // imageRendering: "pixelated",
           }}
           onMouseDown={startDrawing}
           onMouseUp={stopDrawing}
@@ -246,7 +225,6 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
             setMouseInCanvas(false);
             clearBrushPreview();
           }}
-          onResize={handleResize}
         />
         <canvas
           ref={eraserCanvasPreviewRef}
@@ -255,9 +233,7 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
           style={{
             zIndex: 3,
             pointerEvents: "none",
-            // imageRendering: "pixelated",
           }}
-          onResize={handleResize}
         />
       </>
     );
