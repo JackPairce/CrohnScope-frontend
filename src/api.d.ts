@@ -11,8 +11,108 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Model Status */
+        /**
+         * Get Model Status
+         * @description Get the current status of the AI model training process.
+         *
+         *     Returns:
+         *         dict: Status information including training state, progress, metrics, and timing.
+         */
         get: operations["get_model_status_ai_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/train": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger Training
+         * @description Manually trigger model training.
+         *
+         *     Returns:
+         *         dict: Status message and whether training was started.
+         */
+        post: operations["trigger_training_ai_train_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/generate-mask/{image_id}/{cell_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate Mask
+         * @description Generate a mask for a specific image and cell type using the AI model.
+         *
+         *     Args:
+         *         image_id: ID of the image to generate the mask for
+         *         cell_id: ID of the cell type to generate the mask for
+         *
+         *     Returns:
+         *         dict: Status message indicating success or failure
+         */
+        post: operations["generate_mask_ai_generate_mask__image_id___cell_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/generate-masks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate All Masks
+         * @description Generate masks for all images that don't have masks yet.
+         *     This runs in the background as it may take some time.
+         *
+         *     Returns:
+         *         dict: Status message
+         */
+        post: operations["generate_all_masks_ai_generate_masks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/check-training-conditions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check Conditions
+         * @description Check if training should be triggered based on current conditions.
+         */
+        get: operations["check_conditions_ai_check_training_conditions_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -49,6 +149,23 @@ export interface paths {
         put?: never;
         /** Save Masks */
         post: operations["save_masks_mask_save__image_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mask/done/{mask_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Mask Done */
+        put: operations["mask_done_mask_done__mask_id__put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -140,17 +257,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/image/get/{image_id}": {
+    "/cells/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Image */
-        get: operations["get_image_image_get__image_id__get"];
+        /**
+         * Get All Cells
+         * @description Get all cells in the database
+         */
+        get: operations["get_all_cells_cells__get"];
         put?: never;
-        post?: never;
+        /**
+         * Create Cell
+         * @description Create a new cell
+         */
+        post: operations["create_cell_cells__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -164,11 +288,42 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Cells */
+        /**
+         * Get Cells
+         * @description Compatibility method for existing code - get all cells for an image
+         */
         get: operations["get_cells_cells_get__image_id__get"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cells/{cell_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cell
+         * @description Get a specific cell by ID
+         */
+        get: operations["get_cell_cells__cell_id__get"];
+        /**
+         * Update Cell
+         * @description Update an existing cell
+         */
+        put: operations["update_cell_cells__cell_id__put"];
+        post?: never;
+        /**
+         * Delete Cell
+         * @description Delete a cell and all associated masks
+         */
+        delete: operations["delete_cell_cells__cell_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -183,7 +338,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Add Cell */
+        /**
+         * Add Cell
+         * @description Legacy method for compatibility with existing code
+         */
         post: operations["add_cell_cells_save__image_id__post"];
         delete?: never;
         options?: never;
@@ -201,6 +359,8 @@ export interface components {
             id: number;
             /** Name */
             name: string;
+            /** Description */
+            description?: string | null;
         };
         /** ApiImage */
         ApiImage: {
@@ -239,6 +399,29 @@ export interface components {
             /** Src */
             src: string;
         };
+        /** ApiSaveMaskResponse */
+        ApiSaveMaskResponse: {
+            /** Id */
+            id: number;
+            /** Cell Id */
+            cell_id: number;
+            /** Src */
+            src: string;
+        };
+        /** CellCreate */
+        CellCreate: {
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+        };
+        /** CellUpdate */
+        CellUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -252,34 +435,6 @@ export interface components {
             page: number;
             /** Total */
             total: number;
-        };
-        /** ImageWithMasks */
-        ImageWithMasks: {
-            /** Id */
-            id: number;
-            /** Filename */
-            filename: string;
-            /** Src */
-            src: string;
-            /**
-             * Is Done
-             * @default false
-             */
-            is_done: boolean;
-            /**
-             * Masks
-             * @default []
-             */
-            masks: components["schemas"]["ApiMask"][];
-        };
-        /** SaveMaskResponse */
-        SaveMaskResponse: {
-            /** Id */
-            id: number;
-            /** Cell Id */
-            cell_id: number;
-            /** Src */
-            src: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -300,6 +455,98 @@ export interface components {
 export type $defs = Record<string, never>;
 export interface operations {
     get_model_status_ai_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    trigger_training_ai_train_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    generate_mask_ai_generate_mask__image_id___cell_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: number;
+                cell_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_all_masks_ai_generate_masks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    check_conditions_ai_check_training_conditions_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -361,9 +608,40 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SaveMaskResponse"][];
+                "application/json": components["schemas"]["ApiSaveMaskResponse"][];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mask_done_mask_done__mask_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mask_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -480,7 +758,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"]["ApiImage"];
+                "application/json": components["schemas"]["ApiImage"];
             };
         };
         responses: {
@@ -490,7 +768,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["ApiImage"];
                 };
             };
             /** @description Validation Error */
@@ -535,13 +813,11 @@ export interface operations {
             };
         };
     };
-    get_image_image_get__image_id__get: {
+    get_all_cells_cells__get: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                image_id: number;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -552,7 +828,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ImageWithMasks"];
+                    "application/json": components["schemas"]["ApiCell"][];
+                };
+            };
+        };
+    };
+    create_cell_cells__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CellCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCell"];
                 };
             };
             /** @description Validation Error */
@@ -582,6 +882,105 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiCell"][];
+                };
+            };
+        };
+    };
+    get_cell_cells__cell_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cell_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCell"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_cell_cells__cell_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cell_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CellUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCell"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_cell_cells__cell_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cell_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

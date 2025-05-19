@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import Loader from "../loader";
-import { ApiImage, uploadMasks } from "./api";
+import { ApiImage, SetMaskDone, uploadMasks } from "./api";
 import { useData } from "./DataContext";
 import DrawPreview from "./DrawPreview";
 import EmptyState from "./empty";
@@ -29,6 +29,7 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
   const [canvasSaveStatus, setCanvasSaveStatus] = useState<SaveSatues>({
     isSaving: false,
     isModified: false,
+    isMarkingAllDone: false,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [imgDim, setImgDim] = useState<{
@@ -69,17 +70,31 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
     setCanvasSaveStatus({
       isSaving: false,
       isModified: false,
+      isMarkingAllDone: false,
     });
   };
 
   const MarkAllDone = async () => {
     if (selectedTab === -1) return;
-    // TODO: Add backend API call to mark all masks as done
+    setCanvasSaveStatus((prev) => ({
+      ...prev,
+      isMarkingAllDone: true,
+    }));
+    await Promise.all(
+      tabs.map(async (tab) => {
+        await SetMaskDone(tab.mask_id);
+      })
+    );
     setTabs((prev) => {
       return prev.map((tab) => ({
         ...tab,
         isDone: true,
       }));
+    });
+    setCanvasSaveStatus({
+      isSaving: false,
+      isModified: false,
+      isMarkingAllDone: false,
     });
   };
   if (isLoading || isNaN(selectedTab) || !imgDim) return <Loader />;
@@ -102,6 +117,7 @@ function MaskDrawingCanvas({ image }: { image: ApiImage }) {
         setSelectedTab={setSelectedTab}
         setTabs={setTabs}
         overlayRef={overlayRef}
+        isMarkingAllDone={canvasSaveStatus.isMarkingAllDone}
       />
       <div className="canvas-container">
         <img

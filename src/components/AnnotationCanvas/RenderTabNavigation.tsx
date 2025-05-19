@@ -1,5 +1,7 @@
 "use client";
+import Image from "next/image";
 import React, { useState } from "react";
+import { SetMaskDone } from "./api";
 import { NewMask } from "./MaskUtils";
 import { Tab } from "./types";
 
@@ -9,14 +11,17 @@ export default function RenderTabNavigation({
   setSelectedTab,
   setTabs,
   overlayRef,
+  isMarkingAllDone,
 }: {
   tabs: Tab[];
   selectedTab: number;
   setSelectedTab: (index: number) => void;
   setTabs: React.Dispatch<React.SetStateAction<Tab[]>>;
   overlayRef: React.RefObject<HTMLCanvasElement | null>;
+  isMarkingAllDone: boolean;
 }) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isMarkingDone, setIsMarkingDone] = useState(false);
   const [tabToDelete, setTabToDelete] = useState<number | null>(null);
 
   const handleDeleteTab = (index: number) => {
@@ -55,7 +60,11 @@ export default function RenderTabNavigation({
             key={index}
             className={`tab-button ${selectedTab === index ? "active" : ""} ${
               tab.isDone ? "done" : "not-done"
-            }`}
+            } ${
+              tabs[selectedTab].cell_id == tab.cell_id && isMarkingDone
+                ? "is-processing"
+                : ""
+            } `}
             onClick={() => setSelectedTab(index)}
             onDoubleClick={() => {
               setTabs((prev) => {
@@ -150,6 +159,32 @@ export default function RenderTabNavigation({
           </div>
         )}
       </div>
+      {/* mark current tab as done */}
+      {!isMarkingAllDone && !tabs[selectedTab].isDone && (
+        <button
+          className="save done"
+          onClick={() =>
+            (async () => {
+              setIsMarkingDone(true);
+              await SetMaskDone(tabs[selectedTab].mask_id);
+              setTabs((prev) => {
+                prev[selectedTab].isDone = true;
+                return [...prev];
+              });
+              setIsMarkingDone(false);
+            })()
+          }
+        >
+          <Image
+            src="/svgs/checkmark.svg"
+            alt="Mark Done"
+            width={24}
+            height={24}
+            className="svg-icon"
+          />
+          <span>{isMarkingDone ? "Saving..." : "Mark Mask as Done"}</span>
+        </button>
+      )}
     </nav>
   );
 }

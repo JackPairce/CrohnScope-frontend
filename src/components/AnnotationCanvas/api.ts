@@ -2,7 +2,7 @@ import { components, paths } from "@/api";
 import axios from "axios";
 
 // TODO Replace with your actual API base URL
-const API_BASE_URL = "http://105.101.74.8:4000"; // 105.101.74.8
+const API_BASE_URL = "http://mylaptop:5000"; // 105.101.74.8
 
 // Types
 export type ApiImage = components["schemas"]["ApiImage"];
@@ -21,21 +21,10 @@ export const getImages = async (
 };
 
 // Upload an image
-// export const uploadImage = async (
-//   file: File
-// ): Promise<
-//   paths["/image/upload"]["post"]["responses"]["200"]["content"]["application/json"]
-// > => {
-//   const formData = new FormData();
-//   formData.append("file", file);
-
-//   const response = await axios.post(`${API_BASE_URL}/image/upload`, formData, {
-//     headers: {
-//       "Content-Type": "multipart/form-data",
-//     },
-//   });
-//   return response.data;
-// };
+export const uploadImage = async (image: ApiImage): Promise<ApiImage> => {
+  const response = await axios.post(`${API_BASE_URL}/image/upload`, image);
+  return response.data;
+};
 
 // Delete an image
 export const deleteImage = async (
@@ -70,14 +59,19 @@ export const getMask = async (
 
 export const uploadMasks = async (
   imageId: number,
-  masks: paths["/mask/save/{image_id}"]["post"]["requestBody"]["content"]["application/json"]
+  masks: components["schemas"]["ApiSaveMaskResponse"][]
 ): Promise<{ message: string }> => {
-  console.log(masks.map((mask) => mask.id));
-
   const response = await axios.post(
     `${API_BASE_URL}/mask/save/${imageId}`,
     masks
   );
+  return response.data;
+};
+
+export const SetMaskDone = async (
+  maskId: paths["/mask/done/{mask_id}"]["put"]["parameters"]["path"]["mask_id"]
+): Promise<{ message: string }> => {
+  const response = await axios.put(`${API_BASE_URL}/mask/done/${maskId}`);
   return response.data;
 };
 

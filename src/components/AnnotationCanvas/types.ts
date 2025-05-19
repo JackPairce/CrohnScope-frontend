@@ -13,6 +13,7 @@ export type Mask = HTMLImageElement;
 export type SaveSatues = {
   isSaving: boolean;
   isModified: boolean;
+  isMarkingAllDone: boolean;
 };
 
 export type Tab = {

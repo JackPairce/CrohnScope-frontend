@@ -1,77 +1,145 @@
 "use client";
 
-import { ApiImage, getImages } from "@/components/AnnotationCanvas/api";
 import { useData } from "@/components/AnnotationCanvas/DataContext";
-import Loader from "@/components/loader";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+import EmptyState from "./EmptyState";
+import ImageItem from "./ImageItem";
+import LoadingState from "./LoadingState";
+import LoadMore from "./LoadMore";
+import SectionHeader from "./SectionHeader";
 import "./styles.scss";
+import { useImages } from "./useImages";
 
 const queryClient = new QueryClient();
 
 export default function ImagesNav() {
   const [hide, setHide] = useState(false);
+  const [toasts, setToasts] = useState<
+    Array<{ id: string; message: string; type: ToastType }>
+  >([]);
+
+  const addToast = (message: string, type: ToastType) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, message, type }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <aside>
-        <Imagesnav hide={hide} setHide={setHide} />
-        <Imagesnav hide={!hide} setHide={setHide} done />
+        <ImagesSection hide={hide} setHide={setHide} addToast={addToast} />
+        <ImagesSection
+          hide={!hide}
+          setHide={setHide}
+          done
+          addToast={addToast}
+        />
       </aside>
+
+      <ToastContainer>
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => removeToast(toast.id)}
+          />
+        ))}
+      </ToastContainer>
     </QueryClientProvider>
   );
 }
 
-function Imagesnav({
+function ImagesSection({
   done,
   hide,
   setHide,
+  addToast,
 }: {
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
   done?: true;
+  addToast: (message: string, type: ToastType) => void;
 }) {
   const { setImg } = useData();
-  const [isError, setIsError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(NaN);
-  const [images, setImages] = useState<(ApiImage & { mimetype: string })[]>([]);
-  const [page, setPage] = useState(1);
-  const [pageLength, setPageLength] = useState(NaN);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [imageToDelete, setImageToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
 
-  const NextPage = () => {
-    setPage((prev) => prev + 1);
+  // Use our custom hook for image operations
+  const {
+    images,
+    isLoading,
+    isError,
+    pageLength,
+    selectedImage,
+    loadNextPage,
+    selectImage,
+    handleUploadImage,
+    handleDeleteImage,
+  } = useImages(!!done, addToast, setImg);
+
+  const handleDeleteClick = (
+    e: React.MouseEvent,
+    imageId: number,
+    imageName: string
+  ) => {
+    e.stopPropagation();
+    setImageToDelete({ id: imageId, name: imageName });
+    setDeleteDialogOpen(true);
   };
 
-  const SelectImage = async (imgData: ApiImage, index: number) => {
-    setSelectedImage(index);
-    setImg(imgData);
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setImageToDelete(null);
   };
 
-  useEffect(() => {
-    setIsLoading(true);
-    getImages(page, done)
-      .then((res) => {
-        if (res.total !== pageLength) setPageLength(res.total);
-        setImages((prev) => [
-          // For page 1, replace existing images, for others append
-          ...(page === 1 ? [] : prev),
-          ...res.images.map((item) => ({
-            id: item.id,
-            filename: item.filename.split(".")[0],
-            mimetype: item.src.split(":")[1].split(";")[0],
-            src: item.src,
-            is_done: item.is_done,
-          })),
-        ]);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setIsError(error.message || "Failed to load images");
-        setIsLoading(false);
-      });
-  }, [page, done, pageLength]); // Added done and pageLength to dependency array
+  const handleConfirmDelete = async () => {
+    if (!imageToDelete) return;
 
-  if (isLoading && images.length === 0) return <Loader className="h-0.5" />;
+    setDeleteDialogOpen(false);
+
+    try {
+      // Find the image element by ID
+      const imageElement = document.querySelector(
+        `li[data-image-id="${imageToDelete.id}"]`
+      );
+      if (imageElement) {
+        imageElement.classList.add("deleting");
+      }
+
+      // Delete the image
+      const success = await handleDeleteImage(
+        imageToDelete.id,
+        imageToDelete.name
+      );
+
+      // If deletion failed, remove the deleting class
+      if (!success) {
+        const imageElement = document.querySelector(
+          `li[data-image-id="${imageToDelete.id}"]`
+        );
+        if (imageElement) {
+          imageElement.classList.remove("deleting");
+        }
+      }
+    } finally {
+      setImageToDelete(null);
+    }
+  };
+
+  // Display loading state for initial load
+  if (isLoading && images.length === 0) {
+    return !done && <LoadingState />;
+  }
 
   if (isError) {
     return <p>Error loading images: {isError}</p>;
@@ -79,58 +147,66 @@ function Imagesnav({
 
   return (
     <>
-      <div
-        className="flex justify-between p-1 px-2 border-amber-50 border-1 cursor-pointer"
-        onClick={() => setHide((prev) => !prev)}
-      >
-        <h4>
-          {done
-            ? `${pageLength} Finished Images`
-            : `${pageLength} Not Finished`}
-        </h4>
-        <span
-          style={{
-            fontSize: "1.2rem",
-            fontWeight: "bold",
-            transform: hide ? "rotate(-90deg)" : "rotate(90deg)",
-            transition: "transform 0.3s ease",
-            display: "inline-block",
-            marginLeft: "10px",
-          }}
-        >
-          {">"}
-        </span>
-      </div>
-      <ul style={{ display: hide ? "none" : "block" }}>
-        {images.map((image, index) => (
-          <li
-            key={index}
-            className={selectedImage == index ? "active" : ""}
-            onClick={() => SelectImage(image, index)}
-          >
-            <img src={image.src} alt={image.filename} />
-            <p>{image.filename}</p>
-          </li>
-        ))}
-        {pageLength > images.length && (
-          <button
-            className={
-              "px-4 py-2 mt-4 text-white bg-blue-500 rounded w-full " +
-              (isLoading
-                ? "opacity-70 cursor-not-allowed"
-                : "hover:bg-blue-600")
-            }
-            onClick={() => NextPage()}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="inline-block w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></span>
-            ) : (
-              "Load More"
-            )}{" "}
-          </button>
-        )}
-      </ul>
+      {deleteDialogOpen && imageToDelete && (
+        <ConfirmDialog
+          isOpen={deleteDialogOpen}
+          title="Delete Image"
+          message={`Are you sure you want to delete "${imageToDelete.name}"? This action cannot be undone.`}
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          type="danger"
+        />
+      )}
+
+      <SectionHeader
+        isDone={!!done}
+        isCollapsed={hide}
+        count={Number.isNaN(pageLength) ? 0 : pageLength}
+        onToggle={() => setHide((prev) => !prev)}
+        onUpload={!done ? handleUploadImage : undefined}
+      />
+
+      {!hide && (
+        <>
+          {images.length > 0 ? (
+            <div className="images-container">
+              <ul className="images-grid">
+                {images.map((image, index) => (
+                  <ImageItem
+                    key={index}
+                    image={image}
+                    isSelected={selectedImage === index}
+                    onSelect={() => selectImage(image, index)}
+                    onDeleteClick={(e) =>
+                      handleDeleteClick(
+                        e,
+                        image.id,
+                        image.filename.split(".")[0]
+                      )
+                    }
+                  />
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <EmptyState
+              isDone={!!done}
+              onUpload={!done ? handleUploadImage : undefined}
+            />
+          )}
+
+          {pageLength > images.length && (
+            <LoadMore
+              isLoading={isLoading}
+              currentCount={images.length}
+              totalCount={pageLength}
+              onLoadMore={loadNextPage}
+            />
+          )}
+        </>
+      )}
     </>
   );
 }
