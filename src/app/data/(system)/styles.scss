@@ -48,31 +48,6 @@ main {
     }
 
 
-
-    .empty-state {
-        grid-area: empty;
-        background-color: rgba(0, 0, 0, 0.212);
-        color: gray;
-        border: 2px dashed #bdc3c7;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin: 10px;
-        border-radius: 5px;
-
-        h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        p {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-    }
-
     .tools {
         grid-area: tools;
         background-color: #0d1118;

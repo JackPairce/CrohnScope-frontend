@@ -13,7 +13,7 @@ const Header = ({ title }: HeaderProps) => {
         href="/data"
         className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 text-black"
       >
-        <Image src="/home.svg" alt="Home" width={16} height={16} />
+        <Image src="/svgs/home.svg" alt="Home" width={16} height={16} />
         <span>Home</span>
       </Link>
       <h1 className="text-xxl font-semibold">{title}</h1>
