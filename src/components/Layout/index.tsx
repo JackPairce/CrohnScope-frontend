@@ -33,14 +33,19 @@ const navSections = [
     title: "Data Processing",
     links: [
       {
-        name: "Image Labeling",
-        href: "/data/labeling",
-        icon: "/svgs/brush.svg",
+        name: "Image Library",
+        href: "/data/images",
+        icon: "/svgs/file.svg",
       },
       {
         name: "Segmentation",
         href: "/data/segmentation",
-        icon: "/svgs/brush-size.svg",
+        icon: "/svgs/brush.svg",
+      },
+      {
+        name: "Cell Classification",
+        href: "/data/labeling",
+        icon: "/svgs/cell-classification.svg",
       },
       { name: "AI Model", href: "/data/model", icon: "/svgs/model.svg" },
     ],
