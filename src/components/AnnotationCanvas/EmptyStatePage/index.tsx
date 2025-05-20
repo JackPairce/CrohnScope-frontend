@@ -7,12 +7,12 @@ export default function EmptyStatePage() {
   return (
     <div className="empty-state">
       <svg
-        width="80"
-        height="80"
+        className="svg-icon"
+        width="150"
+        height="150"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="empty-state-icon"
       >
         <rect
           x="3"

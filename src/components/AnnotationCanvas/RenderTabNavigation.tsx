@@ -182,7 +182,9 @@ export default function RenderTabNavigation({
             height={24}
             className="svg-icon"
           />
-          <span>{isMarkingDone ? "Saving..." : "Mark Mask as Done"}</span>
+          <span>
+            {isMarkingDone ? "Saving..." : "Mark Current Mask as Done"}
+          </span>
         </button>
       )}
     </nav>

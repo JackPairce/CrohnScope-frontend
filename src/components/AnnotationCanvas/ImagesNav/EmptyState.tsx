@@ -43,7 +43,10 @@ export default function EmptyState({ isDone, onUpload }: EmptyStateProps) {
         <>
           <p className="empty-state-hint">Upload images to get started</p>
           <div className="empty-state-upload">
-            <UploadButton label="Upload Images" onUpload={onUpload} />
+            <UploadButton
+              label="Upload Images"
+              onUpload={onUpload ? onUpload : () => {}}
+            />
           </div>
         </>
       )}

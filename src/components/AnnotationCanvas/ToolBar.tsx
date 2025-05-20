@@ -52,6 +52,11 @@ export default function renderToolBar({
                 width={20}
                 height={20}
                 className="svg-icon"
+                style={{
+                  // apply a blue filer
+                  filter:
+                    "invert(48%) sepia(79%) saturate(2476%) hue-rotate(190deg) brightness(118%) contrast(95%)",
+                }}
               />
             </div>
             <div className="brush-size">

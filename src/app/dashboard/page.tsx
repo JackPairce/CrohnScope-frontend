@@ -38,7 +38,7 @@ export default function DashboardPage() {
                 alt="Images"
                 width={24}
                 height={24}
-                className="text-blue-400"
+                className="text-blue-400 svg-icon"
               />
             </div>
             <div className="text-left">
@@ -56,7 +56,7 @@ export default function DashboardPage() {
                 alt="Segmented"
                 width={24}
                 height={24}
-                className="text-indigo-400"
+                className="text-indigo-400 svg-icon"
               />
             </div>
             <div className="text-left">
@@ -74,7 +74,7 @@ export default function DashboardPage() {
                 alt="Labeled"
                 width={24}
                 height={24}
-                className="text-emerald-400"
+                className="text-emerald-400 svg-icon"
               />
             </div>
             <div className="text-left">
@@ -109,7 +109,7 @@ export default function DashboardPage() {
                   alt="Dataset Quality"
                   width={20}
                   height={20}
-                  className="text-purple-400"
+                  className="text-purple-400 svg-icon"
                 />
               </div>
               <h3 className="text-lg font-bold text-white">Dataset Quality</h3>
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                   alt="Dataset Size"
                   width={20}
                   height={20}
-                  className="text-blue-400"
+                  className="text-blue-400 svg-icon"
                 />
               </div>
               <h3 className="text-lg font-bold text-white">Dataset Size</h3>
@@ -264,7 +264,7 @@ export default function DashboardPage() {
                     alt="Upload"
                     width={24}
                     height={24}
-                    className="text-blue-400"
+                    className="text-blue-400 svg-icon"
                   />
                 </div>
                 <p className="text-center text-gray-300 font-medium">Upload</p>
@@ -281,7 +281,7 @@ export default function DashboardPage() {
                     alt="Segment"
                     width={24}
                     height={24}
-                    className="text-indigo-400"
+                    className="text-indigo-400 svg-icon"
                   />
                 </div>
                 <p className="text-center text-gray-300 font-medium">Segment</p>
@@ -298,7 +298,7 @@ export default function DashboardPage() {
                     alt="Label"
                     width={24}
                     height={24}
-                    className="text-emerald-400"
+                    className="text-emerald-400 svg-icon"
                   />
                 </div>
                 <p className="text-center text-gray-300 font-medium">Label</p>
@@ -315,7 +315,7 @@ export default function DashboardPage() {
                     alt="Export"
                     width={24}
                     height={24}
-                    className="text-amber-400"
+                    className="text-amber-400 svg-icon"
                   />
                 </div>
                 <p className="text-center text-gray-300 font-medium">Export</p>
@@ -388,7 +388,7 @@ export default function DashboardPage() {
                       alt="AI Model"
                       width={24}
                       height={24}
-                      className="text-cyan-400"
+                      className="text-cyan-400 svg-icon"
                     />
                   </div>
                   <div>
