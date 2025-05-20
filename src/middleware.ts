@@ -17,12 +17,6 @@ export async function middleware(req: NextRequest) {
     } ${req.url}`
   );
 
-  // Redirect root path to datagen
-  if (url.pathname === "/") {
-    url.pathname = "/data";
-    return NextResponse.redirect(url, { headers });
-  }
-
   // Skip middleware for Next.js internal routes
   if (req.method === "GET" && !req.nextUrl.pathname.startsWith("/_next/")) {
     return NextResponse.next({ headers });
