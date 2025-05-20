@@ -1,9 +1,61 @@
+import Image from "next/image";
+import "./styles.scss";
+
 export default function Loader({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`loader flex h-full items-center justify-center ${className}`}
+      className={`loader flex flex-col h-full items-center justify-center gap-4 ${className}`}
     >
-      <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-gray-300 svg-icon"></div>
+      <div className="relative">
+        {/* Microscope Icon */}
+        <div className="relative z-10">
+          <Image
+            src="/svgs/microscope.svg"
+            alt="Loading"
+            width={48}
+            height={48}
+            className="text-blue-500 animate-bounce"
+          />
+        </div>
+
+        {/* Scanning Effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/0 via-blue-500/30 to-blue-500/0 animate-scan" />
+
+        {/* Cells Animation */}
+        <div className="absolute -inset-8 flex items-center justify-center">
+          <div className="cell-grid">
+            {[...Array(9)].map((_, i) => (
+              <div
+                key={i}
+                className={`h-4 w-4 rounded-full bg-blue-500/20 animate-pulse`}
+                style={{
+                  animationDelay: `${i * 0.1}s`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-gray-600 dark:text-gray-300 font-medium">
+          Processing
+        </p>
+        <div className="flex gap-1">
+          <div
+            className="w-2 h-2 rounded-full bg-blue-500 animate-bounce"
+            style={{ animationDelay: "0s" }}
+          />
+          <div
+            className="w-2 h-2 rounded-full bg-blue-500 animate-bounce"
+            style={{ animationDelay: "0.2s" }}
+          />
+          <div
+            className="w-2 h-2 rounded-full bg-blue-500 animate-bounce"
+            style={{ animationDelay: "0.4s" }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -7,9 +7,12 @@ export const metadata = {
 };
 
 const SegmentationCanvas = async () => {
+  // simulate a slow network request
+  // await new Promise((resolve) => setTimeout(resolve, 10000));
   return (
     <>
       <AnnotationCanvas>
+        {/* @ts-ignore */}
         <DrawCanvas />
       </AnnotationCanvas>
     </>

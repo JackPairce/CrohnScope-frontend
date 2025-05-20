@@ -10,6 +10,7 @@ const CellLabelingCanvas = async () => {
   return (
     <>
       <AnnotationCanvas>
+        {/* @ts-ignore */}
         <ClassifficationCanvas />
       </AnnotationCanvas>
     </>
