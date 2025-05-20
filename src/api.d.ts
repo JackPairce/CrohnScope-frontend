@@ -349,6 +349,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/monitor/system": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get System Info
+         * @description Get static system information
+         */
+        get: operations["get_system_info_monitor_system_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/monitor/data-usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Data Usage
+         * @description Get detailed information about data directory usage
+         */
+        get: operations["get_data_usage_monitor_data_usage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/monitor/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get System Metrics
+         * @description Get real-time system metrics (CPU, Memory, GPU)
+         */
+        get: operations["get_system_metrics_monitor_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -422,6 +482,98 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /** CpuInfo */
+        CpuInfo: {
+            /** Physical Cores */
+            physical_cores: number;
+            /** Total Cores */
+            total_cores: number;
+            /** Max Frequency */
+            max_frequency: string;
+            /** Current Frequency */
+            current_frequency: string;
+            /** Usage Per Core */
+            usage_per_core: string[];
+            /** Total Usage */
+            total_usage: string;
+            /**
+             * Temperatures
+             * @description CPU temperatures in Celsius
+             */
+            temperatures: {
+                [key: string]: number;
+            } | null;
+        };
+        /** DataDirectoryInfo */
+        DataDirectoryInfo: {
+            /** Path */
+            path: string;
+            /** Total Size */
+            total_size: string;
+            /** Max Size */
+            max_size: string;
+            dataset: components["schemas"]["DatasetInfo"];
+        };
+        /** DataUsageBreakdown */
+        DataUsageBreakdown: {
+            dataset: components["schemas"]["DatasetBreakdown"];
+            models: components["schemas"]["ModelInfo"];
+        };
+        /** DataUsageResponse */
+        DataUsageResponse: {
+            /** Total Usage */
+            total_usage: string;
+            /** Max Size */
+            max_size: string;
+            /** Percentage Used */
+            percentage_used: string;
+            breakdown: components["schemas"]["DataUsageBreakdown"];
+        };
+        /** DatasetBreakdown */
+        DatasetBreakdown: {
+            /** Total Size */
+            total_size: string;
+            images: components["schemas"]["DirectoryStats"];
+            masks: components["schemas"]["DirectoryStats"];
+        };
+        /** DatasetInfo */
+        DatasetInfo: {
+            /** Images */
+            images: number;
+            /** Masks */
+            masks: number;
+        };
+        /** DirectoryStats */
+        DirectoryStats: {
+            /** Count */
+            count: number;
+            /** Size */
+            size: string;
+        };
+        /** DiskInfo */
+        DiskInfo: {
+            /** Total */
+            total: string;
+            /** Used */
+            used: string;
+            /** Free */
+            free: string;
+            /** Percentage */
+            percentage: string;
+        };
+        /** GpuInfo */
+        GpuInfo: {
+            /** Gpu Count */
+            gpu_count: number;
+            /** Current Device */
+            current_device: number;
+            /** Device Name */
+            device_name: string;
+            /** Memory Allocated */
+            memory_allocated: string;
+            /** Memory Reserved */
+            memory_reserved: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -435,6 +587,61 @@ export interface components {
             page: number;
             /** Total */
             total: number;
+        };
+        /** MemoryInfo */
+        MemoryInfo: {
+            /** Total */
+            total: string;
+            /** Available */
+            available: string;
+            /** Used */
+            used: string;
+            /** Percentage */
+            percentage: string;
+        };
+        /** ModelInfo */
+        ModelInfo: {
+            /** Size */
+            size: string;
+            /** Files */
+            files: string[];
+        };
+        /** StorageInfo */
+        StorageInfo: {
+            data_directory: components["schemas"]["DataDirectoryInfo"];
+        };
+        /** SystemInfo */
+        SystemInfo: {
+            /** System */
+            system: string;
+            /** Node Name */
+            node_name: string;
+            /** Release */
+            release: string;
+            /** Version */
+            version: string;
+            /** Machine */
+            machine: string;
+            /** Processor */
+            processor: string;
+            /** Uptime */
+            uptime: string;
+        };
+        /** SystemMetrics */
+        SystemMetrics: {
+            /** Timestamp */
+            timestamp: string;
+            cpu: components["schemas"]["CpuInfo"];
+            memory: components["schemas"]["MemoryInfo"];
+            gpu: components["schemas"]["GpuInfo"] | null;
+        };
+        /** SystemResponse */
+        SystemResponse: {
+            /** Timestamp */
+            timestamp: string;
+            system: components["schemas"]["SystemInfo"];
+            storage: components["schemas"]["StorageInfo"];
+            disk: components["schemas"]["DiskInfo"];
         };
         /** ValidationError */
         ValidationError: {
@@ -1012,6 +1219,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_system_info_monitor_system_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemResponse"];
+                };
+            };
+        };
+    };
+    get_data_usage_monitor_data_usage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataUsageResponse"];
+                };
+            };
+        };
+    };
+    get_system_metrics_monitor_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemMetrics"];
                 };
             };
         };
