@@ -9,16 +9,13 @@ export const metadata = {
   description: "A hub for processing data",
 };
 
+import { redirect } from "next/navigation";
+
 export default function DataProcessingPage() {
-  // Current date to show last updated
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  redirect("/data/labeling");
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       {/* Header Section */}
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-3 text-blue-400">

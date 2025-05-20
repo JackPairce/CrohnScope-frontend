@@ -1,3 +1,4 @@
+import Layout from "@/components/Layout";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies, headers } from "next/headers";
@@ -42,9 +43,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-      // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {isAuthPage ? children : <Layout>{children}</Layout>}
+        </Providers>
       </body>
     </html>
   );

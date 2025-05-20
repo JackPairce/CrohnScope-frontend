@@ -4,19 +4,21 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import Loader from "../loader";
 import { ApiImage, SetMaskDone, uploadMasks } from "./api";
-import { useData } from "./DataContext";
 import DrawPreview from "./DrawPreview";
+import EmptyStatePage from "./EmptyStatePage";
 import { ExtractRealMask, LoadMasks } from "./MaskUtils";
 import RenderTabNavigation from "./RenderTabNavigation";
 import ToolBar from "./ToolBar";
 import { Mode, SaveSatues, Tab } from "./types";
-import EmptyStatePage from "./EmptyStatePage";
 
-export default function renderMaskDrawingCanvas() {
-  const { img } = useData();
+export default function renderMaskDrawingCanvas({
+  image,
+}: {
+  image: ApiImage | null;
+}) {
   return (
     <QueryClientProvider client={new QueryClient()}>
-      {img ? <MaskDrawingCanvas image={img} /> : <EmptyStatePage />}
+      {image ? <MaskDrawingCanvas image={image} /> : <EmptyStatePage />}
     </QueryClientProvider>
   );
 }

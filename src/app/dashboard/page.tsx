@@ -13,7 +13,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+    <div className="flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       {/* Header Section */}
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-4xl md:text-5xl font-bold mb-3 text-blue-400">

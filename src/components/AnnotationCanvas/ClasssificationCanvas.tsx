@@ -2,25 +2,25 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ApiImage } from "./api";
-import { useData } from "./DataContext";
 import EmptyStatePage from "./EmptyStatePage";
 import LayerState, { State } from "./LayerState";
 import { LoadMasks } from "./MaskUtils";
 import RenderTabNavigation from "./RenderTabNavigation";
 import { Tab } from "./types";
 
-export default function ClassifficationCanvas() {
-  const { img } = useData();
-
+export default function ClassifficationCanvas({
+  image,
+}: {
+  image: ApiImage | null;
+}) {
   return (
     <QueryClientProvider client={new QueryClient()}>
-      {img ? <Worspace image={img} /> : <EmptyStatePage />}
+      {image ? <Worspace image={image} /> : <EmptyStatePage />}
     </QueryClientProvider>
   );
 }
 
 function Worspace({ image }: { image: ApiImage }) {
-  const { img } = useData();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [layerstate, setLaterState] = useState<State>("all");

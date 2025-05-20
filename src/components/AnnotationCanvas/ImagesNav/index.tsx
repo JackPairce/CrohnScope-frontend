@@ -1,6 +1,5 @@
 "use client";
 
-import { useData } from "@/components/AnnotationCanvas/DataContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,10 +11,15 @@ import LoadMore from "./LoadMore";
 import SectionHeader from "./SectionHeader";
 import "./styles.scss";
 import { useImages } from "./useImages";
+import { ApiImage } from "../api";
 
 const queryClient = new QueryClient();
 
-export default function ImagesNav() {
+export default function ImagesNav({
+  setImage,
+}: {
+  setImage: Dispatch<SetStateAction<ApiImage | null>>;
+}) {
   const [hide, setHide] = useState(false);
   const [toasts, setToasts] = useState<
     Array<{ id: string; message: string; type: ToastType }>
@@ -32,15 +36,21 @@ export default function ImagesNav() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <aside>
-        <ImagesSection hide={hide} setHide={setHide} addToast={addToast} />
+      <section className="images-nav">
+        <ImagesSection
+          hide={hide}
+          setHide={setHide}
+          addToast={addToast}
+          setImage={setImage}
+        />
         <ImagesSection
           hide={!hide}
           setHide={setHide}
           done
           addToast={addToast}
+          setImage={setImage}
         />
-      </aside>
+      </section>
 
       <ToastContainer>
         {toasts.map((toast) => (
@@ -61,13 +71,14 @@ function ImagesSection({
   hide,
   setHide,
   addToast,
+  setImage,
 }: {
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
   done?: true;
   addToast: (message: string, type: ToastType) => void;
+  setImage: Dispatch<SetStateAction<ApiImage | null>>;
 }) {
-  const { setImg } = useData();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<{
     id: number;
@@ -85,7 +96,7 @@ function ImagesSection({
     selectImage,
     handleUploadImage,
     handleDeleteImage,
-  } = useImages(!!done, addToast, setImg);
+  } = useImages(!!done, addToast, setImage);
 
   const handleDeleteClick = (
     e: React.MouseEvent,
