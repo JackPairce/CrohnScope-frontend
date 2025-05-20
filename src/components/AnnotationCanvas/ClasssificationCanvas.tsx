@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ApiImage } from "./api";
 import { useData } from "./DataContext";
-import EmptyState from "./empty";
+import EmptyStatePage from "./EmptyStatePage";
 import LayerState, { State } from "./LayerState";
 import { LoadMasks } from "./MaskUtils";
 import RenderTabNavigation from "./RenderTabNavigation";
@@ -14,7 +14,7 @@ export default function ClassifficationCanvas() {
 
   return (
     <QueryClientProvider client={new QueryClient()}>
-      {img ? <Worspace image={img} /> : <EmptyState />}
+      {img ? <Worspace image={img} /> : <EmptyStatePage />}
     </QueryClientProvider>
   );
 }
@@ -47,6 +47,7 @@ function Worspace({ image }: { image: ApiImage }) {
         setSelectedTab={() => {}}
         setTabs={setTabs}
         overlayRef={coordinatesRef}
+        isMarkingAllDone={false}
       />
       <div className="canvas-container">
         <img

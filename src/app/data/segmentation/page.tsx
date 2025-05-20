@@ -1,5 +1,6 @@
+import AnnotationCanvas from "@/components/AnnotationCanvas";
+import Header from "@/components/AnnotationCanvas/Header";
 import DrawCanvas from "@/components/AnnotationCanvas/MaskDrawingCanvas";
-import Header from "@/components/Header";
 
 export const metadata = {
   title: "Segmentation Canvas",
@@ -9,8 +10,10 @@ export const metadata = {
 const SegmentationCanvas = async () => {
   return (
     <>
-      <Header title={metadata.title} />
-      <DrawCanvas />
+      <AnnotationCanvas>
+        <Header title={metadata.title} />
+        <DrawCanvas />
+      </AnnotationCanvas>
     </>
   );
 };

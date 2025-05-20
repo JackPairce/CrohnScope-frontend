@@ -1,5 +1,9 @@
+import Loader from "@/components/loader";
+import { useData } from "../DataContext";
 import "./styles.scss";
 export default function EmptyStatePage() {
+  const { isLoading } = useData();
+  if (isLoading) return <Loader className="h-screen" />;
   return (
     <div className="empty-state">
       <svg

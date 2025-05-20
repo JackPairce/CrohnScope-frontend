@@ -6,17 +6,17 @@ import Loader from "../loader";
 import { ApiImage, SetMaskDone, uploadMasks } from "./api";
 import { useData } from "./DataContext";
 import DrawPreview from "./DrawPreview";
-import EmptyState from "./empty";
 import { ExtractRealMask, LoadMasks } from "./MaskUtils";
 import RenderTabNavigation from "./RenderTabNavigation";
 import ToolBar from "./ToolBar";
 import { Mode, SaveSatues, Tab } from "./types";
+import EmptyStatePage from "./EmptyStatePage";
 
 export default function renderMaskDrawingCanvas() {
   const { img } = useData();
   return (
     <QueryClientProvider client={new QueryClient()}>
-      {img ? <MaskDrawingCanvas image={img} /> : <EmptyState />}
+      {img ? <MaskDrawingCanvas image={img} /> : <EmptyStatePage />}
     </QueryClientProvider>
   );
 }

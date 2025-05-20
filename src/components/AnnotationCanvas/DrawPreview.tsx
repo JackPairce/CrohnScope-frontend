@@ -61,6 +61,7 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
         stateSave.setValue({
           isSaving: false,
           isModified: true,
+          isMarkingAllDone: false,
         });
       if (!drawPreviewCanvasRef.current) return;
       const rect = drawPreviewCanvasRef.current.getBoundingClientRect();
