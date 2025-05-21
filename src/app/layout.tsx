@@ -34,11 +34,9 @@ export default async function RootLayout({
   // get cookies
   const cookieStore = await cookies();
   const uid = cookieStore.get("uid")?.value;
-  const isAuthPage = (await headers())
-    .get("x-current-path")
-    ?.startsWith("/auth/");
+  const isAuthPage = (await headers()).get("x-current-path") === "/auth";
 
-  if (!isAuthPage && !(uid && getUserById(uid))) redirect("/auth/login");
+  if (!isAuthPage && !(uid && getUserById(uid))) redirect("/auth");
 
   return (
     <html lang="en">

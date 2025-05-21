@@ -5,8 +5,7 @@ import { loginUser, registerUser } from "../../_lib/auth";
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
 
-  //   if the req pathname ends with /auth/register
-  const isRegister = req.headers.get("x-by-path")?.endsWith("/auth/register");
+  const isRegister = req.headers.get("x-current-path")?.endsWith("/register");
   const response = isRegister
     ? await registerUser({ username, password })
     : await loginUser({ username, password });
