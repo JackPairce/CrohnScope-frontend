@@ -371,7 +371,6 @@ export default function DataProcessingPage() {
             >
               Switch to Dashboard
             </Link>
-            <span className="text-gray-500">Last updated: {currentDate}</span>
           </div>
           <div className="flex flex-wrap items-center gap-6">
             <span className="flex items-center">

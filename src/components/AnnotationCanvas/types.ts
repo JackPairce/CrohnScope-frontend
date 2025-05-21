@@ -1,6 +1,6 @@
 export type Point = { x: number; y: number };
 // export type Mode = "draw" | "erase";
-export const modes = ["draw", "erase"] as const;
+export const modes = ["draw", "erase", "view"] as const;
 export type Mode = (typeof modes)[number];
 
 export type Shape = {

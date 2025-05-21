@@ -1,5 +1,5 @@
 import AnnotationCanvas from "@/components/AnnotationCanvas";
-import ClassifficationCanvas from "@/components/AnnotationCanvas/ClasssificationCanvas";
+import ClassifficationCanvas from "@/components/AnnotationCanvas/ClassificationCanvas";
 
 export const metadata = {
   title: "Cell Lableling Canvas",

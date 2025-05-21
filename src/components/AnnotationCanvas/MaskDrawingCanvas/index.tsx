@@ -1,145 +1,97 @@
 "use client";
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-import Loader from "../loader";
-import { ApiImage, SetMaskDone, uploadMasks } from "./api";
-import DrawPreview from "./DrawPreview";
-import EmptyStatePage from "./EmptyStatePage";
-import { ExtractRealMask, LoadMasks } from "./MaskUtils";
-import RenderTabNavigation from "./RenderTabNavigation";
-import ToolBar from "./ToolBar";
-import { Mode, SaveSatues, Tab } from "./types";
+import { ApiImage } from "../api";
+import BaseCanvas from "../BaseCanvas";
+import DrawPreview from "../DrawPreview";
+import EmptyStatePage from "../EmptyStatePage";
+import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
+import MaskDrawingToolbar from "../MaskDrawingToolbar";
 
-export default function renderMaskDrawingCanvas({
+export default function MaskDrawingCanvas({
   image,
 }: {
   image: ApiImage | null;
 }) {
   return (
     <QueryClientProvider client={new QueryClient()}>
-      {image ? <MaskDrawingCanvas image={image} /> : <EmptyStatePage />}
+      {image ? <Workspace image={image} /> : <EmptyStatePage />}
     </QueryClientProvider>
   );
 }
 
-function MaskDrawingCanvas({ image }: { image: ApiImage }) {
-  const overlayRef = useRef<HTMLCanvasElement>(null);
-  const [tabs, setTabs] = useState<Tab[]>([]);
-  const [mode, setMode] = useState<Mode>("draw");
-  const [brushSize, setBrushSize] = useState(15);
-  const [canvasSaveStatus, setCanvasSaveStatus] = useState<SaveSatues>({
-    isSaving: false,
-    isModified: false,
-    isMarkingAllDone: false,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [imgDim, setImgDim] = useState<{
-    width: number;
-    height: number;
-  } | null>(null);
+function Workspace({ image }: { image: ApiImage }) {
+  const { state, refs, actions } = useAnnotationCanvas(image);
 
-  const [selectedTab, setSelectedTab] = useState(NaN);
-
-  useEffect(() => {
-    LoadMasks(image, setIsLoading, setImgDim, setTabs, setSelectedTab);
-  }, [image]);
-
-  const setCurrentMask = (mask: HTMLImageElement) => {
-    if (selectedTab === -1) return;
-    setTabs((prev) => {
-      prev[selectedTab].mask = mask;
-      return [...prev];
-    });
-  };
-
+  // Toolbar handlers
   const saveMasks = async () => {
-    if (selectedTab === -1) return;
-    setCanvasSaveStatus((prev) => ({
+    // TODO: Implement save functionality
+    console.log("Save masks");
+    actions.setCanvasSaveStatus((prev) => ({
       ...prev,
-      isSaving: true,
-    }));
-    await uploadMasks(
-      image.id,
-      await Promise.all(
-        tabs.map(async (tab) => ({
-          id: tab.mask_id,
-          cell_id: tab.cell_id,
-          src: await ExtractRealMask(tab.mask.src),
-        }))
-      )
-    );
-    setCanvasSaveStatus({
-      isSaving: false,
       isModified: false,
-      isMarkingAllDone: false,
-    });
+    }));
   };
 
-  const MarkAllDone = async () => {
-    if (selectedTab === -1) return;
-    setCanvasSaveStatus((prev) => ({
+  const markAllDone = async () => {
+    // TODO: Implement mark all done functionality
+    console.log("Mark all done");
+    actions.setCanvasSaveStatus((prev) => ({
       ...prev,
       isMarkingAllDone: true,
     }));
-    await Promise.all(
-      tabs.map(async (tab) => {
-        await SetMaskDone(tab.mask_id);
-      })
-    );
-    setTabs((prev) => {
-      return prev.map((tab) => ({
-        ...tab,
-        isDone: true,
-      }));
-    });
-    setCanvasSaveStatus({
-      isSaving: false,
-      isModified: false,
-      isMarkingAllDone: false,
-    });
   };
-  if (isLoading || isNaN(selectedTab) || !imgDim) return <Loader />;
+
+  const isAllDone = state.tabs.every((tab) => tab.isDone);
+
+  if (
+    state.isLoading ||
+    !state.imgDim ||
+    state.selectedTab === -1 ||
+    !state.tabs?.[state.selectedTab]
+  ) {
+    return null;
+  }
 
   return (
-    <>
-      <ToolBar
-        mode={mode}
-        setMode={setMode}
-        brushSize={brushSize}
-        setBrushSize={setBrushSize}
-        saveMasks={saveMasks}
-        saveStatus={canvasSaveStatus}
-        isAllDone={tabs.every((tab) => tab.isDone)}
-        MarkAllDone={MarkAllDone}
-      />
-      <RenderTabNavigation
-        tabs={tabs}
-        selectedTab={selectedTab}
-        setSelectedTab={setSelectedTab}
-        setTabs={setTabs}
-        overlayRef={overlayRef}
-        isMarkingAllDone={canvasSaveStatus.isMarkingAllDone}
-      />
-      <div className="canvas-container">
-        <img
-          src={image.src}
-          alt={image.filename}
-          style={{ position: "absolute", zIndex: 1 }}
+    <BaseCanvas
+      image={image}
+      state={state}
+      refs={refs}
+      actions={actions}
+      toolbar={
+        <MaskDrawingToolbar
+          mode={state.mode}
+          setMode={actions.setMode}
+          brushSize={state.brushSize}
+          setBrushSize={actions.setBrushSize}
+          saveStatus={state.canvasSaveStatus}
+          saveMasks={saveMasks}
+          isAllDone={isAllDone}
+          MarkAllDone={markAllDone}
         />
-        <DrawPreview
-          imageDim={imgDim}
-          ref={overlayRef}
-          brushSize={brushSize}
-          mode={mode}
-          mask={tabs[selectedTab].mask}
-          setMask={setCurrentMask}
-          stateSave={{
-            value: canvasSaveStatus,
-            setValue: setCanvasSaveStatus,
-          }}
-        />
-      </div>
-    </>
+      }
+    >
+      <DrawPreview
+        imageDim={state.imgDim}
+        brushSize={state.brushSize}
+        mode={state.mode}
+        mask={state.tabs[state.selectedTab].mask}
+        setMask={(mask) => {
+          actions.setTabs((prev) => {
+            prev[state.selectedTab].mask = mask;
+            return [...prev];
+          });
+          actions.setCanvasSaveStatus((prev) => ({
+            ...prev,
+            isModified: true,
+          }));
+        }}
+        stateSave={{
+          value: state.canvasSaveStatus,
+          setValue: actions.setCanvasSaveStatus,
+        }}
+        ref={refs.overlayRef}
+      />
+    </BaseCanvas>
   );
 }
