@@ -1,7 +1,6 @@
 "use client";
 
 import AnnotationCanvas from "@/components/AnnotationCanvas";
-import MaskDrawingCanvas from "@/components/AnnotationCanvas/MaskDrawingCanvas/index";
 import Loader from "@/components/loader";
 import { useEffect, useState } from "react";
 
@@ -38,12 +37,5 @@ export default function SegmentationContent() {
     return <Loader message="Loading segmentation canvas..." />;
   }
 
-  return (
-    <>
-      <AnnotationCanvas>
-        {/* @ts-ignore */}
-        <MaskDrawingCanvas />
-      </AnnotationCanvas>
-    </>
-  );
+  return <AnnotationCanvas areaType="segmentation" />;
 }

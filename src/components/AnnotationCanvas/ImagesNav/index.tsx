@@ -1,9 +1,11 @@
 "use client";
 
-import ConfirmDialog from "@/components/ConfirmDialog";
+import ConfirmDialog, { DialogAction } from "@/components/ConfirmDialog";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useState } from "react";
+import { ApiImage } from "../api";
 import EmptyState from "./EmptyState";
 import ImageItem from "./ImageItem";
 import LoadingState from "./LoadingState";
@@ -11,15 +13,27 @@ import LoadMore from "./LoadMore";
 import SectionHeader from "./SectionHeader";
 import "./styles.scss";
 import { useImages } from "./useImages";
-import { ApiImage } from "../api";
+
+type ImageSwitchChoice = "stay" | "continue-without-save" | "save-and-continue";
+
+interface DialogConfig {
+  isOpen: boolean;
+  title?: string;
+  message?: string;
+  dialogType?: "warning" | "danger" | "info";
+  actions?: DialogAction<ImageSwitchChoice>[];
+  onClose?: (value: ImageSwitchChoice) => void;
+}
+
+interface ImagesNavProps {
+  setImage: (image: ApiImage) => void;
+  saveCurrent?: () => Promise<void>;
+}
 
 const queryClient = new QueryClient();
 
-export default function ImagesNav({
-  setImage,
-}: {
-  setImage: Dispatch<SetStateAction<ApiImage | null>>;
-}) {
+export default function ImagesNav() {
+  const { setCurrentImage, saveCurrent } = useAnnotationContext();
   const [hide, setHide] = useState(false);
   const [toasts, setToasts] = useState<
     Array<{ id: string; message: string; type: ToastType }>
@@ -41,14 +55,16 @@ export default function ImagesNav({
           hide={hide}
           setHide={setHide}
           addToast={addToast}
-          setImage={setImage}
+          setImage={setCurrentImage}
+          saveCurrent={saveCurrent}
         />
         <ImagesSection
           hide={!hide}
           setHide={setHide}
           done
           addToast={addToast}
-          setImage={setImage}
+          setImage={setCurrentImage}
+          saveCurrent={saveCurrent}
         />
       </section>
 
@@ -66,37 +82,31 @@ export default function ImagesNav({
   );
 }
 
+interface ImagesSectionProps {
+  done?: boolean;
+  hide: boolean;
+  setHide: Dispatch<SetStateAction<boolean>>;
+  addToast: (message: string, type: ToastType) => void;
+  setImage: (image: ApiImage) => void;
+  saveCurrent?: () => Promise<void>;
+}
+
 function ImagesSection({
   done,
   hide,
   setHide,
   addToast,
   setImage,
-}: {
-  hide: boolean;
-  setHide: Dispatch<SetStateAction<boolean>>;
-  done?: true;
-  addToast: (message: string, type: ToastType) => void;
-  setImage: Dispatch<SetStateAction<ApiImage | null>>;
-}) {
+  saveCurrent,
+}: ImagesSectionProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<{
     id: number;
     name: string;
   } | null>(null);
 
-  // Use our custom hook for image operations
-  const {
-    images,
-    isLoading,
-    isError,
-    pageLength,
-    selectedImage,
-    loadNextPage,
-    selectImage,
-    handleUploadImage,
-    handleDeleteImage,
-  } = useImages(!!done, addToast, setImage);
+  // Image switching is now entirely handled by the AnnotationContext
+  // with its own dialog and state management
 
   const handleDeleteClick = (
     e: React.MouseEvent,
@@ -147,6 +157,19 @@ function ImagesSection({
     }
   };
 
+  // Use our custom hook for image operations
+  const {
+    images,
+    isLoading,
+    isError,
+    pageLength,
+    selectedImage,
+    loadNextPage,
+    selectImage,
+    handleUploadImage,
+    handleDeleteImage,
+  } = useImages(!!done, addToast, setImage);
+
   // Display loading state for initial load
   if (isLoading && images.length === 0) {
     return !done && <LoadingState />;
@@ -163,11 +186,27 @@ function ImagesSection({
           isOpen={deleteDialogOpen}
           title="Delete Image"
           message={`Are you sure you want to delete "${imageToDelete.name}"? This action cannot be undone.`}
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
-          onConfirm={handleConfirmDelete}
-          onCancel={handleCancelDelete}
-          type="danger"
+          dialogType="danger"
+          actions={[
+            {
+              label: "Cancel",
+              value: false,
+              type: "default",
+              autoFocus: true,
+            },
+            {
+              label: "Delete",
+              value: true,
+              type: "danger",
+            },
+          ]}
+          onClose={(confirmed: boolean) => {
+            if (confirmed) {
+              handleConfirmDelete();
+            } else {
+              handleCancelDelete();
+            }
+          }}
         />
       )}
 
@@ -175,7 +214,7 @@ function ImagesSection({
         isDone={!!done}
         isCollapsed={hide}
         count={Number.isNaN(pageLength) ? 0 : pageLength}
-        onToggle={() => setHide((prev) => !prev)}
+        onToggle={() => setHide(!hide)}
         onUpload={!done ? handleUploadImage : undefined}
       />
 

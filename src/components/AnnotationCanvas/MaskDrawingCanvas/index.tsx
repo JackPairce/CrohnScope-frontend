@@ -1,48 +1,73 @@
 "use client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
+import { useState } from "react";
 import { ApiImage } from "../api";
 import BaseCanvas from "../BaseCanvas";
-import EmptyStatePage from "../EmptyStatePage";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
 import ToolBar from "../ToolBar";
+import { Mode } from "../types";
 import DrawPreview from "./DrawPreview";
 import MaskDrawingToolbar from "./ToolBar";
 
-export default function MaskDrawingCanvas({
-  image,
-}: {
-  image: ApiImage | null;
-}) {
-  return (
-    <QueryClientProvider client={new QueryClient()}>
-      {image ? <Workspace image={image} /> : <EmptyStatePage />}
-    </QueryClientProvider>
-  );
-}
-
-function Workspace({ image }: { image: ApiImage }) {
+export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
   const { state, refs, actions } = useAnnotationCanvas(image);
+  const { saveCurrent, setSaveStatus } = useAnnotationContext();
+  const [mode, setMode] = useState<Mode>("draw");
+  const [brushSize, setBrushSize] = useState<number>(15);
 
   // Toolbar handlers
   const saveMasks = async () => {
-    // TODO: Implement save functionality
-    console.log("Save masks");
-    actions.setCanvasSaveStatus((prev) => ({
-      ...prev,
-      isModified: false,
-    }));
+    // Save current annotations using context's saveCurrent function
+    try {
+      await saveCurrent();
+      // The saveCurrent function in the context will handle setting all the status flags
+    } catch (error) {
+      console.error("Failed to save masks:", error);
+      // Reset saving state on error
+      setSaveStatus((prev) => ({
+        ...prev,
+        isSaving: false,
+      }));
+    }
   };
 
   const markAllDone = async () => {
-    // TODO: Implement mark all done functionality
-    console.log("Mark all done");
-    actions.setCanvasSaveStatus((prev) => ({
+    // Mark all tabs as done
+    actions.setTabs((prev) => prev.map((tab) => ({ ...tab, isDone: true })));
+
+    // Get setSaveStatus from context
+    const { setSaveStatus } = useAnnotationContext();
+
+    // Update status to show marking as done
+    setSaveStatus((prev) => ({
       ...prev,
       isMarkingAllDone: true,
     }));
-  };
 
-  const isAllDone = state.tabs.every((tab) => tab.isDone);
+    try {
+      // TODO: Implement API call to mark all masks as done
+      console.log("Mark all done for image:", image?.id);
+
+      // Simulating API call
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Set modified flag to prompt for save
+      setSaveStatus((prev) => ({
+        ...prev,
+        isMarkingAllDone: false,
+        isModified: true, // This will prompt for save when changing images
+      }));
+
+      // Call saveCurrent to save the changes immediately
+      await saveCurrent();
+    } catch (error) {
+      console.error("Failed to mark all done:", error);
+      setSaveStatus((prev) => ({
+        ...prev,
+        isMarkingAllDone: false,
+      }));
+    }
+  };
 
   if (
     state.isLoading ||
@@ -63,17 +88,17 @@ function Workspace({ image }: { image: ApiImage }) {
         <ToolBar
           saveStatus={state.canvasSaveStatus}
           saveMasks={saveMasks}
-          isAllDone={isAllDone}
+          isAllDone={state.isAllDone}
           MarkAllDone={markAllDone}
         >
           <MaskDrawingToolbar
-            mode={state.mode}
-            setMode={actions.setMode}
-            brushSize={state.brushSize}
-            setBrushSize={actions.setBrushSize}
+            mode={mode}
+            setMode={setMode}
+            brushSize={brushSize}
+            setBrushSize={setBrushSize}
             saveStatus={state.canvasSaveStatus}
             saveMasks={saveMasks}
-            isAllDone={isAllDone}
+            isAllDone={state.isAllDone}
             MarkAllDone={markAllDone}
           />
         </ToolBar>
@@ -81,8 +106,8 @@ function Workspace({ image }: { image: ApiImage }) {
     >
       <DrawPreview
         imageDim={state.imgDim}
-        brushSize={state.brushSize}
-        mode={state.mode}
+        brushSize={brushSize}
+        mode={mode}
         mask={state.tabs[state.selectedTab].mask}
         setMask={(mask) => {
           actions.setTabs((prev) => {

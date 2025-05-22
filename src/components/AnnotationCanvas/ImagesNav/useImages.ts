@@ -13,6 +13,8 @@ import {
   validateImageFile,
 } from "./imageUtils";
 
+type ImageSwitchChoice = "stay" | "continue-without-save" | "save-and-continue";
+
 interface UseImagesResult {
   images: ApiImage[];
   isLoading: boolean;
@@ -21,7 +23,7 @@ interface UseImagesResult {
   page: number;
   selectedImage: number;
   loadNextPage: () => void;
-  selectImage: (image: ApiImage, index: number) => void;
+  selectImage: (image: ApiImage, index: number) => Promise<boolean>;
   handleUploadImage: (file: File) => Promise<void>;
   handleDeleteImage: (imageId: number, imageName: string) => Promise<boolean>;
 }
@@ -38,20 +40,28 @@ export function useImages(
   const [page, setPage] = useState(1);
   const [pageLength, setPageLength] = useState(NaN);
 
+  const selectImage = useCallback(
+    async (imgData: ApiImage, index: number): Promise<boolean> => {
+      setSelectedImage(index);
+
+      try {
+        // This will handle any confirm dialogs if needed
+        await setImg(imgData);
+        return true;
+      } catch (error) {
+        console.error("Failed to set image:", error);
+        return false;
+      }
+    },
+    [setImg]
+  );
+
   const loadNextPage = useCallback(() => {
     setIsLoading(true);
     setTimeout(() => {
       setPage((prev) => prev + 1);
     }, 200);
   }, []);
-
-  const selectImage = useCallback(
-    (imgData: ApiImage, index: number) => {
-      setSelectedImage(index);
-      setImg(imgData);
-    },
-    [setImg]
-  );
 
   // Load images on component mount and when page changes
   useEffect(() => {
@@ -148,6 +158,8 @@ export function useImages(
     },
     [addToast]
   );
+
+  // This should be removed - the confirmImageSwitch function is now provided as a prop
 
   return {
     images,

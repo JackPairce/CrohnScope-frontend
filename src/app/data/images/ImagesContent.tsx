@@ -1,13 +1,13 @@
 "use client";
 
 import { ApiImage } from "@/components/AnnotationCanvas/api";
+import { useImages } from "@/components/AnnotationCanvas/ImagesNav/useImages";
 import ImageViewer from "@/components/ImageViewer";
 import Loader from "@/components/loader";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import UploadBtn from "@/components/UploadBtn";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useImages } from "./useImagesWrapper";
 
 export default function ImagesContent() {
   const [selectedImage, setSelectedImage] = useState<ApiImage | null>(null);
@@ -32,24 +32,23 @@ export default function ImagesContent() {
     images,
     isLoading,
     isError,
-    error: imagesError,
-    refetch,
-    uploadImage,
-    // Note: we're not using this from the hook since we manage it locally
-    setUploadingState: _setUploadingStateUnused,
-    deleteImage,
-  } = useImages();
+    page,
+    handleUploadImage: uploadImage,
+    handleDeleteImage: deleteImage,
+  } = useImages(
+    false, // done
+    addToast,
+    (img: ApiImage) => setSelectedImage(img), // setImg
+    async () => "continue-without-save" as const, // confirmImageSwitch - we don't need to confirm in the library
+    undefined // saveCurrent - no need to save in the library view
+  );
 
   // Handle any errors from the useImages hook
   useEffect(() => {
-    if (isError && imagesError) {
-      setError(
-        imagesError instanceof Error
-          ? imagesError
-          : new Error("Failed to load images")
-      );
+    if (isError) {
+      setError(new Error(isError));
     }
-  }, [isError, imagesError]);
+  }, [isError]);
 
   // Throw any errors to be caught by the error boundary
   if (error) {
@@ -57,7 +56,7 @@ export default function ImagesContent() {
   }
 
   const filteredImages = images.filter((image) =>
-    image.name.toLowerCase().includes(searchQuery.toLowerCase())
+    image.filename.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -77,8 +76,11 @@ export default function ImagesContent() {
             label="Upload Image"
             showIcon={true}
             onSuccess={(image) => {
-              addToast(`Image ${image.name} uploaded successfully`, "success");
-              refetch();
+              addToast(
+                `Image ${image.filename} uploaded successfully`,
+                "success"
+              );
+              // Images will be refreshed by the useImages hook's internal state management
             }}
             onError={(err) => {
               console.error("Error uploading image:", err);
@@ -248,20 +250,20 @@ export default function ImagesContent() {
                     {/* Image Container with fixed aspect ratio */}
                     <div className="relative pt-[100%] bg-gray-100 dark:bg-gray-700">
                       <Image
-                        src={image.url}
-                        alt={image.name}
+                        src={image.src}
+                        alt={image.filename}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                         width={400}
                         height={400}
                       />
-                    </div>
+                    </div>{" "}
                     {/* Image Name Container with Hover Effect */}
                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
                       <p
                         className="text-sm font-medium text-white truncate"
-                        title={image.name}
+                        title={image.filename}
                       >
-                        {image.name}
+                        {image.filename.split(".")[0]}
                       </p>
                     </div>
                   </div>
@@ -288,7 +290,7 @@ export default function ImagesContent() {
                         scope="col"
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                       >
-                        Dimensions
+                        Status
                       </th>
                       <th
                         scope="col"
@@ -308,8 +310,8 @@ export default function ImagesContent() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="h-12 w-12 rounded overflow-hidden bg-gray-100 dark:bg-gray-700">
                             <Image
-                              src={image.url}
-                              alt={image.name}
+                              src={image.src}
+                              alt={image.filename}
                               className="h-full w-full object-cover"
                               width={48}
                               height={48}
@@ -318,11 +320,11 @@ export default function ImagesContent() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {image.name}
+                            {image.filename.split(".")[0]}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                          {image.width} × {image.height}
+                          {image.is_done ? "Processed" : "Pending"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           <button
