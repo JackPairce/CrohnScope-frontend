@@ -74,7 +74,7 @@ export function useMonitoringData(): MonitoringData {
         }, CONNECTION_TIMEOUT);
 
         const response = await axios.get<SystemMetrics>(
-          `${API_URL}/monitor/metrics`
+          `${API_URL}/monitoring/metrics`
         );
 
         // Clear connection timer as we got a response
@@ -118,9 +118,9 @@ export function useMonitoringData(): MonitoringData {
         const [aiStatusRes, imageStatusRes, systemInfoRes, dataUsageRes] =
           await Promise.all([
             axios.get<ModelStatus>(`${API_URL}/ai/status`),
-            axios.get<ImageStatus>(`${API_URL}/image/status`),
-            axios.get<SystemResponse>(`${API_URL}/monitor/system`),
-            axios.get<DataUsageResponse>(`${API_URL}/monitor/data-usage`),
+            axios.get<ImageStatus>(`${API_URL}/images/status`),
+            axios.get<SystemResponse>(`${API_URL}/monitoring/system`),
+            axios.get<DataUsageResponse>(`${API_URL}/monitoring/data-usage`),
           ]);
 
         setData((prev) => ({
