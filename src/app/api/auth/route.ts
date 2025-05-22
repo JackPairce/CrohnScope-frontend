@@ -1,6 +1,6 @@
+import { loginUser, registerUser } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { loginUser, registerUser } from "../../_lib/auth";
 
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();

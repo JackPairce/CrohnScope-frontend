@@ -1,11 +1,11 @@
 "use client";
 
-import { ApiImage } from "@/components/AnnotationCanvas/api";
 import { useImages } from "@/components/AnnotationCanvas/ImagesNav/useImages";
 import ImageViewer from "@/components/ImageViewer";
 import Loader from "@/components/loader";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import UploadBtn from "@/components/UploadBtn";
+import { ApiImage } from "@/lib/api";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 

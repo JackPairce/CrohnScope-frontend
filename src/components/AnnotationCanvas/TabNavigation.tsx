@@ -1,7 +1,7 @@
 "use client";
+import { setMaskDone } from "@/lib/api";
 import Image from "next/image";
 import React, { useState } from "react";
-import { SetMaskDone } from "./api";
 import { NewMask } from "./MaskUtils";
 import { Tab } from "./types";
 
@@ -55,7 +55,7 @@ export default function TabNavigation({
   const markCurrentTabAsDone = () =>
     (async () => {
       setIsMarkingDone(true);
-      await SetMaskDone(tabs[selectedTab].mask_id);
+      await setMaskDone(tabs[selectedTab].mask_id);
       setTabs((prev) => {
         prev[selectedTab].isDone = true;
         return [...prev];

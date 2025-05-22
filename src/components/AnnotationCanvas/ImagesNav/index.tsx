@@ -3,9 +3,9 @@
 import ConfirmDialog, { DialogAction } from "@/components/ConfirmDialog";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
+import { ApiImage } from "@/lib/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useState } from "react";
-import { ApiImage } from "../api";
 import EmptyState from "./EmptyState";
 import ImageItem from "./ImageItem";
 import LoadingState from "./LoadingState";

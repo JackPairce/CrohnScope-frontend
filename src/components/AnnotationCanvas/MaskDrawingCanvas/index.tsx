@@ -1,7 +1,7 @@
 "use client";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
+import { ApiImage } from "@/lib/api";
 import { useState } from "react";
-import { ApiImage } from "../api";
 import BaseCanvas from "../BaseCanvas";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
 import ToolBar from "../ToolBar";
