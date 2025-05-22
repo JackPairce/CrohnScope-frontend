@@ -26,7 +26,8 @@ interface UseImagesResult {
 export function useImages(
   done: boolean = false,
   addToast: (message: string, type: ToastType) => void,
-  setImg: (img: ApiImage) => void
+  setImg: (img: ApiImage) => void,
+  refreshCounter: number = 0
 ): UseImagesResult {
   const [isError, setIsError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,22 @@ export function useImages(
   const [images, setImages] = useState<ApiImage[]>([]);
   const [page, setPage] = useState(1);
   const [pageLength, setPageLength] = useState(NaN);
+  
+  // Function to fetch images that we can call multiple times
+  const fetchImages = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getImages(page, done);
+      setImages(data.images.map(formatImageForDisplay));
+      setPageLength(data.total);
+      setIsError("");
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      setIsError(parseApiError(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, done]);
 
   const selectImage = useCallback(
     async (imgData: ApiImage, index: number): Promise<boolean> => {
@@ -57,8 +74,7 @@ export function useImages(
       setPage((prev) => prev + 1);
     }, 200);
   }, []);
-
-  // Load images on component mount and when page changes
+  // Load images on component mount, when page changes, and when refreshCounter changes
   useEffect(() => {
     setIsLoading(true);
     getImages(page, done)
@@ -73,9 +89,8 @@ export function useImages(
       })
       .catch((error) => {
         setIsError(error.message || "Failed to load images");
-        setIsLoading(false);
-      });
-  }, [page, done, pageLength]);
+        setIsLoading(false);      });
+  }, [page, done, pageLength, refreshCounter]);
 
   const handleUploadImage = useCallback(
     async (file: File) => {

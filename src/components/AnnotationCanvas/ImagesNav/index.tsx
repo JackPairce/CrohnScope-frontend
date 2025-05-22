@@ -5,7 +5,7 @@ import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
 import { ApiImage } from "@/lib/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import EmptyState from "./EmptyState";
 import ImageItem from "./ImageItem";
 import LoadingState from "./LoadingState";
@@ -35,14 +35,47 @@ const queryClient = new QueryClient();
 export default function ImagesNav() {
   const { setCurrentImage, saveCurrent } = useAnnotationContext();
   const [hide, setHide] = useState(false);
-  const [toasts, setToasts] = useState<
-    Array<{ id: string; message: string; type: ToastType }>
-  >([]);
-
   const addToast = (message: string, type: ToastType) => {
     const id = Date.now().toString();
     setToasts((prev) => [...prev, { id, message, type }]);
   };
+  const [toasts, setToasts] = useState<
+    Array<{ id: string; message: string; type: ToastType }>
+  >([]);
+  const [forceRefresh, setForceRefresh] = useState(0); // Counter to force refresh of images
+  // Listen for imageCompleted events to move images between lists
+  useEffect(() => {
+    // Define the type for our custom event
+    type ImageCompletedEvent = CustomEvent<{
+      imageId: number;
+      image: ApiImage;
+    }>;
+
+    const handleImageCompleted = (event: ImageCompletedEvent) => {
+      // Force a refresh of both image lists
+      setForceRefresh((prev) => prev + 1);
+
+      // Show a toast notification
+      addToast(
+        `Image ${event.detail.image.filename} marked as completed!`,
+        "success"
+      );
+    };
+
+    // Add event listener
+    window.addEventListener(
+      "imageCompleted",
+      handleImageCompleted as EventListener
+    );
+
+    // Clean up
+    return () => {
+      window.removeEventListener(
+        "imageCompleted",
+        handleImageCompleted as EventListener
+      );
+    };
+  }, [addToast]);
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -50,6 +83,7 @@ export default function ImagesNav() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {" "}
       <section className="images-nav">
         <ImagesSection
           hide={hide}
@@ -57,6 +91,7 @@ export default function ImagesNav() {
           addToast={addToast}
           setImage={setCurrentImage}
           saveCurrent={saveCurrent}
+          refreshCounter={forceRefresh}
         />
         <ImagesSection
           hide={!hide}
@@ -65,9 +100,9 @@ export default function ImagesNav() {
           addToast={addToast}
           setImage={setCurrentImage}
           saveCurrent={saveCurrent}
+          refreshCounter={forceRefresh}
         />
       </section>
-
       <ToastContainer>
         {toasts.map((toast) => (
           <Toast
@@ -89,6 +124,7 @@ interface ImagesSectionProps {
   addToast: (message: string, type: ToastType) => void;
   setImage: (image: ApiImage) => void;
   saveCurrent?: () => Promise<void>;
+  refreshCounter: number; // Counter to force refresh of images
 }
 
 function ImagesSection({
@@ -98,6 +134,7 @@ function ImagesSection({
   addToast,
   setImage,
   saveCurrent,
+  refreshCounter,
 }: ImagesSectionProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [imageToDelete, setImageToDelete] = useState<{
@@ -156,7 +193,6 @@ function ImagesSection({
       setImageToDelete(null);
     }
   };
-
   // Use our custom hook for image operations
   const {
     images,
@@ -168,7 +204,7 @@ function ImagesSection({
     selectImage,
     handleUploadImage,
     handleDeleteImage,
-  } = useImages(!!done, addToast, setImage);
+  } = useImages(!!done, addToast, setImage, refreshCounter);
 
   // Display loading state for initial load
   if (isLoading && images.length === 0) {

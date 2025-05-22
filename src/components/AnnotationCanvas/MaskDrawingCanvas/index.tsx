@@ -1,6 +1,6 @@
 "use client";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
-import { ApiImage } from "@/lib/api";
+import { ApiImage, setMaskDone } from "@/lib/api";
 import { useState } from "react";
 import BaseCanvas from "../BaseCanvas";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
@@ -29,8 +29,7 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
         isSaving: false,
       }));
     }
-  };
-  const markAllDone = async () => {
+  };  const markAllDone = async () => {
     // Update status to show marking as done
     // Use setSaveStatus from the context we already obtained at the component level
     setSaveStatus((prev) => ({
@@ -39,14 +38,34 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
     }));
 
     try {
-      // TODO: Implement API call to mark all masks as done
-      console.log("Mark all done for image:", image?.id);
-
-      // Simulating API call
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // Call API to mark all masks as done
+      await Promise.all(state.tabs.map((tab) => setMaskDone(tab.mask_id)));
 
       // Mark all tabs as done
-      actions.setTabs((prev) => prev.map((tab) => ({ ...tab, isDone: true })));
+      actions.setTabs((prev) => prev.map((tab) => ({ ...tab, isDone: true })));      // Now all masks are done, so we need to:
+      // 1. Update image status in context to mark it as completed
+      // 2. Trigger a refetch of the images lists to move this image to the done list
+      
+      // Notify the ImagesNav component to update its lists
+      if (image && image.id) {
+        // Mark the current image as completed in our app state
+        const updatedImage = { ...image, is_done: true };
+        
+        // Define the type for our custom event
+        interface ImageCompletedEventDetail {
+          imageId: number;
+          image: ApiImage;
+        }
+        
+        // Dispatch a custom event to notify ImagesNav to update its lists
+        const event = new CustomEvent<ImageCompletedEventDetail>('imageCompleted', { 
+          detail: { 
+            imageId: image.id,
+            image: updatedImage 
+          }
+        });
+        window.dispatchEvent(event);
+      }
     } catch (error) {
       console.error("Failed to mark all done:", error);
     } finally {
