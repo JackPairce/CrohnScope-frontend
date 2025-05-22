@@ -9,11 +9,11 @@ import {
   updateRegionHealth,
 } from "../api";
 import BaseCanvas from "../BaseCanvas";
-import ClassificationToolbar from "../ClassificationToolbar";
 import EmptyStatePage from "../EmptyStatePage/index";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
-import type { State } from "../LayerState";
 import ToolBar from "../ToolBar";
+import type { State } from "./LayerState";
+import ClassificationToolbar from "./ToolBar";
 
 // Helper function to find the first pixel with a given label
 function findFirstPixelWithLabel(
@@ -286,6 +286,51 @@ function ClassificationWorkspace({ image }: { image: ApiImage }) {
     return null;
   }
 
+  const updateMaskRegions = async () => {
+    if (!matrixData || !state.tabs?.[state.selectedTab]?.mask_id) return;
+    try {
+      // Update all modified regions in current mask
+      const promises = matrixData.masks?.map(async (mask) => {
+        if (mask.mask_id === state.tabs[state.selectedTab].mask_id) {
+          // For each different label in the mask
+          const labels = new Set<number>();
+          mask.labeledRegions.forEach((row) =>
+            row.forEach((label) => {
+              if (label !== 0) labels.add(label);
+            })
+          );
+
+          // Update each labeled region
+          for (const label of labels) {
+            const firstPixel = findFirstPixelWithLabel(
+              mask.labeledRegions,
+              label
+            );
+            if (firstPixel) {
+              const isHealthy = mask.mask[firstPixel.y][firstPixel.x] === 2;
+              await updateRegionHealth(mask.mask_id, label, isHealthy);
+            }
+          }
+        }
+      });
+
+      if (promises) await Promise.all(promises);
+
+      // Reload matrix data to ensure sync with backend
+      const newMatrixData = await getMaskMatrices(image.id);
+      setMatrixData(newMatrixData);
+
+      actions.setCanvasSaveStatus((prev) => ({
+        ...prev,
+        isModified: false,
+      }));
+    } catch (error) {
+      console.error("Failed to save all regions:", error);
+    }
+  };
+  const markAllTabsAsDone = () => {
+    actions.setTabs((prev) => prev.map((tab) => ({ ...tab, isDone: true })));
+  };
   return (
     <BaseCanvas
       image={image}
@@ -295,56 +340,9 @@ function ClassificationWorkspace({ image }: { image: ApiImage }) {
       toolbar={
         <ToolBar
           saveStatus={state.canvasSaveStatus}
-          saveMasks={async () => {
-            if (!matrixData || !state.tabs?.[state.selectedTab]?.mask_id)
-              return;
-            try {
-              // Update all modified regions in current mask
-              const promises = matrixData.masks?.map(async (mask) => {
-                if (mask.mask_id === state.tabs[state.selectedTab].mask_id) {
-                  // For each different label in the mask
-                  const labels = new Set<number>();
-                  mask.labeledRegions.forEach((row) =>
-                    row.forEach((label) => {
-                      if (label !== 0) labels.add(label);
-                    })
-                  );
-
-                  // Update each labeled region
-                  for (const label of labels) {
-                    const firstPixel = findFirstPixelWithLabel(
-                      mask.labeledRegions,
-                      label
-                    );
-                    if (firstPixel) {
-                      const isHealthy =
-                        mask.mask[firstPixel.y][firstPixel.x] === 2;
-                      await updateRegionHealth(mask.mask_id, label, isHealthy);
-                    }
-                  }
-                }
-              });
-
-              if (promises) await Promise.all(promises);
-
-              // Reload matrix data to ensure sync with backend
-              const newMatrixData = await getMaskMatrices(image.id);
-              setMatrixData(newMatrixData);
-
-              actions.setCanvasSaveStatus((prev) => ({
-                ...prev,
-                isModified: false,
-              }));
-            } catch (error) {
-              console.error("Failed to save all regions:", error);
-            }
-          }}
+          saveMasks={updateMaskRegions}
           isAllDone={state.tabs.every((tab) => tab.isDone)}
-          MarkAllDone={() => {
-            actions.setTabs((prev) =>
-              prev.map((tab) => ({ ...tab, isDone: true }))
-            );
-          }}
+          MarkAllDone={markAllTabsAsDone}
         >
           <ClassificationToolbar
             layerState={layerState}
@@ -361,7 +359,6 @@ function ClassificationWorkspace({ image }: { image: ApiImage }) {
           height={state.imgDim.height}
           style={{
             zIndex: 2,
-            opacity: 0.5,
             pointerEvents: "none",
             display: ["all", "healthy"].includes(layerState as string)
               ? "block"
@@ -375,7 +372,6 @@ function ClassificationWorkspace({ image }: { image: ApiImage }) {
           height={state.imgDim.height}
           style={{
             zIndex: 2,
-            opacity: 0.5,
             pointerEvents: "none",
             display: ["all", "unhealthy"].includes(layerState as string)
               ? "block"

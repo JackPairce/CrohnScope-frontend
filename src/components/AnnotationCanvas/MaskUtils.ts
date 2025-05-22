@@ -137,11 +137,6 @@ export function LoadMasks(
       width: img.naturalWidth,
       height: img.naturalHeight,
     });
-    console.table({
-      width: img.naturalWidth,
-      height: img.naturalHeight,
-    });
-
     const cells = await getCells(image.id);
     const masks = await getMask(image.id);
     const tabs = await Promise.all(

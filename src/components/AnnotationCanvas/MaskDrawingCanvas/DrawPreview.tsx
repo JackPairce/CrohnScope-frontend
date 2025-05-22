@@ -18,7 +18,7 @@ import {
   CanvasToMask,
   colorMappingToUser,
   drawMaskToCanvas,
-} from "./MaskUtils";
+} from "../MaskUtils";
 
 const Red = "rgba(255, 0, 0, 1)";
 const White = "rgba(255, 255, 255, 0)";
@@ -212,10 +212,7 @@ const SegmentationCanvas = forwardRef<HTMLCanvasElement, Props>(
           height={ImgHeight}
           style={{
             zIndex: 2,
-
-            border: "1px solid black",
             cursor: mode === "erase" && mouseInCanvas ? "none" : "crosshair",
-            opacity: ".5",
           }}
           onMouseDown={startDrawing}
           onMouseUp={stopDrawing}

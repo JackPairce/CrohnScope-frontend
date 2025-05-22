@@ -16,7 +16,7 @@ export default function Loader({
         {/* Info Icon */}
         <div className="relative z-10">
           <Image
-            src="/svgs/info.svg"
+            src="/svgs/microscope.svg"
             alt="Loading"
             width={48}
             height={48}

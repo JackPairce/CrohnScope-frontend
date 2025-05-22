@@ -2,10 +2,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApiImage } from "../api";
 import BaseCanvas from "../BaseCanvas";
-import DrawPreview from "../DrawPreview";
 import EmptyStatePage from "../EmptyStatePage";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
-import MaskDrawingToolbar from "../MaskDrawingToolbar";
+import ToolBar from "../ToolBar";
+import DrawPreview from "./DrawPreview";
+import MaskDrawingToolbar from "./ToolBar";
 
 export default function MaskDrawingCanvas({
   image,
@@ -59,16 +60,23 @@ function Workspace({ image }: { image: ApiImage }) {
       refs={refs}
       actions={actions}
       toolbar={
-        <MaskDrawingToolbar
-          mode={state.mode}
-          setMode={actions.setMode}
-          brushSize={state.brushSize}
-          setBrushSize={actions.setBrushSize}
+        <ToolBar
           saveStatus={state.canvasSaveStatus}
           saveMasks={saveMasks}
           isAllDone={isAllDone}
           MarkAllDone={markAllDone}
-        />
+        >
+          <MaskDrawingToolbar
+            mode={state.mode}
+            setMode={actions.setMode}
+            brushSize={state.brushSize}
+            setBrushSize={actions.setBrushSize}
+            saveStatus={state.canvasSaveStatus}
+            saveMasks={saveMasks}
+            isAllDone={isAllDone}
+            MarkAllDone={markAllDone}
+          />
+        </ToolBar>
       }
     >
       <DrawPreview

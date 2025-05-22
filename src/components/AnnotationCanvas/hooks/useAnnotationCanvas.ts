@@ -39,23 +39,10 @@ export function useAnnotationCanvas(image: ApiImage | null) {
   // Keep track of previous image to detect actual changes
   const prevImageRef = useRef<ApiImage | null>(null);
 
-  // Debug function to log state changes
-  const logState = (action: string) => {
-    console.log(`[${action}]`, {
-      image: image?.id,
-      prevImage: prevImageRef.current?.id,
-      pendingImage: pendingImageChange?.id,
-      isModified: canvasSaveStatus.isModified,
-      showDialog: showSaveDialog,
-    });
-  };
-
   const resetStates = (
     loadPendingImage: boolean = false,
     saveMade: boolean = false
   ) => {
-    logState(`resetStates(load=${loadPendingImage}, save=${saveMade})`);
-
     // First clear dialog state
     setShowSaveDialog(false);
 
@@ -114,8 +101,6 @@ export function useAnnotationCanvas(image: ApiImage | null) {
   // Effect to handle image changes
   useEffect(() => {
     if (!image) return;
-
-    logState("imageEffect");
 
     // Check if image is actually changing
     const imageChanged =

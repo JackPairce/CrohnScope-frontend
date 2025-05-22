@@ -10,7 +10,7 @@ interface ToolBarProps {
   children: React.ReactNode;
 }
 
-export default function renderToolBar({
+export default function ToolBar({
   saveMasks,
   saveStatus,
   isAllDone,
