@@ -2,7 +2,7 @@
 import { Dispatch, ReactNode, RefObject, SetStateAction } from "react";
 import Loader from "../loader";
 import { ApiImage } from "./api";
-import RenderTabNavigation from "./TabNavigation";
+import TabNavigation from "./TabNavigation";
 import { SaveSatues, Tab } from "./types";
 
 interface BaseCanvasProps {
@@ -44,7 +44,7 @@ export default function BaseCanvas({
 
   return (
     <>
-      <RenderTabNavigation
+      <TabNavigation
         tabs={state.tabs}
         selectedTab={state.selectedTab}
         setSelectedTab={actions.setSelectedTab}

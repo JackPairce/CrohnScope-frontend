@@ -5,7 +5,7 @@ import { SetMaskDone } from "./api";
 import { NewMask } from "./MaskUtils";
 import { Tab } from "./types";
 
-export default function RenderTabNavigation({
+export default function TabNavigation({
   tabs,
   selectedTab,
   setSelectedTab,
@@ -51,6 +51,17 @@ export default function RenderTabNavigation({
     setShowConfirmDialog(false);
     setTabToDelete(null);
   };
+
+  const markCurrentTabAsDone = () =>
+    (async () => {
+      setIsMarkingDone(true);
+      await SetMaskDone(tabs[selectedTab].mask_id);
+      setTabs((prev) => {
+        prev[selectedTab].isDone = true;
+        return [...prev];
+      });
+      setIsMarkingDone(false);
+    })();
 
   return (
     <nav className="tabs">
@@ -161,20 +172,7 @@ export default function RenderTabNavigation({
       </div>
       {/* mark current tab as done */}
       {!isMarkingAllDone && !tabs[selectedTab].isDone && (
-        <button
-          className="save done"
-          onClick={() =>
-            (async () => {
-              setIsMarkingDone(true);
-              await SetMaskDone(tabs[selectedTab].mask_id);
-              setTabs((prev) => {
-                prev[selectedTab].isDone = true;
-                return [...prev];
-              });
-              setIsMarkingDone(false);
-            })()
-          }
-        >
+        <button className="save done" onClick={markCurrentTabAsDone}>
           <Image
             src="/svgs/checkmark.svg"
             alt="Mark Done"

@@ -30,15 +30,9 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
       }));
     }
   };
-
   const markAllDone = async () => {
-    // Mark all tabs as done
-    actions.setTabs((prev) => prev.map((tab) => ({ ...tab, isDone: true })));
-
-    // Get setSaveStatus from context
-    const { setSaveStatus } = useAnnotationContext();
-
     // Update status to show marking as done
+    // Use setSaveStatus from the context we already obtained at the component level
     setSaveStatus((prev) => ({
       ...prev,
       isMarkingAllDone: true,
@@ -49,22 +43,17 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
       console.log("Mark all done for image:", image?.id);
 
       // Simulating API call
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      // Set modified flag to prompt for save
-      setSaveStatus((prev) => ({
-        ...prev,
-        isMarkingAllDone: false,
-        isModified: true, // This will prompt for save when changing images
-      }));
-
-      // Call saveCurrent to save the changes immediately
-      await saveCurrent();
+      // Mark all tabs as done
+      actions.setTabs((prev) => prev.map((tab) => ({ ...tab, isDone: true })));
     } catch (error) {
       console.error("Failed to mark all done:", error);
+    } finally {
       setSaveStatus((prev) => ({
-        ...prev,
+        isSaving: false,
         isMarkingAllDone: false,
+        isModified: false,
       }));
     }
   };

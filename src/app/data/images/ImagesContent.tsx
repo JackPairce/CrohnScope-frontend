@@ -38,9 +38,7 @@ export default function ImagesContent() {
   } = useImages(
     false, // done
     addToast,
-    (img: ApiImage) => setSelectedImage(img), // setImg
-    async () => "continue-without-save" as const, // confirmImageSwitch - we don't need to confirm in the library
-    undefined // saveCurrent - no need to save in the library view
+    (img: ApiImage) => setSelectedImage(img) // setImg
   );
 
   // Handle any errors from the useImages hook
