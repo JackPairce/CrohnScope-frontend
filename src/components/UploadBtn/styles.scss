@@ -1,3 +1,16 @@
+.upload-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+
+    &.uploading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
 .upload-label {
     display: inline-flex;
     align-items: center;
@@ -13,11 +26,16 @@
     transition: all 0.2s ease-in-out;
     white-space: nowrap;
 
-    &:hover {
+    .upload-btn.uploading & {
+        background-color: #6b7280;
+        cursor: not-allowed;
+    }
+
+    &:hover:not(.upload-btn.uploading &) {
         background-color: #4338ca;
     }
 
-    &:active {
+    &:active:not(.upload-btn.uploading &) {
         transform: translateY(1px);
     }
 

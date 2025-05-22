@@ -1,47 +1,77 @@
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import "./styles.scss";
 
 interface UploadButtonProps {
-  label: string;
-  onUpload: (file: File) => void;
+  label?: string;
+  uploadImage?: (file: File) => Promise<boolean>;
   showIcon?: boolean;
+  onSuccess?: (image: any) => void;
+  onError?: (error: any) => void;
+  onUploadStart?: () => void;
+  onUploadEnd?: () => void;
 }
 
-const UploadButton: React.FC<UploadButtonProps> = ({
-  label,
-  onUpload,
+const UploadBtn: React.FC<UploadButtonProps> = ({
+  label = "Upload Image",
+  uploadImage,
   showIcon = true,
+  onSuccess,
+  onError,
+  onUploadStart,
+  onUploadEnd,
 }) => {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        onUpload(files[i]);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !uploadImage) return;
+
+    try {
+      setIsUploading(true);
+      onUploadStart?.();
+
+      const success = await uploadImage(file);
+
+      if (success) {
+        onSuccess?.(file);
       }
+    } catch (error) {
+      console.error("Upload failed:", error);
+      onError?.(error);
+    } finally {
+      setIsUploading(false);
+      onUploadEnd?.();
     }
   };
 
   return (
-    <label className="upload-label">
-      {showIcon && (
-        <Image
-          src="/svgs/upload.svg"
-          alt="Upload"
-          width={20}
-          height={20}
-          className="upload-icon"
+    <button
+      className={`upload-btn ${isUploading ? "uploading" : ""}`}
+      type="button"
+      disabled={isUploading}
+    >
+      <label className="upload-label">
+        {showIcon && (
+          <Image
+            src="/svgs/upload.svg"
+            alt="Upload"
+            width={20}
+            height={20}
+            className="upload-icon"
+          />
+        )}
+        <span>{isUploading ? "Uploading..." : label}</span>
+        <input
+          className="upload-input"
+          type="file"
+          onChange={handleChange}
+          accept="image/*"
+          disabled={isUploading}
         />
-      )}
-      {label && <span>{label}</span>}
-      <input
-        className="upload-input"
-        type="file"
-        onChange={handleChange}
-        accept="image/*"
-      />
-    </label>
+      </label>
+    </button>
   );
 };
 
-export default UploadButton;
+export default UploadBtn;
