@@ -1,0 +1,108 @@
+.dashboard-illustration {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;
+    width: 48px;
+    height: 48px;
+    transition: transform 0.3s ease;
+    padding: 0.5rem;
+}
+
+.dashboard-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: 300px;
+    width: 30%;
+    min-width: 280px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+
+    @media (max-width: 1200px) {
+        width: 100%;
+        max-width: 360px;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-color: var(--accent);
+
+        .dashboard-illustration {
+            transform: scale(1.05);
+        }
+    }
+
+    h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 1rem 0;
+        color: var(--foreground);
+        text-align: center;
+    }
+
+    p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        flex-grow: 1;
+    }
+
+    .card-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: auto;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--foreground);
+        text-align: center;
+        margin: 0.5rem 0;
+    }
+
+    .metric-label {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-align: center;
+    }
+
+    .status-label {
+        color: var(--foreground);
+        font-weight: 500;
+    }
+
+    .status-value {
+        color: var(--text-muted);
+    }
+
+    .card-metric {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0.75rem 0;
+
+        .metric-title {
+            color: var(--foreground);
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-data {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+    }
+}
