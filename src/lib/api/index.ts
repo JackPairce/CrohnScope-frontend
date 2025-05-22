@@ -8,6 +8,5 @@ export * from "./images";
 export * from "./masks";
 export * from "./monitoring";
 
-export * from "./types";
 // Export the API client as default
 export default apiClient;
