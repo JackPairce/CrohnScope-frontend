@@ -105,7 +105,7 @@ export function SystemCard({
   return (
     <div className="dashboard-card">
       <Image
-        src="/svgs/model.svg"
+        src="/svgs/info.svg"
         alt="System Information"
         width={48}
         height={48}
