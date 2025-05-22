@@ -6,10 +6,11 @@ import {
   HealthStatus,
   SystemCard,
 } from "@/components/dashboard";
-import LoadingState from "@/components/LoadingState";
+import LoadingState from "@/components/loader";
 import { useEffect, useState } from "react";
 import { components } from "../../api";
 import { useMonitoringData } from "./useMonitoringData";
+import Loader from "@/components/loader";
 
 type ConnectionStatusType = "connected" | "connecting" | "disconnected";
 // Use explicit types from API definition
@@ -182,7 +183,7 @@ export default function DashboardContent() {
 
   // Show loading state while data is being fetched
   if (isLoading) {
-    return <LoadingState message="Loading dashboard data..." />;
+    return <Loader message="Loading dashboard data..." />;
   }
 
   // Fallback for missing metrics

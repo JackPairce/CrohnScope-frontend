@@ -1,27 +1,33 @@
 import Image from "next/image";
 import "./styles.scss";
 
-export default function Loader({ className = "" }: { className?: string }) {
+export default function Loader({
+  className = "",
+  message = "Processing",
+}: {
+  className?: string;
+  message?: string;
+}) {
   return (
     <div
       className={`loader flex flex-col h-full items-center justify-center gap-4 ${className}`}
     >
       <div className="relative">
-        {/* Microscope Icon */}
+        {/* Info Icon */}
         <div className="relative z-10">
           <Image
-            src="/svgs/microscope.svg"
+            src="/svgs/info.svg"
             alt="Loading"
             width={48}
             height={48}
-            className="text-blue-500 animate-bounce"
+            className="text-blue-500"
           />
         </div>
 
-        {/* Scanning Effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/0 via-blue-500/30 to-blue-500/0 animate-scan" />
+        {/* Loading Effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/0 via-blue-500/20 to-blue-500/0 animate-pulse" />
 
-        {/* Cells Animation */}
+        {/* Progress Dots */}
         <div className="absolute -inset-8 flex items-center justify-center">
           <div className="cell-grid">
             {[...Array(9)].map((_, i) => (
@@ -38,8 +44,9 @@ export default function Loader({ className = "" }: { className?: string }) {
       </div>
 
       <div className="flex flex-col items-center gap-2">
+        {" "}
         <p className="text-gray-600 dark:text-gray-300 font-medium">
-          Processing
+          {message}
         </p>
         <div className="flex gap-1">
           <div

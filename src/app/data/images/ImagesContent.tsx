@@ -2,7 +2,7 @@
 
 import { ApiImage } from "@/components/AnnotationCanvas/api";
 import ImageViewer from "@/components/ImageViewer";
-import LoadingState from "@/components/LoadingState";
+import Loader from "@/components/loader";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import UploadBtn from "@/components/UploadBtn";
 import Image from "next/image";
@@ -181,7 +181,7 @@ export default function ImagesContent() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
         {isLoading ? (
           <div className="h-64">
-            <LoadingState message="Loading images library..." />
+            <Loader message="Loading images library..." />
           </div>
         ) : filteredImages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 px-4 text-center">
@@ -238,24 +238,29 @@ export default function ImagesContent() {
             className={`p-6 ${viewMode === "grid" ? "grid-view" : "list-view"}`}
           >
             {viewMode === "grid" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6 p-4">
                 {filteredImages.map((image) => (
                   <div
                     key={image.id}
-                    className="relative overflow-hidden rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer transform transition-transform hover:scale-105 hover:shadow-md"
+                    className="group relative overflow-hidden rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600"
                     onClick={() => setSelectedImage(image)}
                   >
-                    <div className="aspect-w-1 aspect-h-1 bg-gray-100 dark:bg-gray-700">
+                    {/* Image Container with fixed aspect ratio */}
+                    <div className="relative pt-[100%] bg-gray-100 dark:bg-gray-700">
                       <Image
                         src={image.url}
                         alt={image.name}
-                        className="object-cover"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                         width={400}
                         height={400}
                       />
                     </div>
-                    <div className="p-3 bg-white dark:bg-gray-800">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {/* Image Name Container with Hover Effect */}
+                    <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                      <p
+                        className="text-sm font-medium text-white truncate"
+                        title={image.name}
+                      >
                         {image.name}
                       </p>
                     </div>
@@ -358,7 +363,7 @@ export default function ImagesContent() {
       {uploadingState && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
-            <LoadingState message="Uploading image..." />
+            <Loader message="Uploading image..." />
           </div>
         </div>
       )}
@@ -378,6 +383,33 @@ export default function ImagesContent() {
         .grid-view {
           overflow-y: auto;
           max-height: calc(100vh - 200px);
+          padding: 2px; /* Prevent shadow clipping */
+          scroll-padding: 1rem;
+
+          /* Smoother scrolling */
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+
+          /* Hide scrollbar for cleaner look */
+          scrollbar-width: thin;
+          scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+
+          &::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          &::-webkit-scrollbar-track {
+            background: transparent;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
+
+            &:hover {
+              background-color: rgba(156, 163, 175, 0.7);
+            }
+          }
         }
 
         .list-view {
