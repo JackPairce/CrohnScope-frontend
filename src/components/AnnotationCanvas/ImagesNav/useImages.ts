@@ -51,17 +51,17 @@ export function useImages(
       setIsLoading(false);
     }
   }, [page, done]);
-
   const selectImage = useCallback(
     async (imgData: ApiImage, index: number): Promise<boolean> => {
       try {
-        setSelectedImage(NaN); // Set to NaN immediately
+        // Don't clear selectedImage immediately to maintain active state
+        setSelectedImage(index); // Set the selected index first
+
         // This will handle any confirm dialogs if needed
         await setImg(imgData);
         return true;
       } catch (error) {
         console.error("Failed to set image:", error);
-        setSelectedImage(index); // Restore selection if setting image fails
         return false;
       }
     },

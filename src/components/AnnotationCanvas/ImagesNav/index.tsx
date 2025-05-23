@@ -192,8 +192,7 @@ function ImagesSection({
     } finally {
       setImageToDelete(null);
     }
-  };
-  // Use our custom hook for image operations
+  }; // Use our custom hook for image operations
   const {
     images,
     isLoading,
@@ -205,6 +204,17 @@ function ImagesSection({
     handleUploadImage,
     handleDeleteImage,
   } = useImages(!!done, addToast, setImage, refreshCounter);
+
+  // Create a wrapper for the selectImage function to avoid re-selecting current image
+  const handleSelectImage = async (image: ApiImage, index: number) => {
+    // If this image is already selected, do nothing
+    if (selectedImage === index) {
+      return;
+    }
+
+    // Otherwise, select the image
+    await selectImage(image, index);
+  };
 
   // Display loading state for initial load
   if (isLoading && images.length === 0) {
@@ -259,12 +269,13 @@ function ImagesSection({
           {images.length > 0 ? (
             <div className="images-container">
               <ul className="images-grid">
+                {" "}
                 {images.map((image, index) => (
                   <ImageItem
                     key={index}
                     image={image}
                     isSelected={selectedImage === index}
-                    onSelect={() => selectImage(image, index)}
+                    onSelect={() => handleSelectImage(image, index)}
                     onDeleteClick={(e) =>
                       handleDeleteClick(
                         e,
