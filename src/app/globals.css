@@ -98,6 +98,8 @@
   transition-property: background-color, border-color, color, fill, stroke;
   transition-duration: 0.3s;
   transition-timing-function: ease-in-out;
+  /* remove text selection */
+  user-select: none;
 }
 
 body {
