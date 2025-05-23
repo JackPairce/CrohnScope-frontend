@@ -186,10 +186,12 @@ export default function ClassificationWorkspace({
       }
     }
   }, [state.imgDim, state.selectedTab, state.tabs, matrixData, clearCanvases]);
-
   // Handle region clicks
   const handleRegionClick = useCallback(
     async (e: React.MouseEvent<HTMLCanvasElement>) => {
+      // Skip region selection if in hand mode
+      if (layerState === "hand") return;
+
       if (
         !state.imgDim ||
         state.selectedTab === -1 ||
@@ -258,6 +260,7 @@ export default function ClassificationWorkspace({
       matrixData,
       image?.id,
       setSaveStatus,
+      layerState,
     ]
   );
 
@@ -415,14 +418,17 @@ export default function ClassificationWorkspace({
         />{" "}
         <canvas
           ref={refs.overlayRef}
-          className="cursor"
+          className={`cursor ${layerState === "hand" ? "hand-cursor" : ""}`}
           width={state.imgDim.width}
           height={state.imgDim.height}
           style={{
-            zIndex: 3,
-            cursor: "pointer",
+            zIndex: layerState === "hand" ? 1 : 3,
+            cursor: layerState === "hand" ? "grab" : "pointer",
+            pointerEvents: layerState === "hand" ? "none" : "auto",
           }}
           onClick={handleRegionClick}
+          onMouseDown={(e) => layerState === "hand" && e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
         />
       </div>
     </BaseCanvas>
