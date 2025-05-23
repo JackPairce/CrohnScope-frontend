@@ -35,7 +35,7 @@ export function useImages(
   const [images, setImages] = useState<ApiImage[]>([]);
   const [page, setPage] = useState(1);
   const [pageLength, setPageLength] = useState(NaN);
-  
+
   // Function to fetch images that we can call multiple times
   const fetchImages = useCallback(async () => {
     setIsLoading(true);
@@ -54,14 +54,14 @@ export function useImages(
 
   const selectImage = useCallback(
     async (imgData: ApiImage, index: number): Promise<boolean> => {
-      setSelectedImage(index);
-
       try {
+        setSelectedImage(NaN); // Set to NaN immediately
         // This will handle any confirm dialogs if needed
         await setImg(imgData);
         return true;
       } catch (error) {
         console.error("Failed to set image:", error);
+        setSelectedImage(index); // Restore selection if setting image fails
         return false;
       }
     },
@@ -89,7 +89,8 @@ export function useImages(
       })
       .catch((error) => {
         setIsError(error.message || "Failed to load images");
-        setIsLoading(false);      });
+        setIsLoading(false);
+      });
   }, [page, done, pageLength, refreshCounter]);
 
   const handleUploadImage = useCallback(

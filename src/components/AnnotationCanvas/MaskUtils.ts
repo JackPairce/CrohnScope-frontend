@@ -156,6 +156,7 @@ export function LoadMasks(
           name: cell.name,
           isRename: false,
           mask: currentMask,
+          isDone: mask?.is_mask_done,
         } as Tab;
       })
     );

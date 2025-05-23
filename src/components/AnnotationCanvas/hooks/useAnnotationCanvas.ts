@@ -27,7 +27,6 @@ export type AnnotationCanvasState = {
   selectedTab: number;
   showSaveDialog: boolean;
   pendingImageChange: ApiImage | null;
-  isAllDone: boolean;
 };
 
 export type AnnotationCanvasRefs = {
@@ -123,7 +122,6 @@ export function useAnnotationCanvas(image: ApiImage | null): {
       imgDim,
       showSaveDialog,
       pendingImageChange,
-      isAllDone: tabs.every((tab) => tab.isDone),
     },
     refs: {
       overlayRef,
