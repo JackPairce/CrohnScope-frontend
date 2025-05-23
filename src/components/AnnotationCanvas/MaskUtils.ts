@@ -1,5 +1,5 @@
+import { getCells, getMask } from "@/lib/api";
 import { Dispatch, SetStateAction } from "react";
-import { getCells, getMask } from "./api";
 import type { Mask, Tab } from "./types";
 
 export const colorMappingToUser = {
@@ -156,6 +156,7 @@ export function LoadMasks(
           name: cell.name,
           isRename: false,
           mask: currentMask,
+          isDone: mask?.is_mask_done,
         } as Tab;
       })
     );

@@ -1,9 +1,10 @@
 "use client";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
+import { ApiImage } from "@/lib/api";
 import { useState } from "react";
-import { ApiImage } from "../api";
 import BaseCanvas from "../BaseCanvas";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
+import { CanvasActionsHandler } from "../hooks/useCanvasActions";
 import ToolBar from "../ToolBar";
 import { Mode } from "../types";
 import DrawPreview from "./DrawPreview";
@@ -11,63 +12,36 @@ import MaskDrawingToolbar from "./ToolBar";
 
 export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
   const { state, refs, actions } = useAnnotationCanvas(image);
-  const { saveCurrent, setSaveStatus } = useAnnotationContext();
+  const { setSaveStatus, saveCurrent, setCurrentImage } =
+    useAnnotationContext();
   const [mode, setMode] = useState<Mode>("draw");
   const [brushSize, setBrushSize] = useState<number>(15);
 
-  // Toolbar handlers
-  const saveMasks = async () => {
-    // Save current annotations using context's saveCurrent function
-    try {
-      await saveCurrent();
-      // The saveCurrent function in the context will handle setting all the status flags
-    } catch (error) {
-      console.error("Failed to save masks:", error);
-      // Reset saving state on error
-      setSaveStatus((prev) => ({
-        ...prev,
-        isSaving: false,
-      }));
-    }
+  const canvasActionsWithCurrent = {
+    ...actions,
+    setCurrentImage,
   };
 
-  const markAllDone = async () => {
-    // Mark all tabs as done
-    actions.setTabs((prev) => prev.map((tab) => ({ ...tab, isDone: true })));
-
-    // Get setSaveStatus from context
-    const { setSaveStatus } = useAnnotationContext();
-
-    // Update status to show marking as done
-    setSaveStatus((prev) => ({
-      ...prev,
-      isMarkingAllDone: true,
-    }));
-
-    try {
-      // TODO: Implement API call to mark all masks as done
-      console.log("Mark all done for image:", image?.id);
-
-      // Simulating API call
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      // Set modified flag to prompt for save
-      setSaveStatus((prev) => ({
-        ...prev,
-        isMarkingAllDone: false,
-        isModified: true, // This will prompt for save when changing images
-      }));
-
-      // Call saveCurrent to save the changes immediately
-      await saveCurrent();
-    } catch (error) {
-      console.error("Failed to mark all done:", error);
-      setSaveStatus((prev) => ({
-        ...prev,
-        isMarkingAllDone: false,
-      }));
+  // Initialize CanvasActionsHandler
+  const canvasActions = new CanvasActionsHandler(
+    state,
+    canvasActionsWithCurrent,
+    setSaveStatus,
+    image,
+    {
+      saveCurrent: async () => {
+        try {
+          await saveCurrent();
+        } catch (error) {
+          console.error("Failed to save masks:", error);
+          setSaveStatus((prev) => ({
+            ...prev,
+            isSaving: false,
+          }));
+        }
+      },
     }
-  };
+  );
 
   if (
     state.isLoading ||
@@ -78,6 +52,8 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
     return null;
   }
 
+  const isAllDone = state.tabs.every((tab) => tab.isDone);
+
   return (
     <BaseCanvas
       image={image}
@@ -87,9 +63,28 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
       toolbar={
         <ToolBar
           saveStatus={state.canvasSaveStatus}
-          saveMasks={saveMasks}
-          isAllDone={state.isAllDone}
-          MarkAllDone={markAllDone}
+          saveMasks={() => canvasActions.saveMasks()}
+          isAllDone={isAllDone}
+          MarkAllDone={async () => {
+            await canvasActions.markAllDone();
+            if (isAllDone) {
+              await setCurrentImage(null);
+            }
+          }}
+          markCurrentMask={async () => {
+            await canvasActions.markCurrentMask();
+            if (state.tabs.every((tab) => tab.isDone)) {
+              await setCurrentImage(null);
+            }
+          }}
+          saveAll={() => canvasActions.saveMasks()}
+          saveAndMark={async () => {
+            await canvasActions.saveAndMark();
+            if (isAllDone) {
+              await setCurrentImage(null);
+            }
+          }}
+          state={state}
         >
           <MaskDrawingToolbar
             mode={mode}
@@ -97,9 +92,14 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
             brushSize={brushSize}
             setBrushSize={setBrushSize}
             saveStatus={state.canvasSaveStatus}
-            saveMasks={saveMasks}
-            isAllDone={state.isAllDone}
-            MarkAllDone={markAllDone}
+            saveMasks={() => canvasActions.saveMasks()}
+            isAllDone={isAllDone}
+            MarkAllDone={async () => {
+              await canvasActions.markAllDone();
+              if (isAllDone) {
+                await setCurrentImage(null);
+              }
+            }}
           />
         </ToolBar>
       }
@@ -123,7 +123,6 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
           value: state.canvasSaveStatus,
           setValue: actions.setCanvasSaveStatus,
         }}
-        ref={refs.overlayRef}
       />
     </BaseCanvas>
   );

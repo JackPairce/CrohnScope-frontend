@@ -1,9 +1,9 @@
 import Layout from "@/components/Layout";
+import { getUserById } from "@/lib/auth";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getUserById } from "./_lib/auth";
 import "./globals.css";
 import Providers from "./providers";
 

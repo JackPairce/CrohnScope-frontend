@@ -1,5 +1,5 @@
+import type { Response, User } from "@/lib/auth";
 import axios from "axios";
-import type { Response, User } from "../_lib/auth";
 
 export async function authenticateUser(
   Data: User,

@@ -40,7 +40,7 @@ const navSections = [
       {
         name: "Segmentation",
         href: "/data/segmentation",
-        icon: "/svgs/brush.svg",
+        icon: "/svgs/draw.svg",
       },
       {
         name: "Cell Classification",

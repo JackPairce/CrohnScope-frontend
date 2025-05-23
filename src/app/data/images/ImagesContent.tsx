@@ -1,11 +1,11 @@
 "use client";
 
-import { ApiImage } from "@/components/AnnotationCanvas/api";
 import { useImages } from "@/components/AnnotationCanvas/ImagesNav/useImages";
 import ImageViewer from "@/components/ImageViewer";
 import Loader from "@/components/loader";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import UploadBtn from "@/components/UploadBtn";
+import { ApiImage } from "@/lib/api";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -38,9 +38,7 @@ export default function ImagesContent() {
   } = useImages(
     false, // done
     addToast,
-    (img: ApiImage) => setSelectedImage(img), // setImg
-    async () => "continue-without-save" as const, // confirmImageSwitch - we don't need to confirm in the library
-    undefined // saveCurrent - no need to save in the library view
+    (img: ApiImage) => setSelectedImage(img) // setImg
   );
 
   // Handle any errors from the useImages hook
