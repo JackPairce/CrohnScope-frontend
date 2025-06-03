@@ -6,14 +6,12 @@ interface ImageItemProps {
   image: ApiImage;
   isSelected: boolean;
   onSelect: () => void;
-  onDeleteClick: (e: React.MouseEvent) => void;
 }
 
 export default function ImageItem({
   image,
   isSelected,
   onSelect,
-  onDeleteClick,
 }: ImageItemProps) {
   return (
     <li
@@ -43,25 +41,6 @@ export default function ImageItem({
               />
             </div>
           )}
-          <button
-            className="delete-image-btn"
-            onClick={onDeleteClick}
-            aria-label="Delete image"
-            title="Delete image"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM8 9H16V19H8V9ZM15.5 4L14.5 3H9.5L8.5 4H5V6H19V4H15.5Z"
-                fill="white"
-              />
-            </svg>
-          </button>
         </div>
         <p className="image-filename" title={image.filename}>
           {image.filename.split(".")[0]}

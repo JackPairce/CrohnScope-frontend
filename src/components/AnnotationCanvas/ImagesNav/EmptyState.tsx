@@ -2,10 +2,9 @@ import UploadButton from "@/components/UploadBtn";
 
 interface EmptyStateProps {
   isDone: boolean;
-  onUpload?: (file: File) => Promise<void>;
 }
 
-export default function EmptyState({ isDone, onUpload }: EmptyStateProps) {
+export default function EmptyState({ isDone }: EmptyStateProps) {
   return (
     <div className="empty-state">
       <svg
@@ -39,17 +38,6 @@ export default function EmptyState({ isDone, onUpload }: EmptyStateProps) {
         />
       </svg>
       <p>No {isDone ? "completed" : "pending"} images found</p>
-      {!isDone && (
-        <>
-          <p className="empty-state-hint">Upload images to get started</p>
-          <div className="empty-state-upload">
-            <UploadButton
-              label="Upload Images"
-              onUpload={onUpload ? onUpload : () => {}}
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 }

@@ -3,11 +3,11 @@ import { useAnnotationContext } from "@/contexts/AnnotationContext";
 import { ApiImage } from "@/lib/api";
 import { RefObject, useEffect, useRef, useState } from "react";
 import { LoadMasks } from "../MaskUtils";
-import { Mode, SaveSatues, Tab } from "../types";
+import { DataProcessingMode, DrawModes, SaveSatues, Tab } from "../types";
 
 const initialState = {
   tabs: [] as Tab[],
-  mode: "draw" as Mode,
+  mode: "draw" as DrawModes,
   brushSize: 15,
   canvasSaveStatus: {
     isSaving: false,
@@ -47,7 +47,10 @@ export type AnnotationCanvasActions = {
   resetStates: () => void;
 };
 
-export function useAnnotationCanvas(image: ApiImage | null): {
+export function useAnnotationCanvas(
+  image: ApiImage | null,
+  WhichProcess: DataProcessingMode
+): {
   state: AnnotationCanvasState;
   refs: AnnotationCanvasRefs;
   actions: AnnotationCanvasActions;
@@ -99,7 +102,14 @@ export function useAnnotationCanvas(image: ApiImage | null): {
 
     // Load the new image
     setIsLoading(true);
-    LoadMasks(image, setIsLoading, setImgDim, setTabs, setSelectedTab);
+    LoadMasks(
+      image,
+      setIsLoading,
+      setImgDim,
+      setTabs,
+      setSelectedTab,
+      WhichProcess
+    );
 
     // Update the prevImage ref
     prevImageRef.current = image;

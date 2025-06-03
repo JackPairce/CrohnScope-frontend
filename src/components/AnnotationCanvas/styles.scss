@@ -430,14 +430,6 @@
                 font-weight: bold;
             }
 
-            &.done {
-                border-bottom: 3px solid var(--button-primary);
-            }
-
-            &.not-done {
-                border-bottom: 3px solid var(--accent);
-            }
-
             &.is-processing {
                 animation: tab-processing 1.5s infinite;
             }
@@ -456,12 +448,6 @@
                 }
             }
 
-            &.is-processing {
-                // animated border
-                border-bottom: 3px solid #ff9800;
-                animation: border-animation 1s infinite;
-            }
-
             @keyframes border-animation {
                 0% {
                     background-color: #ff9800;
@@ -476,7 +462,7 @@
                 }
             }
 
-            &:not(.active, .add-tab, :has(~ .active))::before {
+            &:not(.active, :nth-last-child, :has(~ .active))::before {
                 content: '';
                 position: absolute;
                 top: 15%;
@@ -484,26 +470,6 @@
                 width: 1px;
                 height: 70%;
                 background-color: var(--foreground);
-            }
-
-            &.add-tab {
-                position: relative;
-                width: 40px;
-
-                &::after,
-                &::before {
-                    content: '';
-                    position: absolute;
-                    top: calc(50% - 1px);
-                    left: 10px;
-                    height: 0;
-                    width: 20px;
-                    border: 1px solid var(--foreground)
-                }
-
-                &::after {
-                    transform: rotate(90deg);
-                }
             }
 
             // Styles for tab rename input

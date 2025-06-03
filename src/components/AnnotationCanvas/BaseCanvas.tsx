@@ -11,11 +11,12 @@ import React, {
 } from "react";
 import Loader from "../loader";
 import TabNavigation from "./TabNavigation";
-import { SaveSatues, Tab } from "./types";
+import { Mode, SaveSatues, Tab } from "./types";
 
 interface BaseCanvasProps {
   image: ApiImage;
   state: {
+    mode: Mode;
     tabs: Tab[];
     selectedTab: number;
     canvasSaveStatus: SaveSatues;
@@ -309,11 +310,11 @@ export default function BaseCanvas({
             : ""
         }`}
         ref={canvasContainerRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onDoubleClick={handleDoubleClick}
+        onMouseDown={state.mode == "hand" ? handleMouseDown : undefined}
+        onMouseMove={state.mode == "hand" ? handleMouseMove : undefined}
+        onMouseUp={state.mode == "hand" ? handleMouseUp : undefined}
+        onMouseLeave={state.mode == "hand" ? handleMouseUp : undefined}
+        onDoubleClick={state.mode == "hand" ? handleDoubleClick : undefined}
       >
         {/* Zoom controls */}
         <div className="zoom-controls">
