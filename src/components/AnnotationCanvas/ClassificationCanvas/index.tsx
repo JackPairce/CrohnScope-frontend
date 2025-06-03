@@ -5,15 +5,16 @@ import {
   ApiImage,
   MaskMatricesResponse,
   getMaskMatrices,
-  updateRegionHealth,
+  uploadMasks,
 } from "@/lib/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BaseCanvas from "../BaseCanvas";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
 import { CanvasActionsHandler } from "../hooks/useCanvasActions";
 import ToolBar from "../ToolBar";
+import { SelectMode } from "../types";
 import type { State } from "./LayerState";
-import ClassificationToolbar from "./ToolBar";
+import LayerState from "./LayerState";
 
 // Helper function to find the first pixel with a given label
 function findFirstPixelWithLabel(
@@ -35,10 +36,15 @@ export default function ClassificationWorkspace({
 }: {
   image: ApiImage;
 }) {
-  const { state, refs, actions } = useAnnotationCanvas(image);
+  const { state, refs, actions } = useAnnotationCanvas(image, "classification");
   const { setSaveStatus, saveCurrent, setCurrentImage } =
     useAnnotationContext();
+
+  // Layer canvases for classification
+  const healthyRef = useRef<HTMLCanvasElement>(null);
+  const unhealthyRef = useRef<HTMLCanvasElement>(null);
   const [layerState, setLayerState] = useState<State>("all");
+  const [interactionMode, setInteractionMode] = useState<SelectMode>("hand");
 
   // Initialize action extensions
   const extendedActions = {
@@ -52,46 +58,25 @@ export default function ClassificationWorkspace({
     extendedActions,
     setSaveStatus,
     image,
+    "classification",
     {
       saveCurrent: async () => {
         if (!matrixData || !state.tabs?.[state.selectedTab]?.mask_id) return;
 
         // Set saving state
         setSaveStatus((prev) => ({ ...prev, isSaving: true }));
-
         try {
-          // Update all modified regions in current mask
-          const promises = matrixData.masks?.map(async (mask) => {
-            if (mask.mask_id === state.tabs[state.selectedTab].mask_id) {
-              // For each different label in the mask
-              const labels = new Set<number>();
-              mask.labeledRegions.forEach((row) =>
-                row.forEach((label) => {
-                  if (label !== 0) labels.add(label);
-                })
-              );
-
-              // For each label, find first pixel and use its health status
-              const updatePromises = Array.from(labels).map(async (label) => {
-                const firstPixel = findFirstPixelWithLabel(
-                  mask.labeledRegions,
-                  label
-                );
-                if (firstPixel) {
-                  const healthValue = mask.mask[firstPixel.y][firstPixel.x];
-                  // Convert numeric health value to boolean
-                  const isHealthy = healthValue === 1;
-                  await updateRegionHealth(mask.mask_id, label, isHealthy);
-                }
-              });
-
-              await Promise.all(updatePromises);
-            }
-          });
-
-          if (promises) {
-            await Promise.all(promises);
-          }
+          // Save masks
+          await uploadMasks(
+            image.id,
+            matrixData.map((mask) => {
+              return {
+                id: mask.mask_id,
+                cell_id: mask.cell_id,
+                data: mask.mask,
+              };
+            })
+          );
 
           // Reset save status after successful save
           setSaveStatus({
@@ -111,9 +96,9 @@ export default function ClassificationWorkspace({
   );
 
   // State for matrix data
-  const [matrixData, setMatrixData] = useState<MaskMatricesResponse | null>(
-    null
-  );
+  const [matrixData, setMatrixData] = useState<
+    MaskMatricesResponse["masks"] | null
+  >(null);
   const isAllDone = state.tabs.every((tab) => tab.isDone);
 
   // Load matrix data on mount or when image changes
@@ -121,12 +106,224 @@ export default function ClassificationWorkspace({
     const loadMatrixData = async () => {
       if (image.id) {
         const data = await getMaskMatrices(image.id);
-        setMatrixData(data);
+        setMatrixData(data.masks);
       }
     };
     loadMatrixData();
   }, [image.id]);
 
+  // Clear all canvases
+  const clearCanvases = useCallback(() => {
+    if (healthyRef.current && unhealthyRef.current && refs.overlayRef.current) {
+      const healthyCtx = healthyRef.current.getContext("2d");
+      const unhealthyCtx = unhealthyRef.current.getContext("2d");
+      const overlayCtx = refs.overlayRef.current.getContext("2d");
+
+      healthyCtx?.clearRect(
+        0,
+        0,
+        healthyRef.current.width,
+        healthyRef.current.height
+      );
+      unhealthyCtx?.clearRect(
+        0,
+        0,
+        unhealthyRef.current.width,
+        unhealthyRef.current.height
+      );
+      overlayCtx?.clearRect(
+        0,
+        0,
+        refs.overlayRef.current.width,
+        refs.overlayRef.current.height
+      );
+    }
+  }, [refs.overlayRef]);
+
+  // Reset all state when image changes or becomes null
+  useEffect(() => {
+    clearCanvases();
+    setMatrixData(null);
+    actions.setCanvasSaveStatus({
+      isSaving: false,
+      isModified: false,
+      isMarkingAllDone: false,
+    });
+
+    // If no image, just return after clearing state
+    if (!image?.id) {
+      return;
+    }
+
+    // Get new mask matrices only if we have an image and selected tab
+    if (state.selectedTab !== -1 && state.tabs?.[state.selectedTab]?.mask_id) {
+      getMaskMatrices(image.id)
+        .then(({ masks }) => {
+          setMatrixData(masks);
+        })
+        .catch(console.error);
+    }
+  }, [image, clearCanvases, state.selectedTab, state.tabs]); // Added state.selectedTab and state.tabs as dependencies
+
+  // Handle matrix data updates and canvas drawing
+  useEffect(() => {
+    // Don't proceed if missing required data
+    if (
+      !state.imgDim ||
+      state.selectedTab === -1 ||
+      !matrixData ||
+      !state.tabs?.[state.selectedTab]?.mask_id
+    ) {
+      return;
+    }
+
+    // Find the active mask that matches the current tab
+    const activeMask = matrixData.find(
+      (mask) => mask.mask_id === state.tabs[state.selectedTab].mask_id
+    );
+
+    if (!activeMask) return;
+
+    // Clear canvases before drawing new content
+    clearCanvases();
+
+    // Set canvas dimensions
+    if (healthyRef.current && unhealthyRef.current && refs.overlayRef.current) {
+      // Set all canvases to exact image dimensions
+      [
+        healthyRef.current,
+        unhealthyRef.current,
+        refs.overlayRef.current,
+      ].forEach((canvas) => {
+        canvas.width = state.imgDim?.width || 0;
+        canvas.height = state.imgDim?.height || 0;
+      });
+
+      const healthyCtx = healthyRef.current.getContext("2d");
+      const unhealthyCtx = unhealthyRef.current.getContext("2d");
+
+      if (healthyCtx && unhealthyCtx) {
+        // Create image data for healthy and unhealthy regions
+        const healthyImageData = healthyCtx.createImageData(
+          state.imgDim.width,
+          state.imgDim.height
+        );
+        const unhealthyImageData = unhealthyCtx.createImageData(
+          state.imgDim.width,
+          state.imgDim.height
+        );
+
+        // Initialize all pixels with 0 alpha
+        for (let i = 3; i < healthyImageData.data.length; i += 4) {
+          healthyImageData.data[i] = 0;
+          unhealthyImageData.data[i] = 0;
+        }
+
+        // Process each pixel
+        for (let y = 0; y < activeMask.mask.length; y++) {
+          for (let x = 0; x < activeMask.mask[y].length; x++) {
+            const maskValue = activeMask.mask[y][x];
+
+            if (maskValue !== 0) {
+              // Skip background (0)
+              const idx = (y * state.imgDim.width + x) * 4;
+
+              // Value 2 means healthy (green), 1 means unhealthy (red)
+              if (maskValue === 2) {
+                // Draw healthy region in green
+                healthyImageData.data[idx + 0] = 0; // R
+                healthyImageData.data[idx + 1] = 255; // G
+                healthyImageData.data[idx + 2] = 0; // B
+                healthyImageData.data[idx + 3] = 255; // Fully opaque
+              } else if (maskValue === 1) {
+                // Draw unhealthy region in red
+                unhealthyImageData.data[idx + 0] = 255; // R
+                unhealthyImageData.data[idx + 1] = 0; // G
+                unhealthyImageData.data[idx + 2] = 0; // B
+                unhealthyImageData.data[idx + 3] = 255; // Fully opaque
+              }
+            }
+          }
+        }
+
+        healthyCtx.putImageData(healthyImageData, 0, 0);
+        unhealthyCtx.putImageData(unhealthyImageData, 0, 0);
+      }
+    }
+  }, [state.imgDim, state.selectedTab, state.tabs, matrixData, clearCanvases]);
+
+  // Handle region clicks
+  const handleRegionClick = useCallback(
+    async (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (
+        !state.imgDim ||
+        state.selectedTab === -1 ||
+        !matrixData ||
+        !state.tabs?.[state.selectedTab]?.mask_id
+      )
+        return;
+
+      // Find the active mask
+      const activeMask = matrixData.find(
+        (mask) => mask.mask_id === state.tabs[state.selectedTab].mask_id
+      );
+
+      if (!activeMask) return;
+
+      // Get click coordinates in canvas space
+      const canvas = e.currentTarget;
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor(
+        (e.clientX - rect.left) * (canvas.width / rect.width)
+      );
+      const y = Math.floor(
+        (e.clientY - rect.top) * (canvas.height / rect.height)
+      );
+
+      // Get the region label from connected components matrix
+      const clickedLabel = activeMask.labeledRegions[y]?.[x];
+      if (!clickedLabel || clickedLabel === 0) return; // Ignore background
+
+      // Get current health status of the clicked region
+      const currentHealth = activeMask.mask[y][x];
+      // Toggle health status: 1 (unhealthy) -> 2 (healthy) or 2 -> 1
+      const newHealth = currentHealth === 1 ? 2 : 1;
+
+      try {
+        // Update health status for all pixels with same region label in local state
+        activeMask.labeledRegions.forEach((row, rowIndex) => {
+          row.forEach((label, colIndex) => {
+            if (label === clickedLabel) {
+              activeMask.mask[rowIndex][colIndex] = newHealth;
+            }
+          });
+        });
+
+        // Just update local state, backend update will happen on save all
+        setMatrixData(
+          matrixData.map((mask) =>
+            mask.mask_id === activeMask.mask_id ? activeMask : mask
+          )
+        );
+
+        // Mark as modified
+        setSaveStatus((prev) => ({
+          ...prev,
+          isModified: true,
+        }));
+      } catch (error) {
+        console.error("Failed to update region:", error);
+      }
+    },
+    [
+      state.imgDim,
+      state.selectedTab,
+      state.tabs,
+      matrixData,
+      image?.id,
+      setSaveStatus,
+    ]
+  );
   // Return null for loading or invalid states
   if (
     state.isLoading ||
@@ -140,7 +337,7 @@ export default function ClassificationWorkspace({
   return (
     <BaseCanvas
       image={image}
-      state={state}
+      state={{ ...state, mode: interactionMode }}
       refs={refs}
       actions={actions}
       toolbar={
@@ -169,16 +366,54 @@ export default function ClassificationWorkspace({
           }}
           state={state}
         >
-          <ClassificationToolbar
-            layerState={layerState}
-            setLayerState={setLayerState}
+          <LayerState
+            value={layerState}
+            onChange={setLayerState}
+            mode={interactionMode}
+            setMode={setInteractionMode}
           />
         </ToolBar>
       }
     >
       {matrixData && (
         <div className="flex-1 h-full relative">
-          {/* Canvas content here */}
+          <canvas
+            ref={healthyRef}
+            className="healthy"
+            width={state.imgDim.width}
+            height={state.imgDim.height}
+            style={{
+              zIndex: 2,
+              pointerEvents: "none",
+              display: ["all", "healthy"].includes(layerState as string)
+                ? "block"
+                : "none",
+            }}
+          />
+          <canvas
+            ref={unhealthyRef}
+            className="unhealthy"
+            width={state.imgDim.width}
+            height={state.imgDim.height}
+            style={{
+              zIndex: 2,
+              pointerEvents: "none",
+              display: ["all", "unhealthy"].includes(layerState as string)
+                ? "block"
+                : "none",
+            }}
+          />{" "}
+          <canvas
+            ref={refs.overlayRef}
+            className="cursor"
+            width={state.imgDim.width}
+            height={state.imgDim.height}
+            style={{
+              cursor: interactionMode === "hand" ? "grab" : "pointer",
+              pointerEvents: interactionMode === "hand" ? "none" : "auto",
+            }}
+            onClick={handleRegionClick}
+          />
         </div>
       )}
     </BaseCanvas>

@@ -1,6 +1,6 @@
 import { getCells, getMask } from "@/lib/api";
 import { Dispatch, SetStateAction } from "react";
-import type { Mask, Tab } from "./types";
+import type { DataProcessingMode, Mask, Tab } from "./types";
 
 export const colorMappingToUser = {
   "0,0,0": "0,0,0,0",
@@ -92,14 +92,28 @@ export function drawMaskToCanvas(
   }
   ctx.putImageData(imageData, 0, 0);
 }
-
-export async function ExtractRealMask(base64: string): Promise<string> {
-  const mask = await Img2Mask(base64);
+type MaskArray = (0 | 1)[][];
+export function MaskToArray(mask: HTMLImageElement): MaskArray {
   const canvas = document.createElement("canvas");
-  canvas.width = mask.naturalWidth;
-  canvas.height = mask.naturalHeight;
-  drawMaskToCanvas(mask, canvas, colorMappingToModel);
-  return (await CanvasToMask(canvas)).src;
+  const width = mask.naturalWidth;
+  const height = mask.naturalHeight;
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Failed to get canvas context");
+  ctx.drawImage(mask, 0, 0, width, height);
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const array: (0 | 1)[][] = Array.from({ length: height }, () =>
+    Array(width).fill(0)
+  );
+  for (let y = 0; y < mask.height; y++) {
+    for (let x = 0; x < mask.width; x++) {
+      const index = (y * mask.width + x) * 4;
+      const a = imageData.data[index + 4]; // alpha channel
+      if (a > 0) array[y][x] = 1;
+    }
+  }
+  return array;
 }
 
 export function Img2Mask(imageSrc: string) {
@@ -127,7 +141,8 @@ export function LoadMasks(
     } | null>
   >,
   setTabs: Dispatch<SetStateAction<Tab[]>>,
-  setSelectedTab: Dispatch<SetStateAction<number>>
+  setSelectedTab: Dispatch<SetStateAction<number>>,
+  DataTransformationMode: DataProcessingMode
 ) {
   setIsLoading(true);
   const img = new Image();
@@ -156,7 +171,10 @@ export function LoadMasks(
           name: cell.name,
           isRename: false,
           mask: currentMask,
-          isDone: mask?.is_mask_done,
+          isDone:
+            DataTransformationMode === "segmentation"
+              ? mask?.is_segmented
+              : mask?.is_annotated,
         } as Tab;
       })
     );

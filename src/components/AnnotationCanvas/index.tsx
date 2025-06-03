@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import EmptyStatePage from "./EmptyStatePage";
 import ImagesNav from "./ImagesNav";
 import "./styles.scss";
+import { process_type } from "@/lib/api";
 
 const ClassificationCanvas = dynamic(() => import("./ClassificationCanvas"), {
   ssr: false,
@@ -17,7 +18,7 @@ const MaskDrawingCanvas = dynamic(() => import("./MaskDrawingCanvas"), {
 });
 
 interface Props {
-  areaType: "segmentation" | "classification";
+  areaType: process_type;
 }
 
 export default function AnnotationCanvas({ areaType }: Props) {
@@ -26,7 +27,7 @@ export default function AnnotationCanvas({ areaType }: Props) {
   return (
     <AnnotationProvider>
       <div className="workspace-container">
-        <ImagesNav />
+        <ImagesNav which={areaType} />
         <section className="workspace-content">
           <QueryClientProvider client={queryClient}>
             <AnnotationContent areaType={areaType} />

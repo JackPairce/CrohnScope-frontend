@@ -3,7 +3,7 @@
 import ConfirmDialog, { DialogAction } from "@/components/ConfirmDialog";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
-import { ApiImage } from "@/lib/api";
+import { ApiImage, process_type } from "@/lib/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import EmptyState from "./EmptyState";
@@ -26,13 +26,13 @@ interface DialogConfig {
 }
 
 interface ImagesNavProps {
-  setImage: (image: ApiImage) => void;
+  setImage: (image: ApiImage) => Promise<boolean>;
   saveCurrent?: () => Promise<void>;
 }
 
 const queryClient = new QueryClient();
 
-export default function ImagesNav() {
+export default function ImagesNav({ which }: { which: process_type }) {
   const { setCurrentImage, saveCurrent } = useAnnotationContext();
   const [hide, setHide] = useState(false);
   const addToast = (message: string, type: ToastType) => {
@@ -86,6 +86,7 @@ export default function ImagesNav() {
       {" "}
       <section className="images-nav">
         <ImagesSection
+          which={which}
           hide={hide}
           setHide={setHide}
           addToast={addToast}
@@ -94,6 +95,7 @@ export default function ImagesNav() {
           refreshCounter={forceRefresh}
         />
         <ImagesSection
+          which={which}
           hide={!hide}
           setHide={setHide}
           done
@@ -118,16 +120,18 @@ export default function ImagesNav() {
 }
 
 interface ImagesSectionProps {
+  which: process_type;
   done?: boolean;
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
   addToast: (message: string, type: ToastType) => void;
-  setImage: (image: ApiImage) => void;
+  setImage: (image: ApiImage) => Promise<boolean>;
   saveCurrent?: () => Promise<void>;
   refreshCounter: number; // Counter to force refresh of images
 }
 
 function ImagesSection({
+  which,
   done,
   hide,
   setHide,
@@ -145,54 +149,6 @@ function ImagesSection({
   // Image switching is now entirely handled by the AnnotationContext
   // with its own dialog and state management
 
-  const handleDeleteClick = (
-    e: React.MouseEvent,
-    imageId: number,
-    imageName: string
-  ) => {
-    e.stopPropagation();
-    setImageToDelete({ id: imageId, name: imageName });
-    setDeleteDialogOpen(true);
-  };
-
-  const handleCancelDelete = () => {
-    setDeleteDialogOpen(false);
-    setImageToDelete(null);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!imageToDelete) return;
-
-    setDeleteDialogOpen(false);
-
-    try {
-      // Find the image element by ID
-      const imageElement = document.querySelector(
-        `li[data-image-id="${imageToDelete.id}"]`
-      );
-      if (imageElement) {
-        imageElement.classList.add("deleting");
-      }
-
-      // Delete the image
-      const success = await handleDeleteImage(
-        imageToDelete.id,
-        imageToDelete.name
-      );
-
-      // If deletion failed, remove the deleting class
-      if (!success) {
-        const imageElement = document.querySelector(
-          `li[data-image-id="${imageToDelete.id}"]`
-        );
-        if (imageElement) {
-          imageElement.classList.remove("deleting");
-        }
-      }
-    } finally {
-      setImageToDelete(null);
-    }
-  }; // Use our custom hook for image operations
   const {
     images,
     isLoading,
@@ -201,9 +157,7 @@ function ImagesSection({
     selectedImage,
     loadNextPage,
     selectImage,
-    handleUploadImage,
-    handleDeleteImage,
-  } = useImages(!!done, addToast, setImage, refreshCounter);
+  } = useImages(which, !!done, addToast, setImage, refreshCounter);
 
   // Create a wrapper for the selectImage function to avoid re-selecting current image
   const handleSelectImage = async (image: ApiImage, index: number) => {
@@ -213,7 +167,7 @@ function ImagesSection({
     }
 
     // Otherwise, select the image
-    await selectImage(image, index);
+    if (await selectImage(image, index)) return;
   };
 
   // Display loading state for initial load
@@ -227,41 +181,11 @@ function ImagesSection({
 
   return (
     <>
-      {deleteDialogOpen && imageToDelete && (
-        <ConfirmDialog
-          isOpen={deleteDialogOpen}
-          title="Delete Image"
-          message={`Are you sure you want to delete "${imageToDelete.name}"? This action cannot be undone.`}
-          dialogType="danger"
-          actions={[
-            {
-              label: "Cancel",
-              value: false,
-              type: "default",
-              autoFocus: true,
-            },
-            {
-              label: "Delete",
-              value: true,
-              type: "danger",
-            },
-          ]}
-          onClose={(confirmed: boolean) => {
-            if (confirmed) {
-              handleConfirmDelete();
-            } else {
-              handleCancelDelete();
-            }
-          }}
-        />
-      )}
-
       <SectionHeader
         isDone={!!done}
         isCollapsed={hide}
         count={Number.isNaN(pageLength) ? 0 : pageLength}
         onToggle={() => setHide(!hide)}
-        onUpload={!done ? handleUploadImage : undefined}
       />
 
       {!hide && (
@@ -276,22 +200,12 @@ function ImagesSection({
                     image={image}
                     isSelected={selectedImage === index}
                     onSelect={() => handleSelectImage(image, index)}
-                    onDeleteClick={(e) =>
-                      handleDeleteClick(
-                        e,
-                        image.id,
-                        image.filename.split(".")[0]
-                      )
-                    }
                   />
                 ))}
               </ul>
             </div>
           ) : (
-            <EmptyState
-              isDone={!!done}
-              onUpload={!done ? handleUploadImage : undefined}
-            />
+            <EmptyState isDone={!!done} />
           )}
 
           {pageLength > images.length && (

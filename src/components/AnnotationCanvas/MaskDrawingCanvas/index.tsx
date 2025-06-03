@@ -6,15 +6,15 @@ import BaseCanvas from "../BaseCanvas";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
 import { CanvasActionsHandler } from "../hooks/useCanvasActions";
 import ToolBar from "../ToolBar";
-import { Mode } from "../types";
+import { DrawModes } from "../types";
 import DrawPreview from "./DrawPreview";
 import MaskDrawingToolbar from "./ToolBar";
 
 export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
-  const { state, refs, actions } = useAnnotationCanvas(image);
+  const { state, refs, actions } = useAnnotationCanvas(image, "segmentation");
   const { setSaveStatus, saveCurrent, setCurrentImage } =
     useAnnotationContext();
-  const [mode, setMode] = useState<Mode>("draw");
+  const [mode, setMode] = useState<DrawModes>("draw");
   const [brushSize, setBrushSize] = useState<number>(15);
 
   const canvasActionsWithCurrent = {
@@ -28,6 +28,7 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
     canvasActionsWithCurrent,
     setSaveStatus,
     image,
+    "segmentation",
     {
       saveCurrent: async () => {
         try {
@@ -57,7 +58,7 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
   return (
     <BaseCanvas
       image={image}
-      state={state}
+      state={{ ...state, mode }}
       refs={refs}
       actions={actions}
       toolbar={
