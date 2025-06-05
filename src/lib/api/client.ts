@@ -4,7 +4,7 @@ import axios, { AxiosInstance } from "axios";
 /**
  * Base API client for making HTTP requests
  */
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = '/backend'
 
 /**
  * Create and configure the axios client
