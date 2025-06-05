@@ -1,6 +1,6 @@
 "use client";
 
-import ConfirmDialog, { DialogAction } from "@/components/ConfirmDialog";
+import { DialogAction } from "@/components/ConfirmDialog";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
 import { ApiImage, process_type } from "@/lib/api";
@@ -126,7 +126,6 @@ interface ImagesSectionProps {
   setHide: Dispatch<SetStateAction<boolean>>;
   addToast: (message: string, type: ToastType) => void;
   setImage: (image: ApiImage) => Promise<boolean>;
-  saveCurrent?: () => Promise<void>;
   refreshCounter: number; // Counter to force refresh of images
 }
 
@@ -137,7 +136,6 @@ function ImagesSection({
   setHide,
   addToast,
   setImage,
-  saveCurrent,
   refreshCounter,
 }: ImagesSectionProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
