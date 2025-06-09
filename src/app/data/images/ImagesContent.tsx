@@ -246,7 +246,7 @@ export default function ImagesContent() {
           <div
             className={`p-6 ${viewMode === "grid" ? "grid-view" : "list-view"}`}
           >
-            <div className="flex justify-between items-center px-4 mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
+            <div className="flex justify-between items-center px-4 m-3 border-b border-gray-200 dark:border-gray-700 pb-4">
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm font-medium px-2.5 py-1 rounded-md">
                   {filteredImages.length}
