@@ -599,7 +599,7 @@ export function BarChart({
   };
 
   const chartOptions: ChartOptions<"bar"> = {
-    ...getChartTheme({ type: "bar" }),
+    ...getBarChartDefaults(),
   };
 
   return (
