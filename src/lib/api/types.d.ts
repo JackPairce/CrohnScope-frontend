@@ -4,6 +4,56 @@
  */
 
 export interface paths {
+    "/ai/generate-mask/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Generate Mask
+         * @description Generate a mask for a specific image using the AI model.
+         *
+         *     Args:
+         *         image_id: ID of the image to generate the mask for
+         *
+         *     Returns:
+         *         MaskGenerationResponse: Status message indicating success or failure
+         */
+        get: operations["generate_mask_ai_generate_mask__image_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ai/generate-masks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate All Masks
+         * @description Generate masks for all images that don't have masks yet.
+         *     This runs in the background as it may take some time.
+         *
+         *     Returns:
+         *         MaskGenerationResponse: Status message indicating task has started
+         */
+        post: operations["generate_all_masks_ai_generate_masks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cells/": {
         parameters: {
             query?: never;
@@ -385,26 +435,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/monitoring/training-process": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Training Process Metrics
-         * @description Get metrics about the current training process.
-         */
-        get: operations["get_training_process_metrics_monitoring_training_process_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/": {
         parameters: {
             query?: never;
@@ -460,8 +490,6 @@ export interface components {
             id: number;
             /** Image Id */
             image_id: number;
-            /** Mask Path */
-            mask_path: string;
             /** Cell Id */
             cell_id?: number | null;
             /**
@@ -476,8 +504,6 @@ export interface components {
             is_annotated: boolean;
             /** Src */
             src: string;
-            /** Labeledmask */
-            labeledMask?: string | null;
             /** Regions */
             regions?: components["schemas"]["RegionInfo"][] | null;
         };
@@ -637,6 +663,16 @@ export interface components {
         };
         MaskArray: (0 | 1 | 2)[][];
         /**
+         * MaskGenerationResponse
+         * @description Mask generation response
+         */
+        MaskGenerationResponse: {
+            /** Message */
+            message: string;
+            /** Status */
+            status: string;
+        };
+        /**
          * MaskMatricesResponse
          * @description Response model for multiple mask matrices
          */
@@ -656,6 +692,17 @@ export interface components {
             /** Labeledregions */
             labeledRegions: number[][];
             mask: components["schemas"]["MaskArray"];
+        };
+        /**
+         * MaskSaveRequest
+         * @description Model for mask saving request.
+         */
+        MaskSaveRequest: {
+            /** Id */
+            id: number;
+            /** Cell Id */
+            cell_id: number;
+            data: components["schemas"]["MaskArray"];
         };
         /**
          * MaskUpdateResponse
@@ -701,17 +748,6 @@ export interface components {
                 [key: string]: number;
             };
         };
-        /**
-         * SaveMaskResponse
-         * @description Model for mask saving response.
-         */
-        SaveMaskResponse: {
-            /** Id */
-            id: number;
-            /** Cell Id */
-            cell_id: number;
-            data: components["schemas"]["MaskArray"];
-        };
         /** StorageInfo */
         StorageInfo: {
             data_directory: components["schemas"]["DataDirectoryInfo"];
@@ -750,35 +786,6 @@ export interface components {
             disk: components["schemas"]["DiskInfo"];
         };
         /**
-         * TrainingProcessResponse
-         * @description Response model for training process status API endpoint.
-         */
-        TrainingProcessResponse: {
-            status: components["schemas"]["TrainingStatusEnum"];
-            /** Pid */
-            pid?: number | null;
-            /** Start Time */
-            start_time?: number | null;
-            /** Last Update */
-            last_update?: number | null;
-            /** Error */
-            error?: string | null;
-            /** Resources */
-            resources?: {
-                [key: string]: unknown;
-            } | null;
-            /** Elapsed Seconds */
-            elapsed_seconds?: number | null;
-            /** Log */
-            log?: string[] | null;
-        };
-        /**
-         * TrainingStatusEnum
-         * @description Enum for training process status values.
-         * @enum {string}
-         */
-        TrainingStatusEnum: "running" | "completed" | "failed" | "skipped" | "not_running" | "unknown";
-        /**
          * UploadImageRequest
          * @description Request model for uploading an image
          */
@@ -806,6 +813,57 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    generate_mask_ai_generate_mask__image_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiMask"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_all_masks_ai_generate_masks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaskGenerationResponse"];
+                };
+            };
+        };
+    };
     get_all_cells_cells__get: {
         parameters: {
             query?: never;
@@ -1167,7 +1225,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SaveMaskResponse"][];
+                "application/json": components["schemas"]["MaskSaveRequest"][];
             };
         };
         responses: {
@@ -1344,26 +1402,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SystemMetrics"];
-                };
-            };
-        };
-    };
-    get_training_process_metrics_monitoring_training_process_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrainingProcessResponse"];
                 };
             };
         };

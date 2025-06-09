@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Main RAM stick body -->
+    <rect x="2" y="7" width="20" height="10" stroke="white" stroke-width="1.5" rx="1"/>
+
+    <!-- Memory chips -->
+    <rect x="4" y="9" width="3" height="6" stroke="white" stroke-width="1.5" rx="0.5"/>
+    <rect x="8.5" y="9" width="3" height="6" stroke="white" stroke-width="1.5" rx="0.5"/>
+    <rect x="13" y="9" width="3" height="6" stroke="white" stroke-width="1.5" rx="0.5"/>
+    <rect x="17.5" y="9" width="3" height="6" stroke="white" stroke-width="1.5" rx="0.5"/>
+
+    <!-- Connection pins -->
+    <path d="M4 4.5L7 4.5" stroke="white" stroke-width="1.5"/>
+    <path d="M9 4.5L12 4.5" stroke="white" stroke-width="1.5"/>
+    <path d="M14 4.5L17 4.5" stroke="white" stroke-width="1.5"/>
+    <path d="M19 4.5L20 4.5" stroke="white" stroke-width="1.5"/>
+
+    <path d="M4 19.5L7 19.5" stroke="white" stroke-width="1.5"/>
+    <path d="M9 19.5L12 19.5" stroke="white" stroke-width="1.5"/>
+    <path d="M14 19.5L17 19.5" stroke="white" stroke-width="1.5"/>
+    <path d="M19 19.5L20 19.5" stroke="white" stroke-width="1.5"/>
+</svg>
