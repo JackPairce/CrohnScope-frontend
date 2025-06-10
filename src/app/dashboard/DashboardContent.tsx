@@ -6,11 +6,10 @@ import {
   HealthStatus,
   SystemCard,
 } from "@/components/dashboard";
-import LoadingState from "@/components/loader";
-import { useEffect, useState } from "react";
-import { components } from "../../api";
-import { useMonitoringData } from "./useMonitoringData";
 import Loader from "@/components/loader";
+import { components } from "@/lib/api/types";
+import { useEffect, useState } from "react";
+import { useMonitoringData } from "./useMonitoringData";
 
 type ConnectionStatusType = "connected" | "connecting" | "disconnected";
 // Use explicit types from API definition

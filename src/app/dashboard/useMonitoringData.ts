@@ -3,11 +3,9 @@ import {
   DataUsageResponse,
   getDataUsage,
   getImageStatus,
-  getModelStatus,
   getSystemInfo,
   getSystemMetrics,
   ImageStatus,
-  ModelStatus,
   SystemMetrics,
   SystemResponse,
 } from "@/lib/api";
@@ -21,7 +19,6 @@ const CONNECTION_TIMEOUT = 3000; // 3 seconds
 type ConnectionStatus = "connected" | "connecting" | "disconnected";
 
 type MonitoringData = {
-  aiStatus: ModelStatus | null;
   imageStatus: ImageStatus | null;
   systemInfo: SystemResponse | null;
   dataUsage: DataUsageResponse | null;
@@ -34,7 +31,6 @@ type MonitoringData = {
 
 export function useMonitoringData(): MonitoringData {
   const [data, setData] = useState<MonitoringData>({
-    aiStatus: null,
     imageStatus: null,
     systemInfo: null,
     dataUsage: null,
@@ -100,17 +96,14 @@ export function useMonitoringData(): MonitoringData {
   useEffect(() => {
     async function fetchMonitoringData() {
       try {
-        const [aiStatus, imageStatus, systemInfo, dataUsage] =
-          await Promise.all([
-            getModelStatus(),
-            getImageStatus(),
-            getSystemInfo(),
-            getDataUsage(),
-          ]);
+        const [imageStatus, systemInfo, dataUsage] = await Promise.all([
+          getImageStatus(),
+          getSystemInfo(),
+          getDataUsage(),
+        ]);
 
         setData((prev) => ({
           ...prev,
-          aiStatus,
           imageStatus,
           systemInfo,
           dataUsage,

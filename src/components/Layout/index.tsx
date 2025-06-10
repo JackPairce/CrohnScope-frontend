@@ -159,13 +159,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* User Menu */}
           <button className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
               <Image
-                src="https://i.pravatar.cc/32?img=60"
+                src="/svgs/user.svg"
                 alt="User avatar"
-                width={32}
-                height={32}
-                className="object-cover"
+                width={20}
+                height={20}
+                className="svg-icon"
               />
             </div>
           </button>

@@ -184,15 +184,17 @@ export default function CellsContent() {
             const base64String = reader.result?.toString().split(",")[1] || "";
 
             // Update the cell with the new image
-            let updatedCells = cells.map((c) =>
-              c.id === cell.id ? { ...c, img: base64String } : c
-            );
+            let updatedCell = cells.find((c) => c.id === cell.id);
+            if (!updatedCell) {
+              throw new Error("Cell not found");
+            }
+            updatedCell.img = base64String;
 
             // Save to the backend if we have an image ID
             if (currentImageId) {
               setIsSubmitting(true);
-              await uploadCells(currentImageId, updatedCells);
-              setCells(updatedCells);
+              await updateCells(currentImageId, updatedCell);
+              setCells(cells.map((c) => (c.id === cell.id ? updatedCell : c)));
               setSelectedCell({ ...cell, img: base64String });
               addToast("Cell image updated successfully", "success");
             } else {

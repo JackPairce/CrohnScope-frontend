@@ -30,16 +30,25 @@ export default function ImagesContent() {
 
   const {
     images,
+    page,
+    pageLength,
     isLoading,
     isError,
-    page,
+    loadNextPage,
     handleUploadImage: uploadImage,
     handleDeleteImage: deleteImage,
   } = useImages(
+    "all",
     false, // done
     addToast,
-    (img: ApiImage) => setSelectedImage(img) // setImg
+    async (img: ApiImage) => {
+      setSelectedImage(img);
+      return true;
+    }
   );
+
+  // Calculate if there are more images to load
+  const hasMoreImages = images.length < pageLength;
 
   // Handle any errors from the useImages hook
   useEffect(() => {
@@ -179,7 +188,7 @@ export default function ImagesContent() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
-        {isLoading ? (
+        {isLoading && images.length === 0 ? (
           <div className="h-64">
             <Loader message="Loading images library..." />
           </div>
@@ -237,38 +246,72 @@ export default function ImagesContent() {
           <div
             className={`p-6 ${viewMode === "grid" ? "grid-view" : "list-view"}`}
           >
+            <div className="flex justify-between items-center px-4 m-3 border-b border-gray-200 dark:border-gray-700 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm font-medium px-2.5 py-1 rounded-md">
+                  {filteredImages.length}
+                </span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  of {pageLength} images
+                </span>
+              </div>
+            </div>
+
             {viewMode === "grid" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6 p-4">
-                {filteredImages.map((image) => (
-                  <div
-                    key={image.id}
-                    className="group relative overflow-hidden rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600"
-                    onClick={() => setSelectedImage(image)}
-                  >
-                    {/* Image Container with fixed aspect ratio */}
-                    <div className="relative pt-[100%] bg-gray-100 dark:bg-gray-700">
-                      <Image
-                        src={image.src}
-                        alt={image.filename}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                        width={400}
-                        height={400}
-                      />
-                    </div>{" "}
-                    {/* Image Name Container with Hover Effect */}
-                    <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                      <p
-                        className="text-sm font-medium text-white truncate"
-                        title={image.filename}
-                      >
-                        {image.filename.split(".")[0]}
-                      </p>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6 p-4">
+                  {filteredImages.map((image) => (
+                    <div
+                      key={image.id}
+                      className="group relative overflow-hidden rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600"
+                      onClick={() => setSelectedImage(image)}
+                    >
+                      {/* Image Container with fixed aspect ratio */}
+                      <div className="relative pt-[100%] bg-gray-100 dark:bg-gray-700">
+                        <Image
+                          src={image.src}
+                          alt={image.filename}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                          width={400}
+                          height={400}
+                        />
+                      </div>{" "}
+                      {/* Image Name Container with Hover Effect */}
+                      <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                        <p
+                          className="text-sm font-medium text-white truncate"
+                          title={image.filename}
+                        >
+                          {image.filename.split(".")[0]}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {isLoading && images.length > 0 && (
+                  <div className="flex justify-center py-8">
+                    <div className="flex items-center justify-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="w-5 h-5 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
+                      <span>Loading more images...</span>
                     </div>
                   </div>
-                ))}
-              </div>
+                )}
+                {hasMoreImages && !isLoading && (
+                  <div className="flex justify-center mt-8 mb-2">
+                    <button
+                      onClick={loadNextPage}
+                      className="group inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-400 disabled:to-blue-500 rounded-lg shadow-sm transition-all duration-200 ease-in-out gap-2 hover:shadow-md"
+                    >
+                      <span>Load More</span>
+                      <span className="inline-flex items-center justify-center bg-blue-500/20 group-hover:bg-blue-600/20 text-white text-xs font-medium px-2 py-0.5 rounded-md transition-colors">
+                        {pageLength - filteredImages.length}
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="overflow-x-auto">
+              <div>
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
@@ -339,6 +382,37 @@ export default function ImagesContent() {
                     ))}
                   </tbody>
                 </table>
+                {isLoading && images.length > 0 && (
+                  <div className="flex justify-center py-8">
+                    <div className="flex items-center justify-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="w-5 h-5 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
+                      <span>Loading more images...</span>
+                    </div>
+                  </div>
+                )}
+                {hasMoreImages && !isLoading && (
+                  <div className="flex justify-center mt-8 mb-2">
+                    <button
+                      onClick={loadNextPage}
+                      disabled={isLoading}
+                      className="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-400 disabled:to-blue-500 rounded-lg shadow-sm transition-all duration-200 ease-in-out gap-2 hover:shadow-md disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Load More</span>
+                          <span className="inline-flex items-center justify-center bg-blue-500/20 text-white text-xs font-medium px-2 py-0.5 rounded-md">
+                            {pageLength - filteredImages.length}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -349,11 +423,10 @@ export default function ImagesContent() {
         <ImageViewer
           image={selectedImage}
           onClose={() => setSelectedImage(null)}
-          onDelete={async (id, filename) => {
+          onDelete={async (id: number, filename: string) => {
             const success = await deleteImage(id, filename);
             if (success) {
               setSelectedImage(null);
-              // No need to refetch as the deleteImage function already updates the state
             }
             return success;
           }}
@@ -381,40 +454,11 @@ export default function ImagesContent() {
 
       <style jsx>{`
         .grid-view {
-          overflow-y: auto;
-          max-height: calc(100vh - 200px);
-          padding: 2px; /* Prevent shadow clipping */
-          scroll-padding: 1rem;
-
-          /* Smoother scrolling */
-          scroll-behavior: smooth;
-          -webkit-overflow-scrolling: touch;
-
-          /* Hide scrollbar for cleaner look */
-          scrollbar-width: thin;
-          scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
-
-          &::-webkit-scrollbar {
-            width: 6px;
-          }
-
-          &::-webkit-scrollbar-track {
-            background: transparent;
-          }
-
-          &::-webkit-scrollbar-thumb {
-            background-color: rgba(156, 163, 175, 0.5);
-            border-radius: 3px;
-
-            &:hover {
-              background-color: rgba(156, 163, 175, 0.7);
-            }
-          }
+          padding: 2px;
         }
 
         .list-view {
-          overflow-y: auto;
-          max-height: calc(100vh - 200px);
+          overflow-y: visible;
         }
 
         /* Override LoadingState styles for this component */

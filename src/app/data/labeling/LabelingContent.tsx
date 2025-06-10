@@ -40,5 +40,5 @@ export default function LabelingContent() {
     );
   }
 
-  return <AnnotationCanvas areaType="classification" />;
+  return <AnnotationCanvas areaType="annotation" />;
 }

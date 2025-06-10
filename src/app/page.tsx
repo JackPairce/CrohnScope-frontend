@@ -15,8 +15,8 @@ const featuresList = [
   {
     title: "Data Processing",
     description: "Advanced tools for image labeling and segmentation",
-    icon: "/svgs/brush.svg",
-    href: "/data/labeling",
+    icon: "/svgs/dataset.svg",
+    href: "/data",
   },
 ];
 

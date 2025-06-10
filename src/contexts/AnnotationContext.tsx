@@ -198,46 +198,56 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
   };
 
   const handleImageSwitch = async (newImage: ApiImage | null) => {
-    // If there are unsaved changes
-    if (saveStatus.isModified) {
-      // Store the pending image
-      setPendingImage(newImage);
+    try {
+      // If there are unsaved changes
+      if (saveStatus.isModified) {
+        // Store the pending image
+        setPendingImage(newImage);
 
-      // Show dialog and wait for response
-      const choice = await confirmImageSwitch();
+        // Show dialog and wait for response
+        const choice = await confirmImageSwitch();
 
-      switch (choice) {
-        case "stay":
-          // Clear pending image and return
-          setPendingImage(null);
-          return;
-        case "save-and-continue":
-          try {
-            await saveCurrent();
-          } catch (error) {
-            console.error("Error saving:", error);
-            return;
-          }
-          break;
-        case "continue-without-save":
-          // Just continue without saving
-          break;
+        switch (choice) {
+          case "stay":
+            // Clear pending image and throw UNSAVED_CHANGES to cancel the switch
+            setPendingImage(null);
+            throw new Error("UNSAVED_CHANGES");
+          case "save-and-continue":
+            try {
+              await saveCurrent();
+            } catch (error) {
+              console.error("Error saving:", error);
+              setPendingImage(null);
+              throw error;
+            }
+            break;
+          case "continue-without-save":
+            // Just continue without saving
+            break;
+        }
       }
+
+      // Clear the state when switching images
+      setTabs([]);
+      setSelectedTab(-1);
+      setImgDim(null);
+      setSaveStatus({
+        isSaving: false,
+        isModified: false,
+        isMarkingAllDone: false,
+      });
+
+      // Finally set the new image
+      setCurrentImageState(newImage);
+      setPendingImage(null);
+    } catch (error) {
+      // Re-throw UNSAVED_CHANGES so useImages can handle it appropriately
+      if (error instanceof Error && error.message === "UNSAVED_CHANGES") {
+        throw error;
+      }
+      console.error("Error switching image:", error);
+      throw new Error("Failed to switch image");
     }
-
-    // Clear the state when switching images
-    setTabs([]);
-    setSelectedTab(-1);
-    setImgDim(null);
-    setSaveStatus({
-      isSaving: false,
-      isModified: false,
-      isMarkingAllDone: false,
-    });
-
-    // Finally set the new image
-    setCurrentImageState(newImage);
-    setPendingImage(null);
   };
 
   const contextValue: AnnotationContextState = {

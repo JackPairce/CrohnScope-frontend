@@ -4,73 +4,26 @@
  */
 
 export interface paths {
-    "/ai/status": {
+    "/ai/generate-mask/{image_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get Model Status
-         * @description Get the current status of the AI model training process.
-         *
-         *     Returns:
-         *         ModelStatusResponse: Status information including training state, progress, metrics, and timing.
-         */
-        get: operations["get_model_status_ai_status_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ai/train": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Trigger Training
-         * @description Manually trigger model training.
-         *
-         *     Returns:
-         *         TrainingResponse: Status message and whether training was started.
-         */
-        post: operations["trigger_training_ai_train_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ai/generate-mask/{image_id}/{cell_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
         /**
          * Generate Mask
-         * @description Generate a mask for a specific image and cell type using the AI model.
+         * @description Generate a mask for a specific image using the AI model.
          *
          *     Args:
          *         image_id: ID of the image to generate the mask for
-         *         cell_id: ID of the cell type to generate the mask for
          *
          *     Returns:
          *         MaskGenerationResponse: Status message indicating success or failure
          */
-        post: operations["generate_mask_ai_generate_mask__image_id___cell_id__post"];
+        get: operations["generate_mask_ai_generate_mask__image_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -101,26 +54,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ai/check-training-conditions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Check Conditions
-         * @description Check if training should be triggered based on current conditions.
-         */
-        get: operations["check_conditions_ai_check_training_conditions_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/cells/": {
         parameters: {
             query?: never;
@@ -134,11 +67,7 @@ export interface paths {
          */
         get: operations["get_all_cells_cells__get"];
         put?: never;
-        /**
-         * Create Cell
-         * @description Create a new cell type.
-         */
-        post: operations["create_cell_cells__post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -241,6 +170,29 @@ export interface paths {
             cookie?: never;
         };
         /**
+         * Get Images All
+         * @description Get a paginated list of all images.
+         *
+         *     Args:
+         *         page: Page number
+         */
+        get: operations["get_images_all_images_all__page__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/images/which_all/{page}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
          * Get Images
          * @description Get a paginated list of images.
          *
@@ -248,7 +200,7 @@ export interface paths {
          *         page: Page number
          *         done: Filter by completion status (0 for incomplete, 1 for complete)
          */
-        get: operations["get_images_images_all__page__get"];
+        get: operations["get_images_images_which_all__page__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -367,29 +319,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/masks/annotate/{mask_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Mark Mask Annotated
-         * @description Mark a mask as annotated.
-         *
-         *     Args:
-         *         mask_id: ID of the mask to mark as annotated
-         */
-        put: operations["mark_mask_annotated_masks_annotate__mask_id__put"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/masks/alternate": {
         parameters: {
             query?: never;
@@ -409,34 +338,6 @@ export interface paths {
          *         mask2: Second mask filename
          */
         post: operations["alternate_masks_masks_alternate_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/masks/regions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Get Labeled Regions
-         * @description Get a labeled version of a mask where each connected region has a unique ID.
-         *
-         *     Args:
-         *         mask_data: Base64 encoded mask image
-         *
-         *     Returns:
-         *         LabeledMaskResponse containing:
-         *         - labeled_mask: Base64 encoded image where each region has a unique color
-         *         - regions: List of region statistics including area, bounding box, and centroid
-         */
-        post: operations["get_labeled_regions_masks_regions_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -467,31 +368,6 @@ export interface paths {
          */
         get: operations["get_mask_matrices_masks_matrices__image_id__get"];
         put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/masks/region-health/{mask_id}/{region_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Update Region Health Status
-         * @description Update the health status of a specific region in a mask.
-         *
-         *     Args:
-         *         mask_id: ID of the mask
-         *         region_id: ID of the region
-         *         health_status: New health status (healthy/unhealthy)
-         */
-        put: operations["update_region_health_status_masks_region_health__mask_id___region_id__put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -587,7 +463,9 @@ export interface components {
             /** Name */
             name: string;
             /** Description */
-            description?: string | null;
+            description: string;
+            /** Img */
+            img: string;
         };
         /** ApiImage */
         ApiImage: {
@@ -612,73 +490,22 @@ export interface components {
             id: number;
             /** Image Id */
             image_id: number;
-            /** Mask Path */
-            mask_path: string;
             /** Cell Id */
             cell_id?: number | null;
             /**
-             * Is Mask Done
+             * Is Segmented
              * @default false
              */
-            is_mask_done: boolean;
+            is_segmented: boolean;
             /**
-             * Is Annotation Done
+             * Is Annotated
              * @default false
              */
-            is_annotation_done: boolean;
+            is_annotated: boolean;
             /** Src */
             src: string;
-            /** Labeledmask */
-            labeledMask?: string | null;
             /** Regions */
             regions?: components["schemas"]["RegionInfo"][] | null;
-        };
-        /** Body_get_labeled_regions_masks_regions_post */
-        Body_get_labeled_regions_masks_regions_post: {
-            /** Mask Data */
-            mask_data: string;
-        };
-        /**
-         * CellType
-         * @description Cell type response model
-         */
-        CellType: {
-            /** Name */
-            name: string;
-            /** Description */
-            description?: string | null;
-            /** Id */
-            id: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-        };
-        /**
-         * CellTypeBase
-         * @description Base cell type model
-         */
-        CellTypeBase: {
-            /** Name */
-            name: string;
-            /** Description */
-            description?: string | null;
-        };
-        /**
-         * CellTypeCreate
-         * @description Cell type creation model
-         */
-        CellTypeCreate: {
-            /** Name */
-            name: string;
-            /** Description */
-            description?: string | null;
         };
         /**
          * CellTypeCreateResponse
@@ -690,7 +517,7 @@ export interface components {
              * @default Cell type created successfully
              */
             message: string;
-            cell_type: components["schemas"]["CellType"];
+            cell_type: components["schemas"]["ApiCell"];
         };
         /**
          * CellTypeDeleteResponse
@@ -706,23 +533,6 @@ export interface components {
             id: number;
         };
         /**
-         * CellTypeResponse
-         * @description Cell type operation response
-         */
-        CellTypeResponse: {
-            /**
-             * Message
-             * @default Operation successful
-             */
-            message: string;
-            /**
-             * Status
-             * @default success
-             */
-            status: string;
-            cell_type?: components["schemas"]["CellType"] | null;
-        };
-        /**
          * CellTypeUpdateResponse
          * @description Response model for cell type update
          */
@@ -732,7 +542,7 @@ export interface components {
              * @default Cell type updated successfully
              */
             message: string;
-            cell_type: components["schemas"]["CellType"];
+            cell_type: components["schemas"]["ApiCell"];
         };
         /** CpuInfo */
         CpuInfo: {
@@ -832,16 +642,6 @@ export interface components {
             detail?: components["schemas"]["ValidationError"][];
         };
         /**
-         * HealthStatusEnum
-         * @description Health status enum for mask regions.
-         *     Used both in the database and to match numpy array values:
-         *     0: background (not stored in enum)
-         *     1: unhealthy
-         *     2: healthy
-         * @enum {string}
-         */
-        HealthStatusEnum: "unhealthy" | "healthy";
-        /**
          * ImageListResponse
          * @description Response model for paginated image list
          */
@@ -861,24 +661,7 @@ export interface components {
             /** Status */
             status: string;
         };
-        /**
-         * LabeledMaskResponse
-         * @description Response model for labeled mask data
-         */
-        LabeledMaskResponse: {
-            /** Labeledmask */
-            labeledMask: string;
-            /** Regions */
-            regions: components["schemas"]["RegionInfo"][];
-        };
-        /**
-         * MaskAnnotationResponse
-         * @description Response model for mask annotation operations
-         */
-        MaskAnnotationResponse: {
-            /** Message */
-            message: string;
-        };
+        MaskArray: (0 | 1 | 2)[][];
         /**
          * MaskGenerationResponse
          * @description Mask generation response
@@ -908,8 +691,18 @@ export interface components {
             cell_id: number;
             /** Labeledregions */
             labeledRegions: number[][];
-            /** Mask */
-            mask: number[][];
+            mask: components["schemas"]["MaskArray"];
+        };
+        /**
+         * MaskSaveRequest
+         * @description Model for mask saving request.
+         */
+        MaskSaveRequest: {
+            /** Id */
+            id: number;
+            /** Cell Id */
+            cell_id: number;
+            data: components["schemas"]["MaskArray"];
         };
         /**
          * MaskUpdateResponse
@@ -938,31 +731,6 @@ export interface components {
             files: string[];
         };
         /**
-         * ModelStatusResponse
-         * @description AI model status response
-         */
-        ModelStatusResponse: {
-            /** Status */
-            status: string;
-            details: components["schemas"]["TrainingDetails"];
-            timing: components["schemas"]["TrainingTiming"];
-            next_training: components["schemas"]["NextTraining"];
-        };
-        /**
-         * NextTraining
-         * @description Next training information
-         */
-        NextTraining: {
-            /** Images Needed */
-            images_needed: number;
-            /** Image Count */
-            image_count: number;
-            /** Last Training At */
-            last_training_at: number;
-            /** Mask Modifications Since Last */
-            mask_modifications_since_last: number;
-        };
-        /**
          * RegionInfo
          * @description Model for region information in a labeled mask.
          */
@@ -979,18 +747,6 @@ export interface components {
             centroid: {
                 [key: string]: number;
             };
-        };
-        /**
-         * SaveMaskResponse
-         * @description Model for mask saving response.
-         */
-        SaveMaskResponse: {
-            /** Id */
-            id: number;
-            /** Cell Id */
-            cell_id: number;
-            /** Src */
-            src: string;
         };
         /** StorageInfo */
         StorageInfo: {
@@ -1030,48 +786,12 @@ export interface components {
             disk: components["schemas"]["DiskInfo"];
         };
         /**
-         * TrainingDetails
-         * @description Training details response model
+         * UploadImageRequest
+         * @description Request model for uploading an image
          */
-        TrainingDetails: {
-            /** Is Preprocessing */
-            is_preprocessing: boolean;
-            /** Is Training */
-            is_training: boolean;
-            /** Current Epoch */
-            current_epoch: number;
-            /** Total Epochs */
-            total_epochs: number;
-            /** Current Loss */
-            current_loss: number;
-            /** Best Loss */
-            best_loss: number | null;
-            /** Progress Percent */
-            progress_percent: number | null;
-            /** Stable Epochs */
-            stable_epochs: number;
-        };
-        /**
-         * TrainingResponse
-         * @description Training trigger response
-         */
-        TrainingResponse: {
-            /** Message */
-            message: string;
-            /** Status */
-            status: string;
-        };
-        /**
-         * TrainingTiming
-         * @description Training timing information
-         */
-        TrainingTiming: {
-            /** Started At */
-            started_at: string | null;
-            /** Elapsed */
-            elapsed: string;
-            /** Completed At */
-            completed_at: string | null;
+        UploadImageRequest: {
+            /** Base64 Data */
+            base64_data: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -1082,6 +802,8 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** @enum {string} */
+        process_type: "segmentation" | "annotation";
     };
     responses: never;
     parameters: never;
@@ -1091,53 +813,12 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    get_model_status_ai_status_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ModelStatusResponse"];
-                };
-            };
-        };
-    };
-    trigger_training_ai_train_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrainingResponse"];
-                };
-            };
-        };
-    };
-    generate_mask_ai_generate_mask__image_id___cell_id__post: {
+    generate_mask_ai_generate_mask__image_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 image_id: number;
-                cell_id: number;
             };
             cookie?: never;
         };
@@ -1149,7 +830,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MaskGenerationResponse"];
+                    "application/json": components["schemas"]["ApiMask"][];
                 };
             };
             /** @description Validation Error */
@@ -1183,26 +864,6 @@ export interface operations {
             };
         };
     };
-    check_conditions_ai_check_training_conditions_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TrainingResponse"];
-                };
-            };
-        };
-    };
     get_all_cells_cells__get: {
         parameters: {
             query?: never;
@@ -1218,40 +879,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CellType"][];
-                };
-            };
-        };
-    };
-    create_cell_cells__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CellTypeCreate"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CellTypeCreateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["ApiCell"][];
                 };
             };
         };
@@ -1293,7 +921,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CellTypeResponse"];
+                    "application/json": components["schemas"]["ApiCell"];
                 };
             };
             /** @description Validation Error */
@@ -1318,7 +946,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CellTypeBase"];
+                "application/json": components["schemas"]["ApiCell"];
             };
         };
         responses: {
@@ -1375,14 +1003,16 @@ export interface operations {
     };
     add_cell_cells_save__image_id__post: {
         parameters: {
-            query: {
-                name: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApiCell"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -1424,9 +1054,41 @@ export interface operations {
             };
         };
     };
-    get_images_images_all__page__get: {
+    get_images_all_images_all__page__get: {
         parameters: {
-            query?: {
+            query?: never;
+            header?: never;
+            path: {
+                page: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_images_images_which_all__page__get: {
+        parameters: {
+            query: {
+                which: components["schemas"]["process_type"];
                 done?: ("0" | "1") | null;
             };
             header?: never;
@@ -1466,7 +1128,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ApiImage"];
+                "application/json": components["schemas"]["UploadImageRequest"];
             };
         };
         responses: {
@@ -1563,7 +1225,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SaveMaskResponse"][];
+                "application/json": components["schemas"]["MaskSaveRequest"][];
             };
         };
         responses: {
@@ -1589,7 +1251,9 @@ export interface operations {
     };
     mark_mask_done_masks_done__mask_id__put: {
         parameters: {
-            query?: never;
+            query?: {
+                which?: "segmentation" | "annotation";
+            };
             header?: never;
             path: {
                 mask_id: number;
@@ -1605,37 +1269,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MaskUpdateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    mark_mask_annotated_masks_annotate__mask_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                mask_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MaskAnnotationResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1682,39 +1315,6 @@ export interface operations {
             };
         };
     };
-    get_labeled_regions_masks_regions_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["Body_get_labeled_regions_masks_regions_post"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LabeledMaskResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_mask_matrices_masks_matrices__image_id__get: {
         parameters: {
             query?: never;
@@ -1733,40 +1333,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MaskMatricesResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_region_health_status_masks_region_health__mask_id___region_id__put: {
-        parameters: {
-            query: {
-                health_status: components["schemas"]["HealthStatusEnum"];
-            };
-            header?: never;
-            path: {
-                mask_id: number;
-                region_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

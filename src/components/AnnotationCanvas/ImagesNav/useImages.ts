@@ -3,6 +3,7 @@ import { ToastType } from "@/components/Toast";
 import {
   ApiImage,
   deleteImage,
+  getAllImages,
   getImages,
   process_type,
   uploadImage,
@@ -30,10 +31,10 @@ interface UseImagesResult {
 }
 
 export function useImages(
-  which: process_type,
+  which: process_type | "all",
   done: boolean = false,
   addToast: (message: string, type: ToastType) => void,
-  setImg: (img: ApiImage) => Promise<boolean>,
+  setImg: (img: ApiImage) => Promise<void>,
   refreshCounter: number = 0
 ): UseImagesResult {
   const [isError, setIsError] = useState("");
@@ -42,36 +43,24 @@ export function useImages(
   const [images, setImages] = useState<ApiImage[]>([]);
   const [page, setPage] = useState(1);
   const [pageLength, setPageLength] = useState(NaN);
-
-  // Function to fetch images that we can call multiple times
-  const fetchImages = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await getImages(page, which, done);
-      setImages(data.images.map(formatImageForDisplay));
-      setPageLength(data.total);
-      setIsError("");
-    } catch (error) {
-      console.error("Error fetching images:", error);
-      setIsError(parseApiError(error));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, done]);
-
   const selectImage = useCallback(
     async (imgData: ApiImage, index: number): Promise<boolean> => {
+      if (selectedImage === index) return true;
+
       try {
-        // This will handle any confirm dialogs if needed
-        if (await setImg(imgData)) return true;
+        await setImg(imgData);
         setSelectedImage(index);
         return true;
       } catch (error) {
-        console.error("Failed to set image:", error);
+        // UNSAVED_CHANGES error is handled by AnnotationContext
+        if (!(error instanceof Error && error.message === "UNSAVED_CHANGES")) {
+          console.error("Failed to set image:", error);
+          addToast("Failed to set image", "error");
+        }
         return false;
       }
     },
-    [setImg]
+    [setImg, selectedImage, addToast]
   );
 
   const loadNextPage = useCallback(() => {
@@ -83,7 +72,7 @@ export function useImages(
   // Load images on component mount, when page changes, and when refreshCounter changes
   useEffect(() => {
     setIsLoading(true);
-    getImages(page, which, done)
+    (which == "all" ? getAllImages(page) : getImages(page, which, done))
       .then((res) => {
         if (res.total !== pageLength) setPageLength(res.total);
         setImages((prev) => [
@@ -120,17 +109,10 @@ export function useImages(
         FR.onload = async () => {
           const base64Image = FR.result as string;
 
-          // to ApiImage
-          let Image: ApiImage = {
-            id: NaN,
-            filename: file.name,
-            // base64 encoded image data
-            src: base64Image,
-            is_done: false,
-          };
-
           // Upload the image using the API
-          Image = await uploadImage(Image);
+          const Image = await uploadImage({
+            base64_data: base64Image,
+          });
 
           // Add the new image to the beginning of the list
           setImages((prev) => [Image, ...prev]);
