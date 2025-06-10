@@ -34,7 +34,7 @@ export function useImages(
   which: process_type | "all",
   done: boolean = false,
   addToast: (message: string, type: ToastType) => void,
-  setImg: (img: ApiImage) => Promise<boolean>,
+  setImg: (img: ApiImage) => Promise<void>,
   refreshCounter: number = 0
 ): UseImagesResult {
   const [isError, setIsError] = useState("");
@@ -43,20 +43,24 @@ export function useImages(
   const [images, setImages] = useState<ApiImage[]>([]);
   const [page, setPage] = useState(1);
   const [pageLength, setPageLength] = useState(NaN);
-
   const selectImage = useCallback(
     async (imgData: ApiImage, index: number): Promise<boolean> => {
+      if (selectedImage === index) return true;
+
       try {
-        // This will handle any confirm dialogs if needed
-        if (await setImg(imgData)) return true;
+        await setImg(imgData);
         setSelectedImage(index);
         return true;
       } catch (error) {
-        console.error("Failed to set image:", error);
+        // UNSAVED_CHANGES error is handled by AnnotationContext
+        if (!(error instanceof Error && error.message === "UNSAVED_CHANGES")) {
+          console.error("Failed to set image:", error);
+          addToast("Failed to set image", "error");
+        }
         return false;
       }
     },
-    [setImg]
+    [setImg, selectedImage, addToast]
   );
 
   const loadNextPage = useCallback(() => {

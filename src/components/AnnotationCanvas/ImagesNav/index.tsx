@@ -91,7 +91,6 @@ export default function ImagesNav({ which }: { which: process_type }) {
           setHide={setHide}
           addToast={addToast}
           setImage={setCurrentImage}
-          saveCurrent={saveCurrent}
           refreshCounter={forceRefresh}
         />
         <ImagesSection
@@ -101,7 +100,6 @@ export default function ImagesNav({ which }: { which: process_type }) {
           done
           addToast={addToast}
           setImage={setCurrentImage}
-          saveCurrent={saveCurrent}
           refreshCounter={forceRefresh}
         />
       </section>
@@ -125,7 +123,7 @@ interface ImagesSectionProps {
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
   addToast: (message: string, type: ToastType) => void;
-  setImage: (image: ApiImage) => Promise<boolean>;
+  setImage: (image: ApiImage) => Promise<void>;
   refreshCounter: number; // Counter to force refresh of images
 }
 
