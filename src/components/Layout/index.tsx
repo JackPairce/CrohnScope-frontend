@@ -33,6 +33,11 @@ const navSections = [
     title: "Data Processing",
     links: [
       {
+        name: "Cells Management",
+        href: "/data/cells",
+        icon: "/svgs/cell.svg",
+      },
+      {
         name: "Image Library",
         href: "/data/images",
         icon: "/svgs/file.svg",

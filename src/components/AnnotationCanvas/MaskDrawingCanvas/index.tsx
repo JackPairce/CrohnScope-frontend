@@ -87,6 +87,7 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
           }}
           state={state}
         >
+          {" "}
           <MaskDrawingToolbar
             mode={mode}
             setMode={setMode}
@@ -99,6 +100,19 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
               await canvasActions.markAllDone();
               if (isAllDone) {
                 await setCurrentImage(null);
+              }
+            }}
+            imgDim={state.imgDim}
+            onMaskUpdate={(mask) => {
+              if (state.selectedTab !== -1) {
+                actions.setTabs((prev) => {
+                  prev[state.selectedTab].mask = mask;
+                  return [...prev];
+                });
+                actions.setCanvasSaveStatus((prev) => ({
+                  ...prev,
+                  isModified: true,
+                }));
               }
             }}
           />
