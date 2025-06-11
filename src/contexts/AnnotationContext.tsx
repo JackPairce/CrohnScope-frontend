@@ -16,9 +16,6 @@ import {
   useState,
 } from "react";
 
-// Define the SaveMaskResponse type based on the API schema
-type SaveMaskResponse = components["schemas"]["SaveMaskResponse"];
-
 type ImageSwitchChoice = "stay" | "continue-without-save" | "save-and-continue";
 
 // Implementation moved to the AnnotationProvider component
@@ -27,7 +24,7 @@ interface AnnotationContextState {
   // Current image
   currentImage: ApiImage | null;
 
-  setCurrentImage: (image: ApiImage | null) => Promise<void>;
+  setCurrentImage: (image: ApiImage | null) => Promise<boolean>;
 
   // Save status
   saveStatus: SaveSatues;
@@ -57,7 +54,9 @@ interface AnnotationContextState {
 
 const defaultState: AnnotationContextState = {
   currentImage: null,
-  setCurrentImage: async () => {},
+  setCurrentImage: async () => {
+    return false;
+  },
   saveStatus: {
     isSaving: false,
     isModified: false,
@@ -145,7 +144,6 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
   };
 
   const [showDialog, setShowDialog] = useState(false);
-  const [pendingImage, setPendingImage] = useState<ApiImage | null>(null);
   const [dialogActions, setDialogActions] = useState<
     DialogAction<ImageSwitchChoice>[]
   >([]);
@@ -188,27 +186,23 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const handleImageSwitch = async (newImage: ApiImage | null) => {
+  const handleImageSwitch = async (
+    newImage: ApiImage | null
+  ): Promise<boolean> => {
     try {
       // If there are unsaved changes
       if (saveStatus.isModified) {
-        // Store the pending image
-        setPendingImage(newImage);
-
         // Show dialog and wait for response
         const choice = await confirmImageSwitch();
 
         switch (choice) {
           case "stay":
-            // Clear pending image and throw UNSAVED_CHANGES to cancel the switch
-            setPendingImage(null);
-            throw new Error("UNSAVED_CHANGES");
+            return false; // Just stay on the current image
           case "save-and-continue":
             try {
               await saveCurrent();
             } catch (error) {
               console.error("Error saving:", error);
-              setPendingImage(null);
               throw error;
             }
             break;
@@ -230,12 +224,8 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
 
       // Finally set the new image
       setCurrentImageState(newImage);
-      setPendingImage(null);
+      return true;
     } catch (error) {
-      // Re-throw UNSAVED_CHANGES so useImages can handle it appropriately
-      if (error instanceof Error && error.message === "UNSAVED_CHANGES") {
-        throw error;
-      }
       console.error("Error switching image:", error);
       throw new Error("Failed to switch image");
     }

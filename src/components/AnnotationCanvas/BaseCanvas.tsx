@@ -11,12 +11,12 @@ import React, {
 } from "react";
 import Loader from "../loader";
 import TabNavigation from "./TabNavigation";
-import { Mode, SaveSatues, Tab } from "./types";
+import { GlobalModes, SaveSatues, Tab } from "./types";
 
 interface BaseCanvasProps {
   image: ApiImage;
   state: {
-    mode: Mode;
+    mode: GlobalModes;
     tabs: Tab[];
     selectedTab: number;
     canvasSaveStatus: SaveSatues;

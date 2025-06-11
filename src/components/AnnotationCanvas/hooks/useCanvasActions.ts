@@ -13,7 +13,7 @@ type CanvasState = {
 
 type CanvasActions = {
   setTabs: Dispatch<SetStateAction<any[]>>;
-  setCurrentImage: (image: ApiImage | null) => Promise<void>;
+  setCurrentImage: (image: ApiImage | null) => Promise<boolean>;
 };
 
 export type CanvasCallbacks = {

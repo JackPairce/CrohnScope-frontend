@@ -40,11 +40,7 @@ export default function ImagesContent() {
   } = useImages(
     "all",
     false, // done
-    addToast,
-    async (img: ApiImage) => {
-      setSelectedImage(img);
-      return true;
-    }
+    addToast
   );
 
   // Calculate if there are more images to load

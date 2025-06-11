@@ -8,14 +8,19 @@ import {
   process_type,
   uploadImage,
 } from "@/lib/api";
-import { useCallback, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import {
   formatImageForDisplay,
   parseApiError,
   validateImageFile,
 } from "./imageUtils";
-
-type ImageSwitchChoice = "stay" | "continue-without-save" | "save-and-continue";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
 
 interface UseImagesResult {
   images: ApiImage[];
@@ -23,9 +28,8 @@ interface UseImagesResult {
   isError: string;
   pageLength: number;
   page: number;
-  selectedImage: number;
   loadNextPage: () => void;
-  selectImage: (image: ApiImage, index: number) => Promise<boolean>;
+  selectImage: (image: ApiImage) => Promise<boolean>;
   handleUploadImage: (file: File) => Promise<void>;
   handleDeleteImage: (imageId: number, imageName: string) => Promise<boolean>;
 }
@@ -34,33 +38,24 @@ export function useImages(
   which: process_type | "all",
   done: boolean = false,
   addToast: (message: string, type: ToastType) => void,
-  setImg: (img: ApiImage) => Promise<void>,
   refreshCounter: number = 0
 ): UseImagesResult {
+  const { setCurrentImage } = useAnnotationContext();
   const [isError, setIsError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(NaN);
   const [images, setImages] = useState<ApiImage[]>([]);
   const [page, setPage] = useState(1);
   const [pageLength, setPageLength] = useState(NaN);
   const selectImage = useCallback(
-    async (imgData: ApiImage, index: number): Promise<boolean> => {
-      if (selectedImage === index) return true;
-
+    async (imgData: ApiImage): Promise<boolean> => {
       try {
-        await setImg(imgData);
-        setSelectedImage(index);
-        return true;
+        return await setCurrentImage(imgData);
       } catch (error) {
-        // UNSAVED_CHANGES error is handled by AnnotationContext
-        if (!(error instanceof Error && error.message === "UNSAVED_CHANGES")) {
-          console.error("Failed to set image:", error);
-          addToast("Failed to set image", "error");
-        }
+        console.error("Error selecting image:", error);
         return false;
       }
     },
-    [setImg, selectedImage, addToast]
+    [setCurrentImage, addToast]
   );
 
   const loadNextPage = useCallback(() => {
@@ -166,7 +161,6 @@ export function useImages(
     isError,
     pageLength,
     page,
-    selectedImage,
     loadNextPage,
     selectImage,
     handleUploadImage,

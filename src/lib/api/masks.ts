@@ -39,7 +39,8 @@ export const uploadMasks = async (
  * @returns Promise with success message
  */
 export const setMaskDone = async (
-  maskId: number
+  maskId: paths["/masks/done/{mask_id}"]["put"]["parameters"]["path"]["mask_id"],
+  which: paths["/masks/done/{mask_id}"]["put"]["parameters"]["query"]["which"]
 ): Promise<{ message: string }> => {
   const response = await apiClient.put(`/masks/done/${maskId}`);
   return response.data;
@@ -79,33 +80,5 @@ export const getMaskMatrices = async (
   } catch (error) {
     console.error("Error fetching mask matrices:", error);
     throw new Error("Failed to get mask matrices");
-  }
-};
-
-/**
- * Update the health status of a region in a mask
- * @param maskId - The ID of the mask
- * @param regionId - The ID of the region
- * @param isHealthy - Whether the region is healthy or not
- * @returns Promise with success message
- */
-export const updateRegionHealth = async (
-  maskId: number,
-  regionId: number,
-  isHealthy: boolean
-): Promise<{ message: string }> => {
-  try {
-    const healthStatus: HealthStatusEnum = isHealthy ? "healthy" : "unhealthy";
-    const response = await apiClient.put(
-      `/masks/region-health/${maskId}/${regionId}`,
-      null,
-      {
-        params: { health_status: healthStatus },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error updating region health:", error);
-    throw new Error("Failed to update region health");
   }
 };

@@ -16,29 +16,13 @@ import { SelectMode } from "../types";
 import type { State } from "./LayerState";
 import LayerState from "./LayerState";
 
-// Helper function to find the first pixel with a given label
-function findFirstPixelWithLabel(
-  labeledRegions: number[][],
-  label: number
-): { x: number; y: number } | null {
-  for (let y = 0; y < labeledRegions.length; y++) {
-    for (let x = 0; x < labeledRegions[y].length; x++) {
-      if (labeledRegions[y][x] === label) {
-        return { x, y };
-      }
-    }
-  }
-  return null;
-}
-
 export default function ClassificationWorkspace({
   image,
 }: {
   image: ApiImage;
 }) {
   const { state, refs, actions } = useAnnotationCanvas(image, "classification");
-  const { setSaveStatus, saveCurrent, setCurrentImage } =
-    useAnnotationContext();
+  const { setSaveStatus, setCurrentImage } = useAnnotationContext();
 
   // Layer canvases for classification
   const healthyRef = useRef<HTMLCanvasElement>(null);

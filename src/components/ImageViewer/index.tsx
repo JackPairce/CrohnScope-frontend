@@ -1,8 +1,8 @@
 "use client";
 
+import { ApiImage } from "@/lib/api";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
-import { ApiImage } from "../AnnotationCanvas/api";
 
 interface ImageViewerProps {
   image: ApiImage;

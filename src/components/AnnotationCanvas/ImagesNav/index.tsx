@@ -14,26 +14,9 @@ import SectionHeader from "./SectionHeader";
 import "./styles.scss";
 import { useImages } from "./useImages";
 
-type ImageSwitchChoice = "stay" | "continue-without-save" | "save-and-continue";
-
-interface DialogConfig {
-  isOpen: boolean;
-  title?: string;
-  message?: string;
-  dialogType?: "warning" | "danger" | "info";
-  actions?: DialogAction<ImageSwitchChoice>[];
-  onClose?: (value: ImageSwitchChoice) => void;
-}
-
-interface ImagesNavProps {
-  setImage: (image: ApiImage) => Promise<boolean>;
-  saveCurrent?: () => Promise<void>;
-}
-
 const queryClient = new QueryClient();
 
 export default function ImagesNav({ which }: { which: process_type }) {
-  const { setCurrentImage, saveCurrent } = useAnnotationContext();
   const [hide, setHide] = useState(false);
   const addToast = (message: string, type: ToastType) => {
     const id = Date.now().toString();
@@ -90,7 +73,6 @@ export default function ImagesNav({ which }: { which: process_type }) {
           hide={hide}
           setHide={setHide}
           addToast={addToast}
-          setImage={setCurrentImage}
           refreshCounter={forceRefresh}
         />
         <ImagesSection
@@ -99,7 +81,6 @@ export default function ImagesNav({ which }: { which: process_type }) {
           setHide={setHide}
           done
           addToast={addToast}
-          setImage={setCurrentImage}
           refreshCounter={forceRefresh}
         />
       </section>
@@ -123,7 +104,6 @@ interface ImagesSectionProps {
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
   addToast: (message: string, type: ToastType) => void;
-  setImage: (image: ApiImage) => Promise<void>;
   refreshCounter: number; // Counter to force refresh of images
 }
 
@@ -133,27 +113,11 @@ function ImagesSection({
   hide,
   setHide,
   addToast,
-  setImage,
   refreshCounter,
 }: ImagesSectionProps) {
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [imageToDelete, setImageToDelete] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
-
-  // Image switching is now entirely handled by the AnnotationContext
-  // with its own dialog and state management
-
-  const {
-    images,
-    isLoading,
-    isError,
-    pageLength,
-    selectedImage,
-    loadNextPage,
-    selectImage,
-  } = useImages(which, !!done, addToast, setImage, refreshCounter);
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const { images, isLoading, isError, pageLength, loadNextPage, selectImage } =
+    useImages(which, !!done, addToast, refreshCounter);
 
   // Create a wrapper for the selectImage function to avoid re-selecting current image
   const handleSelectImage = async (image: ApiImage, index: number) => {
@@ -161,9 +125,14 @@ function ImagesSection({
     if (selectedImage === index) {
       return;
     }
-
     // Otherwise, select the image
-    if (await selectImage(image, index)) return;
+    selectImage(image)
+      .then((selected) => {
+        if (selected) setSelectedImage(index);
+      })
+      .catch((error) => {
+        console.error("Error selecting image:", error);
+      });
   };
 
   // Display loading state for initial load
