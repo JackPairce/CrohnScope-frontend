@@ -14,7 +14,7 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
   const { state, refs, actions } = useAnnotationCanvas(image, "segmentation");
   const { setSaveStatus, saveCurrent, setCurrentImage } =
     useAnnotationContext();
-  const [mode, setMode] = useState<DrawModes>("draw");
+  const [mode, setMode] = useState<DrawModes>("hand");
   const [brushSize, setBrushSize] = useState<number>(15);
 
   const canvasActionsWithCurrent = {

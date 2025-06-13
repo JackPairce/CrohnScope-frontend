@@ -14,7 +14,7 @@ interface ToolBarProps {
   imgDim: { width: number; height: number } | null;
   onMaskUpdate: (mask: HTMLImageElement) => void;
 }
-const drawModes = ["draw", "erase", "hand"] as const;
+const drawModes = ["hand", "draw", "erase"] as const;
 
 export default function MaskDrawingToolbar({
   mode,
@@ -29,6 +29,20 @@ export default function MaskDrawingToolbar({
       {" "}
       <div className="modes">
         {" "}
+        {/* Hand tool (for panning) */}
+        <button
+          onClick={() => setMode("hand")}
+          className={mode === "hand" ? "active" : ""}
+          title={ModesLabels.hand}
+        >
+          <Image
+            src="/svgs/hand.svg"
+            alt="Hand tool"
+            width={24}
+            height={24}
+            className="svg-icon"
+          />
+        </button>
         {/* Drawing and erasing tools */}
         {drawModes
           .filter((m) => m !== "hand")
@@ -44,24 +58,10 @@ export default function MaskDrawingToolbar({
                 alt={m}
                 width={24}
                 height={24}
-                className="svg-icon-colored"
+                className={`svg-icon${m == "erase" ? "-colored" : ""}`}
               />
             </button>
           ))}
-        {/* Hand tool (for panning) */}
-        <button
-          onClick={() => setMode("hand")}
-          className={mode === "hand" ? "active" : ""}
-          title={ModesLabels.hand}
-        >
-          <Image
-            src="/svgs/hand.svg"
-            alt="Hand tool"
-            width={24}
-            height={24}
-            className="svg-icon-colored"
-          />
-        </button>
       </div>
       {mode == "erase" && (
         <div className="brush-size-container">
@@ -119,9 +119,9 @@ export default function MaskDrawingToolbar({
         <Image
           src="/svgs/clear-mask.svg"
           alt="Reset Mask"
-          width={24}
-          height={24}
-          className="svg-icon-colored"
+          width={28}
+          height={28}
+          className="svg-icon"
         />
         <span className="tooltip">Reset Mask</span>
       </button>

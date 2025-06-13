@@ -8,7 +8,9 @@ export default async function UserPrefsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const previousPage = (await headers()).get("referer") || "/";
+  const currentPath = (await headers()).get("x-current-path") || "";
+  let previousPage = (await headers()).get("referer") || "/";
+  previousPage = previousPage.endsWith(currentPath) ? "/" : previousPage;
 
   return (
     <Layout
