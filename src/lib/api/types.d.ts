@@ -4,6 +4,66 @@
  */
 
 export interface paths {
+  "/auth/check": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Check
+     * @description Check if the user is authenticated.
+     */
+    get: operations["check_auth_check_get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Login
+     * @description Login a user.
+     */
+    post: operations["login_auth_login_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/register": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Register
+     * @description Register a new user.
+     */
+    post: operations["register_auth_register_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/ai/generate-mask/{image_id}": {
     parameters: {
       query?: never;
@@ -508,6 +568,33 @@ export interface components {
       regions?: components["schemas"]["RegionInfo"][] | null;
     };
     /**
+     * ApiUser
+     * @description Represents a user in the system.
+     */
+    ApiUser: {
+      /** Id */
+      id: number;
+      /** Username */
+      username: string;
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+      /**
+       * Is Active
+       * @default true
+       */
+      is_active: boolean;
+      /**
+       * Is Superuser
+       * @default false
+       */
+      is_superuser: boolean;
+      /** Token */
+      token: string;
+    };
+    /**
      * CellTypeCreateResponse
      * @description Response model for cell type creation
      */
@@ -793,6 +880,42 @@ export interface components {
       /** Base64 Data */
       base64_data: string;
     };
+    /**
+     * UserCreateRequest
+     * @description Request model for creating a new user.
+     */
+    UserCreateRequest: {
+      /** Username */
+      username: string;
+      /**
+       * Email
+       * Format: email
+       */
+      email: string;
+      /** Password */
+      password: string;
+    };
+    /**
+     * UserLoginRequest
+     * @description Request model for user login.
+     */
+    UserLoginRequest: {
+      /** Username */
+      username: string;
+      /** Password */
+      password: string;
+    };
+    /**
+     * UserResponse
+     * @description Response model for user operations.
+     */
+    UserResponse: {
+      /** Success */
+      success: boolean;
+      /** Message */
+      message: string;
+      user?: components["schemas"]["ApiUser"] | null;
+    };
     /** ValidationError */
     ValidationError: {
       /** Location */
@@ -813,6 +936,103 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  check_auth_check_get: {
+    parameters: {
+      query: {
+        request: unknown;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ApiUser"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  login_auth_login_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserLoginRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  register_auth_register_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
   generate_mask_ai_generate_mask__image_id__get: {
     parameters: {
       query?: never;

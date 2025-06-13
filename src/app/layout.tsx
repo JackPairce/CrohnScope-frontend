@@ -1,9 +1,8 @@
+import AuthCheck from "@/components/AuthCheck";
 import Layout from "@/components/Layout";
-import { getUserById } from "@/lib/auth";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { cookies, headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import "./globals.css";
 import Providers from "./providers";
 
@@ -31,12 +30,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // get cookies
-  const cookieStore = await cookies();
-  const uid = cookieStore.get("uid")?.value;
   const isAuthPage = (await headers()).get("x-current-path") === "/auth";
-
-  if (!isAuthPage && !(uid && getUserById(uid))) redirect("/auth");
 
   return (
     <html lang="en">
@@ -44,6 +38,8 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
+          {/* Client-side auth check component */}
+          <AuthCheck isAuthPage={isAuthPage} />
           {isAuthPage ? children : <Layout>{children}</Layout>}
         </Providers>
       </body>
