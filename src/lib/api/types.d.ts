@@ -593,6 +593,8 @@ export interface components {
       is_superuser: boolean;
       /** Token */
       token: string;
+      /** Picture */
+      picture?: string | null;
     };
     /**
      * CellTypeCreateResponse
@@ -915,6 +917,8 @@ export interface components {
       /** Message */
       message: string;
       user?: components["schemas"]["ApiUser"] | null;
+      /** Token */
+      token?: string | null;
     };
     /** ValidationError */
     ValidationError: {
@@ -939,7 +943,7 @@ export interface operations {
   check_auth_check_get: {
     parameters: {
       query: {
-        request: unknown;
+        with_user?: boolean;
       };
       header?: never;
       path?: never;
@@ -953,7 +957,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ApiUser"];
+          "application/json": components["schemas"]["ApiUser"] | boolean;
         };
       };
       /** @description Validation Error */

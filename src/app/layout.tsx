@@ -1,8 +1,5 @@
-import AuthCheck from "@/components/AuthCheck";
-import Layout from "@/components/Layout";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { headers } from "next/headers";
 import "./globals.css";
 import Providers from "./providers";
 
@@ -25,23 +22,17 @@ export const metadata: Metadata = {
   description: "CrohnScope is a web application for Crohn's disease research.",
 };
 
-export default async function RootLayout({
+export default async function Index({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isAuthPage = (await headers()).get("x-current-path") === "/auth";
-
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          {/* Client-side auth check component */}
-          <AuthCheck isAuthPage={isAuthPage} />
-          {isAuthPage ? children : <Layout>{children}</Layout>}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

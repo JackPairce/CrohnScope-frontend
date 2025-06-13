@@ -1,6 +1,6 @@
 import { authCookies } from "../utils/cookies";
 import apiClient from "./client";
-import { components, operations } from "./types";
+import { components, operations, paths } from "./types";
 
 export enum AuthType {
   Login = "login",
@@ -24,7 +24,12 @@ export const authApi = {
    * Check if the user is authenticated
    * @returns Promise with the user data
    */
-  checkAuth: async (): Promise<components["schemas"]["ApiUser"] | null> => {
+  checkAuth: async (
+    withCredentials: paths["/auth/check"]["get"]["parameters"]["query"]["with_user"] = false
+  ): Promise<
+    | paths["/auth/check"]["get"]["responses"]["200"]["content"]["application/json"]
+    | null
+  > => {
     // Only run on client side
     if (typeof window === "undefined") {
       console.warn("checkAuth called on server side");
@@ -34,7 +39,7 @@ export const authApi = {
     try {
       const response = await apiClient.get<
         operations["check_auth_check_get"]["responses"]["200"]["content"]["application/json"]
-      >("/auth/check", { params: { request: {} } });
+      >("/auth/check", { params: { with_user: withCredentials } });
       return response.data;
     } catch (error) {
       console.error("Authentication check failed:", error);

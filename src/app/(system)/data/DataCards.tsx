@@ -77,7 +77,7 @@ export const CellSegmentationCard = () => (
         <div className="flex flex-col items-center mb-4">
           <div className="bg-indigo-600/20 p-3 rounded-lg mb-3">
             <Image
-              src="/svgs/brush.svg"
+              src="/svgs/draw.svg"
               alt="Segmentation Icon"
               width={28}
               height={28}
