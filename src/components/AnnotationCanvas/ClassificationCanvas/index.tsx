@@ -349,6 +349,10 @@ export default function ClassificationWorkspace({
             }
           }}
           state={state}
+          generateWithAI={async () => {
+            return true;
+          }}
+          setTabs={actions.setTabs}
         >
           <LayerState
             value={layerState}

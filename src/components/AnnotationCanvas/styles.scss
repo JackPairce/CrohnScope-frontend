@@ -27,15 +27,197 @@
         width: 100%;
 
         .tools {
-            height: 60px;
+            height: auto;
+            min-height: 60px;
             background-color: var(--card-bg);
             color: var(--foreground);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            padding: 20px;
+            gap: 16px;
+            padding: 12px 20px;
             border-bottom: 1px solid var(--card-border);
+            flex-wrap: wrap;
+
+            .ai-generation-container {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                min-width: 300px;
+
+                .ai-generate-button {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    background-color: #4361ee;
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    border: none;
+                    font-size: 14px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+                    &:hover {
+                        background-color: #3a56d4;
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        transform: translateY(-1px);
+                    }
+
+                    &:active {
+                        transform: translateY(0);
+                    }
+
+                    .svg-icon-colored {
+                        filter: brightness(0) invert(1);
+                    }
+                }
+
+                .ai-generating {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    background-color: rgba(67, 97, 238, 0.1);
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    min-width: 300px;
+
+                    .ai-loader {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        .ai-loader-spinner {
+                            width: 24px;
+                            height: 24px;
+                            border: 3px solid rgba(67, 97, 238, 0.3);
+                            border-top-color: #4361ee;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                        }
+
+                        @keyframes spin {
+                            to {
+                                transform: rotate(360deg);
+                            }
+                        }
+                    }
+
+                    .ai-generating-text {
+                        display: flex;
+                        flex-direction: column;
+
+                        .ai-generating-title {
+                            font-weight: 500;
+                            color: #4361ee;
+                            font-size: 14px;
+                        }
+
+                        .ai-generating-subtitle {
+                            font-size: 12px;
+                            color: var(--text-muted);
+                        }
+                    }
+                }
+
+                .ai-result-panel {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    width: 100%;
+
+                    .ai-result-header {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+
+                        .ai-result-title {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            font-weight: 500;
+                            font-size: 14px;
+
+                            .svg-icon-colored {
+                                filter: invert(34%) sepia(96%) saturate(1494%) hue-rotate(212deg) brightness(98%) contrast(91%);
+                            }
+                        }
+
+                        .ai-result-badge {
+                            padding: 4px 8px;
+                            border-radius: 12px;
+                            font-size: 12px;
+                            font-weight: 500;
+
+                            &.success {
+                                background-color: rgba(72, 187, 120, 0.1);
+                                color: #48bb78;
+                            }
+                        }
+                    }
+
+                    .ai-action-buttons {
+                        display: flex;
+                        gap: 8px;
+
+                        .ai-button {
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 6px;
+                            padding: 6px 12px;
+                            border-radius: 5px;
+                            font-size: 13px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.15s ease;
+                            border: none;
+
+                            &.ai-keep-all {
+                                background-color: rgba(72, 187, 120, 0.1);
+                                color: #48bb78;
+
+                                &:hover {
+                                    background-color: rgba(72, 187, 120, 0.2);
+                                }
+
+                                .svg-icon {
+                                    color: #48bb78;
+                                }
+                            }
+
+                            &.ai-discard-current {
+                                background-color: rgba(237, 137, 54, 0.1);
+                                color: #ed8936;
+
+                                &:hover {
+                                    background-color: rgba(237, 137, 54, 0.2);
+                                }
+
+                                .svg-icon {
+                                    color: #ed8936;
+                                }
+                            }
+
+                            &.ai-discard-all {
+                                background-color: rgba(229, 62, 62, 0.1);
+                                color: #e53e3e;
+
+                                &:hover {
+                                    background-color: rgba(229, 62, 62, 0.2);
+                                }
+
+                                .svg-icon {
+                                    color: #e53e3e;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             .tools-buttons {
                 display: flex;

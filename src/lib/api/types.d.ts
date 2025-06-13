@@ -105,7 +105,7 @@ export interface paths {
      *     This runs in the background as it may take some time.
      *
      *     Returns:
-     *         MaskGenerationResponse: Status message indicating task has started
+     *         StatusResponse: Status message indicating task has started
      */
     post: operations["generate_all_masks_ai_generate_masks_post"];
     delete?: never;
@@ -597,6 +597,19 @@ export interface components {
       picture?: string | null;
     };
     /**
+     * AutoMaskResponse
+     * @description Response model for the auto-mask operation.
+     */
+    AutoMaskResponse: {
+      /** Id */
+      id: number;
+      /** Image Id */
+      image_id: number;
+      /** Cell Id */
+      cell_id: number;
+      data: components["schemas"]["MaskArray"];
+    };
+    /**
      * CellTypeCreateResponse
      * @description Response model for cell type creation
      */
@@ -752,16 +765,6 @@ export interface components {
     };
     MaskArray: (0 | 1 | 2)[][];
     /**
-     * MaskGenerationResponse
-     * @description Mask generation response
-     */
-    MaskGenerationResponse: {
-      /** Message */
-      message: string;
-      /** Status */
-      status: string;
-    };
-    /**
      * MaskMatricesResponse
      * @description Response model for multiple mask matrices
      */
@@ -836,6 +839,26 @@ export interface components {
       centroid: {
         [key: string]: number;
       };
+    };
+    /**
+     * StatusResponse
+     * @description Response model for operations that include progress information.
+     */
+    StatusResponse: {
+      /** Message */
+      message: string;
+      /** Status */
+      status: string;
+      /**
+       * Current
+       * @default 0
+       */
+      current: number;
+      /**
+       * Total
+       * @default 0
+       */
+      total: number;
     };
     /** StorageInfo */
     StorageInfo: {
@@ -942,7 +965,7 @@ export type $defs = Record<string, never>;
 export interface operations {
   check_auth_check_get: {
     parameters: {
-      query: {
+      query?: {
         with_user?: boolean;
       };
       header?: never;
@@ -1054,7 +1077,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ApiMask"][];
+          "application/json": components["schemas"]["AutoMaskResponse"][];
         };
       };
       /** @description Validation Error */
@@ -1083,7 +1106,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MaskGenerationResponse"];
+          "application/json": components["schemas"]["StatusResponse"];
         };
       };
     };
@@ -1476,7 +1499,7 @@ export interface operations {
   mark_mask_done_masks_done__mask_id__put: {
     parameters: {
       query: {
-        which?: "segmentation" | "annotation";
+        which: components["schemas"]["process_type"];
       };
       header?: never;
       path: {

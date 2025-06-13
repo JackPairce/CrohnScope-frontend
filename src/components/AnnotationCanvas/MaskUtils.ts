@@ -126,6 +126,31 @@ export function Img2Mask(imageSrc: string) {
   });
 }
 
+export function ArrayToImg(array: (0 | 1 | 2)[][]) {
+  const canvas = document.createElement("canvas");
+  const width = array[0].length;
+  const height = array.length;
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Failed to get canvas context");
+
+  const imageData = ctx.createImageData(width, height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const index = (y * width + x) * 4;
+      imageData.data[index + 0] = array[y][x] ? 255 : 0; // R
+      imageData.data[index + 1] = array[y][x] ? 255 : 0; // G
+      imageData.data[index + 2] = array[y][x] ? 255 : 0; // B
+      imageData.data[index + 3] = array[y][x] ? 255 : 0; // A
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  return canvas.toDataURL();
+}
+
 export function LoadMasks(
   image: {
     id: number;

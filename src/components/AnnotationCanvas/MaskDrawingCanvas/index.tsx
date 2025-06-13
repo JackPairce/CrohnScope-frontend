@@ -1,10 +1,11 @@
 "use client";
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
-import { ApiImage } from "@/lib/api";
+import { ApiImage, generateMask } from "@/lib/api";
 import { useState } from "react";
 import BaseCanvas from "../BaseCanvas";
 import { useAnnotationCanvas } from "../hooks/useAnnotationCanvas";
 import { CanvasActionsHandler } from "../hooks/useCanvasActions";
+import { ArrayToImg, Img2Mask } from "../MaskUtils";
 import ToolBar from "../ToolBar";
 import { DrawModes } from "../types";
 import DrawPreview from "./DrawPreview";
@@ -86,6 +87,39 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
             }
           }}
           state={state}
+          generateWithAI={async () => {
+            const generated_masks = await generateMask(image.id);
+
+            // Process masks outside of setState and then update all at once
+            const updatedTabs = [...state.tabs];
+            const processedTabs = await Promise.all(
+              updatedTabs.map(async (tab) => {
+                const foundMask = generated_masks.find(
+                  (mask) => mask.cell_id === tab.cell_id
+                );
+
+                if (foundMask) {
+                  tab.mask = await Img2Mask(ArrayToImg(foundMask.data));
+                } else {
+                  console.warn(
+                    `No generated mask found for tab ${tab.cell_id}`
+                  );
+                }
+
+                return tab;
+              })
+            );
+
+            // Update state with processed results
+            actions.setTabs(processedTabs);
+            // Set canvas save status to modified
+            actions.setCanvasSaveStatus((prev) => ({
+              ...prev,
+              isModified: true,
+            }));
+            return true;
+          }}
+          setTabs={actions.setTabs}
         >
           {" "}
           <MaskDrawingToolbar
