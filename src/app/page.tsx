@@ -1,4 +1,7 @@
+import ThemeToggle from "@/components/ThemeToggle";
+import UserProfileButton from "@/components/UserProfileButton";
 import "./styles.scss";
+
 const featuresList = [
   {
     title: "Patient Management",
@@ -10,7 +13,7 @@ const featuresList = [
     title: "Smart Diagnosis",
     description: "AI-assisted diagnosis using advanced image processing",
     icon: "/svgs/model.svg",
-    href: "/diagnosis/new",
+    href: "/diagnosis",
   },
   {
     title: "Data Processing",
@@ -23,6 +26,11 @@ const featuresList = [
 export default function Home() {
   return (
     <div className="home-page">
+      <div className="header-controls">
+        <ThemeToggle />
+        <UserProfileButton />
+      </div>
+
       <div className="max-w-4xl mx-auto">
         <h1 className="welcome-title">Welcome to CrohnScope</h1>
         <p className="welcome-subtitle">

@@ -58,7 +58,7 @@ const UploadBtn: React.FC<UploadButtonProps> = ({
             alt="Upload"
             width={20}
             height={20}
-            className="upload-icon"
+            className="svg-icon upload-icon"
           />
         )}
         <span>{isUploading ? "Uploading..." : label}</span>
