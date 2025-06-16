@@ -14,39 +14,49 @@ export default function TabNavigation({
   tabs: Tab[];
   selectedTab: number;
   setSelectedTab: (index: number) => void;
-  setTabs?: React.Dispatch<React.SetStateAction<Tab[]>>; // Made optional since we're removing cell operations
+  setTabs?: React.Dispatch<React.SetStateAction<Tab[]>>;
   overlayRef: React.RefObject<HTMLCanvasElement | null>;
   isMarkingAllDone: boolean;
 }) {
   const [isMarkingDone, setIsMarkingDone] = useState(false);
 
-  // Render tabs without edit/add/delete functionality
   return (
-    <nav className="tabs">
-      <div className="tab-buttons">
-        {tabs.map((tab, index) => (
-          <button
-            key={index}
-            className={`tab-button ${selectedTab === index ? "active" : ""} ${
-              tabs[selectedTab].cell_id == tab.cell_id && isMarkingDone
-                ? "is-processing"
-                : ""
-            } `}
-            onClick={() => setSelectedTab(index)}
-          >
-            <span>{tab.name}</span>
-            {tab.isDone && (
-              <Image
-                src="/svgs/tab-done.svg"
-                alt="Done"
-                width={16}
-                height={16}
-              />
-            )}
-          </button>
-        ))}
+    <nav className="tabs" role="tablist" aria-label="Features navigation">
+      <div className="tab-scroll-container">
+        <div className="tab-buttons">
+          {tabs.map((tab, index) => {
+            const isSelected = selectedTab === index;
+            const isProcessing =
+              tabs[selectedTab].feature_id === tab.feature_id && isMarkingDone;
+
+            return (
+              <button
+                key={index}
+                role="tab"
+                aria-selected={isSelected}
+                aria-controls={`panel-${index}`}
+                className={`tab-button ${isSelected ? "active" : ""} ${
+                  isProcessing ? "is-processing" : ""
+                } ${tab.isDone ? "is-done" : ""}`}
+                onClick={() => setSelectedTab(index)}
+              >
+                <span className="tab-content">
+                  <span className="tab-name">{tab.name}</span>
+                  {tab.isDone && (
+                    <Image
+                      src="/svgs/tab-done.svg"
+                      alt="Feature completed"
+                      width={16}
+                      height={16}
+                      className="done-icon"
+                    />
+                  )}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-      {/* Mark current tab as done button removed - now handled by the dropdown menu */}
     </nav>
   );
 }

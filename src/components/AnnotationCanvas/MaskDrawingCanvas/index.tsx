@@ -95,14 +95,14 @@ export default function MaskDrawingCanvas({ image }: { image: ApiImage }) {
             const processedTabs = await Promise.all(
               updatedTabs.map(async (tab) => {
                 const foundMask = generated_masks.find(
-                  (mask) => mask.cell_id === tab.cell_id
+                  (mask) => mask.feature_id === tab.feature_id
                 );
 
                 if (foundMask) {
                   tab.mask = await Img2Mask(ArrayToImg(foundMask.data));
                 } else {
                   console.warn(
-                    `No generated mask found for tab ${tab.cell_id}`
+                    `No generated mask found for tab ${tab.feature_id}`
                   );
                 }
 

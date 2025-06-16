@@ -1,0 +1,139 @@
+.data-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--foreground);
+    }
+
+    p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  .pipeline-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    gap: 1.5rem;
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+
+      &::before,
+      &::after {
+        content: '';
+        height: 1px;
+        width: 3rem;
+        background-color: var(--card-border);
+      }
+    }
+  }
+
+  .pipeline-card {
+    display: flex;
+    align-items: center;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+
+    &:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      margin-right: 1rem;
+      background: rgba(var(--accent), 0.1);
+      flex-shrink: 0;
+
+      img,
+      svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: var(--accent);
+      }
+    }
+
+    .card-content {
+      flex: 1;
+
+      .step-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.15rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-bottom: 0.25rem;
+        background: rgba(var(--accent), 0.1);
+        color: var(--accent);
+      }
+
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--foreground);
+      }
+
+      p {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 0;
+      }
+    }
+
+    .card-action {
+      display: flex;
+      align-items: center;
+      margin-left: 1rem;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      color: var(--accent);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(var(--accent), 0.1);
+      }
+
+      svg {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+  }
+}

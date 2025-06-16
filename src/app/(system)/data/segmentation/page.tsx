@@ -4,13 +4,13 @@ import SegmentationContent from "./SegmentationContent";
 
 export const metadata = {
   title: "Segmentation Canvas",
-  description: "Segmentation Canvas for CrohnScope",
+  description: "Segmentation Canvas for HistoScope",
 };
 
 export default function SegmentationCanvas() {
   return (
     <ErrorBoundaryWrapper
-      appName="CrohnScope - Segmentation"
+      appName="HistoScope - Segmentation"
       showHelpLink={true}
     >
       <SegmentationContent />

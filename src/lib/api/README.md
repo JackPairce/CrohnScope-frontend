@@ -1,6 +1,6 @@
 # API Service Layer
 
-This directory contains the service layer for API calls in the CrohnScope application. The services are organized by domain to make the codebase more maintainable.
+This directory contains the service layer for API calls in the HistoScope application. The services are organized by domain to make the codebase more maintainable.
 
 ## Structure
 
@@ -8,7 +8,7 @@ This directory contains the service layer for API calls in the CrohnScope applic
 - `index.ts` - Exports all services
 - `images.ts` - Image-related API calls
 - `masks.ts` - Mask-related API calls
-- `cells.ts` - Cell-related API calls
+- `features.ts` - Feature-related API calls
 - `ai.ts` - AI model-related API calls
 - `monitoring.ts` - System monitoring API calls
 

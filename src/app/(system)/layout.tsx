@@ -20,7 +20,7 @@ export default async function RootLayout({
             className="mr-2"
           />
           <span className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            CrohnScope
+            HistoScope
           </span>
         </Link>
       }

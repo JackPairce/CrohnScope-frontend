@@ -32,7 +32,7 @@ export default function Home() {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        <h1 className="welcome-title">Welcome to CrohnScope</h1>
+        <h1 className="welcome-title">Welcome to HistoScope</h1>
         <p className="welcome-subtitle">
           An AI-powered diagnostic tool for medical professionals
         </p>

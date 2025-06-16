@@ -5,7 +5,6 @@ import { MaskToArray } from "@/components/AnnotationCanvas/MaskUtils";
 import { SaveSatues, Tab } from "@/components/AnnotationCanvas/types";
 import ConfirmDialog, { DialogAction } from "@/components/ConfirmDialog";
 import { ApiImage, SaveMaskRequest, uploadMasks } from "@/lib/api"; // Import the components type from API
-import { components } from "@/lib/api/types"; // Import the components type from API
 import {
   createContext,
   Dispatch,
@@ -107,7 +106,7 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
         .filter((tab) => tab.mask) // Only process tabs with masks
         .map((tab) => ({
           id: tab.mask_id || 0, // Use existing ID if available, otherwise 0 for new
-          cell_id: tab.cell_id,
+          feature_id: tab.feature_id,
           data: MaskToArray(tab.mask),
         }));
 

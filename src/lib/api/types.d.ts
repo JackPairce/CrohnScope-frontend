@@ -114,7 +114,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/cells/": {
+  "/features/": {
     parameters: {
       query?: never;
       header?: never;
@@ -122,10 +122,10 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Get All Cells
-     * @description Get all cell types in the database.
+     * Get All Features
+     * @description Get all feature types in the database.
      */
-    get: operations["get_all_cells_cells__get"];
+    get: operations["get_all_features_features__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -134,7 +134,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/cells/get/{image_id}": {
+  "/features/all": {
     parameters: {
       query?: never;
       header?: never;
@@ -142,10 +142,10 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Get Cells
-     * @description Compatibility method for existing code - get all cells.
+     * Get Features
+     * @description Compatibility method for existing code - get all features.
      */
-    get: operations["get_cells_cells_get__image_id__get"];
+    get: operations["get_features_features_all_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -154,7 +154,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/cells/{cell_id}": {
+  "/features/{feature_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -162,27 +162,27 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Get Cell
-     * @description Get a specific cell by ID.
+     * Get Feature
+     * @description Get a specific feature by ID.
      */
-    get: operations["get_cell_cells__cell_id__get"];
+    get: operations["get_feature_features__feature_id__get"];
     /**
-     * Update Cell
-     * @description Update an existing cell type.
+     * Update Feature
+     * @description Update an existing feature type.
      */
-    put: operations["update_cell_cells__cell_id__put"];
+    put: operations["update_feature_features__feature_id__put"];
     post?: never;
     /**
-     * Delete Cell
-     * @description Delete a cell type and its associated masks.
+     * Delete Feature
+     * @description Delete a feature type and its associated masks.
      */
-    delete: operations["delete_cell_cells__cell_id__delete"];
+    delete: operations["delete_feature_features__feature_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/cells/save/{image_id}": {
+  "/features/save": {
     parameters: {
       query?: never;
       header?: never;
@@ -192,10 +192,10 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Add Cell
+     * Add Feature
      * @description Legacy method for compatibility with existing code.
      */
-    post: operations["add_cell_cells_save__image_id__post"];
+    post: operations["add_feature_features_save_post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -304,6 +304,58 @@ export interface paths {
      * @description Delete an image and its associated files.
      */
     delete: operations["delete_image_images_delete__image_id__delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/images/stain/{image_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Stain Image
+     * @description Get the stain image for a specific image ID.
+     *
+     *     Args:
+     *         image_id: ID of the image to retrieve
+     *
+     *     Returns:
+     *         StainingNormalizedImage object containing the stain normalized image data.
+     */
+    get: operations["get_stain_image_images_stain__image_id__get"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/images/stain": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Get Stain Image From Base64
+     * @description Get the stain image from base64 encoded image data.
+     *
+     *     Args:
+     *         image_data: Base64 encoded image data
+     *
+     *     Returns:
+     *         StainingNormalizedImage object containing the stain normalized image data.
+     */
+    post: operations["get_stain_image_from_base64_images_stain_post"];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -422,7 +474,7 @@ export interface paths {
      *         MaskMatricesResponse containing:
      *         - masks: List of MaskMatrix objects, each containing:
      *             - mask_id: ID of the mask
-     *             - cell_id: ID of the cell type
+     *             - feature_id: ID of the feature type
      *             - labeledRegions: Matrix where each region has a unique ID
      *             - mask: Matrix where 0: background, 1: unhealthy, 2: healthy
      */
@@ -516,12 +568,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** ApiCell */
-    ApiCell: {
+    /** ApiFeature */
+    ApiFeature: {
       /** Id */
       id: number;
       /** Name */
       name: string;
+      /**
+       * Severity
+       * @default 0
+       */
+      severity: number;
       /** Description */
       description: string;
       /** Img */
@@ -550,8 +607,8 @@ export interface components {
       id: number;
       /** Image Id */
       image_id: number;
-      /** Cell Id */
-      cell_id?: number | null;
+      /** Feature Id */
+      feature_id?: number | null;
       /**
        * Is Segmented
        * @default false
@@ -605,46 +662,9 @@ export interface components {
       id: number;
       /** Image Id */
       image_id: number;
-      /** Cell Id */
-      cell_id: number;
+      /** Feature Id */
+      feature_id: number;
       data: components["schemas"]["MaskArray"];
-    };
-    /**
-     * CellTypeCreateResponse
-     * @description Response model for cell type creation
-     */
-    CellTypeCreateResponse: {
-      /**
-       * Message
-       * @default Cell type created successfully
-       */
-      message: string;
-      cell_type: components["schemas"]["ApiCell"];
-    };
-    /**
-     * CellTypeDeleteResponse
-     * @description Response model for cell type deletion
-     */
-    CellTypeDeleteResponse: {
-      /**
-       * Message
-       * @default Cell type deleted successfully
-       */
-      message: string;
-      /** Id */
-      id: number;
-    };
-    /**
-     * CellTypeUpdateResponse
-     * @description Response model for cell type update
-     */
-    CellTypeUpdateResponse: {
-      /**
-       * Message
-       * @default Cell type updated successfully
-       */
-      message: string;
-      cell_type: components["schemas"]["ApiCell"];
     };
     /** CpuInfo */
     CpuInfo: {
@@ -725,6 +745,43 @@ export interface components {
       /** Percentage */
       percentage: string;
     };
+    /**
+     * FeatureTypeCreateResponse
+     * @description Response model for feature type creation
+     */
+    FeatureTypeCreateResponse: {
+      /**
+       * Message
+       * @default Feature type created successfully
+       */
+      message: string;
+      feature_type: components["schemas"]["ApiFeature"];
+    };
+    /**
+     * FeatureTypeDeleteResponse
+     * @description Response model for feature type deletion
+     */
+    FeatureTypeDeleteResponse: {
+      /**
+       * Message
+       * @default Feature type deleted successfully
+       */
+      message: string;
+      /** Id */
+      id: number;
+    };
+    /**
+     * FeatureTypeUpdateResponse
+     * @description Response model for feature type update
+     */
+    FeatureTypeUpdateResponse: {
+      /**
+       * Message
+       * @default Feature type updated successfully
+       */
+      message: string;
+      feature_type: components["schemas"]["ApiFeature"];
+    };
     /** GpuInfo */
     GpuInfo: {
       /** Gpu Count */
@@ -743,6 +800,7 @@ export interface components {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
+    ImageArray: number[][][];
     /**
      * ImageListResponse
      * @description Response model for paginated image list
@@ -779,8 +837,8 @@ export interface components {
     MaskMatrix: {
       /** Mask Id */
       mask_id: number;
-      /** Cell Id */
-      cell_id: number;
+      /** Feature Id */
+      feature_id: number;
       /** Labeledregions */
       labeledRegions: number[][];
       mask: components["schemas"]["MaskArray"];
@@ -792,8 +850,8 @@ export interface components {
     MaskSaveRequest: {
       /** Id */
       id: number;
-      /** Cell Id */
-      cell_id: number;
+      /** Feature Id */
+      feature_id: number;
       data: components["schemas"]["MaskArray"];
     };
     /**
@@ -839,6 +897,15 @@ export interface components {
       centroid: {
         [key: string]: number;
       };
+    };
+    /**
+     * StainingNormalizedImage
+     * @description Normalized image for staining
+     */
+    StainingNormalizedImage: {
+      inorm: components["schemas"]["ImageArray"];
+      hematoxylin: components["schemas"]["ImageArray"];
+      eosin: components["schemas"]["ImageArray"];
     };
     /**
      * StatusResponse
@@ -965,8 +1032,8 @@ export type $defs = Record<string, never>;
 export interface operations {
   check_auth_check_get: {
     parameters: {
-      query?: {
-        with_user?: boolean;
+      query: {
+        with_user: boolean;
       };
       header?: never;
       path?: never;
@@ -1111,7 +1178,7 @@ export interface operations {
       };
     };
   };
-  get_all_cells_cells__get: {
+  get_all_features_features__get: {
     parameters: {
       query?: never;
       header?: never;
@@ -1126,12 +1193,12 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ApiCell"][];
+          "application/json": components["schemas"]["ApiFeature"][];
         };
       };
     };
   };
-  get_cells_cells_get__image_id__get: {
+  get_features_features_all_get: {
     parameters: {
       query?: never;
       header?: never;
@@ -1146,17 +1213,17 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ApiCell"][];
+          "application/json": components["schemas"]["ApiFeature"][];
         };
       };
     };
   };
-  get_cell_cells__cell_id__get: {
+  get_feature_features__feature_id__get: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        cell_id: number;
+        feature_id: number;
       };
       cookie?: never;
     };
@@ -1168,7 +1235,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ApiCell"];
+          "application/json": components["schemas"]["ApiFeature"];
         };
       };
       /** @description Validation Error */
@@ -1182,18 +1249,18 @@ export interface operations {
       };
     };
   };
-  update_cell_cells__cell_id__put: {
+  update_feature_features__feature_id__put: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        cell_id: number;
+        feature_id: number;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ApiCell"];
+        "application/json": components["schemas"]["ApiFeature"];
       };
     };
     responses: {
@@ -1203,7 +1270,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CellTypeUpdateResponse"];
+          "application/json": components["schemas"]["FeatureTypeUpdateResponse"];
         };
       };
       /** @description Validation Error */
@@ -1217,12 +1284,12 @@ export interface operations {
       };
     };
   };
-  delete_cell_cells__cell_id__delete: {
+  delete_feature_features__feature_id__delete: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        cell_id: number;
+        feature_id: number;
       };
       cookie?: never;
     };
@@ -1234,7 +1301,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CellTypeDeleteResponse"];
+          "application/json": components["schemas"]["FeatureTypeDeleteResponse"];
         };
       };
       /** @description Validation Error */
@@ -1248,7 +1315,7 @@ export interface operations {
       };
     };
   };
-  add_cell_cells_save__image_id__post: {
+  add_feature_features_save_post: {
     parameters: {
       query?: never;
       header?: never;
@@ -1257,7 +1324,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ApiCell"];
+        "application/json": components["schemas"]["ApiFeature"];
       };
     };
     responses: {
@@ -1267,7 +1334,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CellTypeCreateResponse"];
+          "application/json": components["schemas"]["FeatureTypeCreateResponse"];
         };
       };
       /** @description Validation Error */
@@ -1417,6 +1484,70 @@ export interface operations {
         };
         content: {
           "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_stain_image_images_stain__image_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        image_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StainingNormalizedImage"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  get_stain_image_from_base64_images_stain_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UploadImageRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StainingNormalizedImage"];
         };
       };
       /** @description Validation Error */

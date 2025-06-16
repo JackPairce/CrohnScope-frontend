@@ -20,7 +20,7 @@ export default function ErrorBoundary({ error, reset }: ErrorBoundaryProps) {
       error={error}
       onRetry={reset}
       showHelpLink={true}
-      appName="CrohnScope - Data"
+      appName="HistoScope - Data"
     />
   );
 }

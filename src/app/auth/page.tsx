@@ -93,7 +93,7 @@ export default function AuthPage() {
               <div className="mb-4 relative w-20 h-20 mx-auto">
                 <Image
                   src="/svgs/microscope.svg"
-                  alt="CrohnScope Logo"
+                  alt="HistoScope Logo"
                   fill
                   className="drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
                 />

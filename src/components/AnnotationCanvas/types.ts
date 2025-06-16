@@ -28,7 +28,7 @@ export type SaveSatues = {
 
 export type Tab = {
   mask_id: number;
-  cell_id: number;
+  feature_id: number;
   name: string;
   mask: Mask;
   isRename: boolean;
@@ -42,7 +42,7 @@ export enum CellsNames {
 
 export type DatasetSchema = {
   image_id: string;
-  cell_id: string;
+  feature_id: string;
   cell_state: "healthy" | "unhealthy";
   cell_name: CellsNames;
   mask_path: string;

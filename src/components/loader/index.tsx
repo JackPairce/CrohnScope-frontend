@@ -29,7 +29,7 @@ export default function Loader({
 
         {/* Progress Dots */}
         <div className="absolute -inset-8 flex items-center justify-center">
-          <div className="cell-grid">
+          <div className="feature-grid">
             {[...Array(9)].map((_, i) => (
               <div
                 key={i}

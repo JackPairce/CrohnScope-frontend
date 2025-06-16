@@ -7,7 +7,7 @@ import "./styles.scss";
 
 export default function Page() {
   return (
-    <ErrorBoundaryWrapper appName="CrohnScope Dashboard">
+    <ErrorBoundaryWrapper appName="HistoScope Dashboard">
       <DashboardContent />
     </ErrorBoundaryWrapper>
   );

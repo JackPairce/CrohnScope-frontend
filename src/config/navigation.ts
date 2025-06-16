@@ -1,4 +1,3 @@
-
 export interface NavLink {
   name: string;
   href: string;
@@ -10,6 +9,50 @@ export interface NavSection {
   title: string;
   links: NavLink[];
 }
+
+export interface PipelineStep {
+  href: string;
+  iconType: "svg" | "image";
+  icon: string;
+  alt: string;
+  title: string;
+  description: string;
+}
+
+export const pipelineSteps: PipelineStep[] = [
+  {
+    href: "/data/features",
+    iconType: "svg",
+    icon: "/svgs/feature-management.svg",
+    alt: "Feature Management",
+    title: "Feature Management",
+    description: "Manage and create features for image analysis",
+  },
+  {
+    href: "/data/images",
+    iconType: "svg",
+    icon: "/svgs/image-management.svg",
+    alt: "Image Management",
+    title: "Image Management",
+    description: "Import and organize microscopy images",
+  },
+  {
+    href: "/data/segmentation",
+    iconType: "svg",
+    icon: "/svgs/segmentation.svg",
+    alt: "Segmentation",
+    title: "Feature Segmentation",
+    description: "Analyze and segment features with AI-assisted tools",
+  },
+  {
+    href: "/data/classification",
+    iconType: "svg",
+    icon: "/svgs/classification-new.svg",
+    alt: "Classification",
+    title: "Feature Classification",
+    description: "Classify and label segmented features",
+  },
+];
 
 export const systemNavigation: NavSection[] = [
   {
@@ -30,24 +73,24 @@ export const systemNavigation: NavSection[] = [
     title: "Data Processing",
     links: [
       {
-        name: "Cells Management",
-        href: "/data/cells",
-        icon: "/svgs/cell.svg",
+        name: "Features Management",
+        href: "/data/features",
+        icon: "/svgs/feature-management.svg",
       },
       {
         name: "Image Library",
         href: "/data/images",
-        icon: "/svgs/file.svg",
+        icon: "/svgs/image-management.svg",
       },
       {
         name: "Segmentation",
         href: "/data/segmentation",
-        icon: "/svgs/draw.svg",
+        icon: "/svgs/segmentation.svg",
       },
       {
         name: "Classification",
-        href: "/data/labeling",
-        icon: "/svgs/cell-classification.svg",
+        href: "/data/classification",
+        icon: "/svgs/classification-new.svg",
       },
     ],
   },

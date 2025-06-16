@@ -81,3 +81,29 @@ export const getImageStatus = async (): Promise<ImageStatus> => {
   const response = await apiClient.get<ImageStatus>("/images/status");
   return response.data;
 };
+
+export const getStainNormalizationImage = async (
+  imageId: number
+): Promise<
+  paths["/images/stain/{image_id}"]["get"]["responses"]["200"]["content"]["application/json"]
+> => {
+  const response = await apiClient.get(`/images/stain/${imageId}`);
+  return response.data;
+};
+
+export const getStainNormalizationImageFromBase64 = async (
+  imageBase64: paths["/images/stain"]["post"]["requestBody"]["content"]["application/json"]["base64_data"]
+): Promise<
+  paths["/images/stain"]["post"]["responses"]["200"]["content"]["application/json"]
+> => {
+  const response = await apiClient.post(
+    "/images/stain",
+    { base64_data: imageBase64 },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};

@@ -56,7 +56,7 @@ export default function ClassificationWorkspace({
             matrixData.map((mask) => {
               return {
                 id: mask.mask_id,
-                cell_id: mask.cell_id,
+                feature_id: mask.feature_id,
                 data: mask.mask,
               };
             })

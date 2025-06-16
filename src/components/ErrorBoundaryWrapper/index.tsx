@@ -18,7 +18,7 @@ interface ErrorBoundaryWrapperProps {
  */
 export default function ErrorBoundaryWrapper({
   children,
-  appName = "CrohnScope",
+  appName = "HistoScope",
   showHelpLink = true,
   helpLinkUrl = "https://support.crohnscope.com",
 }: ErrorBoundaryWrapperProps) {

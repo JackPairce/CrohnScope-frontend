@@ -1,9 +1,10 @@
 import apiClient from "./client";
 
 // Export all services
-export * from "./auth";
 export * from "./ai";
-export * from "./cells";
+export * from "./auth";
+export * from "./diagnosis";
+export * from "./features";
 export * from "./images";
 export * from "./masks";
 export * from "./monitoring";

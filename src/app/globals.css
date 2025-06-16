@@ -51,7 +51,8 @@
   --font-mono: var(--font-geist-mono);
 
   /* SVG and icon filters */
-  --svg-filter-light: brightness(0) saturate(100%) invert(19%) sepia(11%) saturate(1474%) hue-rotate(182deg) brightness(99%) contrast(88%);
+  --svg-filter-light: brightness(0) saturate(100%) invert(19%) sepia(11%)
+    saturate(1474%) hue-rotate(182deg) brightness(99%) contrast(88%);
   --svg-filter-dark: brightness(1) invert(1);
   --svg-filter: var(--svg-filter-dark);
 }

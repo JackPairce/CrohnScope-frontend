@@ -18,11 +18,11 @@ export default function HelpPage() {
   const articles: Article[] = [
     {
       id: "gs-1",
-      title: "Getting Started with CrohnScope",
-      description: "Learn the basics of using CrohnScope",
+      title: "Getting Started with HistoScope",
+      description: "Learn the basics of using HistoScope",
       category: "getting-started",
       content: `
-        Welcome to CrohnScope! This guide will help you get started with our platform.
+        Welcome to HistoScope! This guide will help you get started with our platform.
 
         1. Account Setup
         - Create your account or log in
@@ -51,10 +51,10 @@ export default function HelpPage() {
     },
     {
       id: "f-1",
-      title: "Cell Classification",
-      description: "How to use the cell classification feature",
+      title: "Feature Classification",
+      description: "How to use the feature classification feature",
       category: "features",
-      content: "Cell classification guide...",
+      content: "Feature classification guide...",
     },
     {
       id: "f-2",

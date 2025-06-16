@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CrohnScope",
-    template: "%s | CrohnScope",
+    default: "HistoScope",
+    template: "%s | HistoScope",
   },
 
-  description: "CrohnScope is a web application for Crohn's disease research.",
+  description: "HistoScope is a web application for Histo's disease research.",
 };
 
 export default async function Index({

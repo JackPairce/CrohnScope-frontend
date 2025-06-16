@@ -16,7 +16,7 @@ interface LayoutProps {
   navigation?: NavSection[];
 }
 
-const FORCE_COLLAPSE_PATHS = ["/data/segmentation", "/data/labeling"];
+const FORCE_COLLAPSE_PATHS = ["/data/segmentation", "/data/classification"];
 
 export default function Layout({
   children,

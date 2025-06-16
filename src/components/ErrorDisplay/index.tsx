@@ -23,7 +23,7 @@ export default function ErrorDisplay({
   onRetry = () => window.location.reload(),
   showHelpLink = true,
   helpLinkUrl = "https://support.crohnscope.com",
-  appName = "CrohnScope",
+  appName = "HistoScope",
 }: ErrorDisplayProps) {
   // State for handling async error categorization
   const [errorInfo, setErrorInfo] = useState<ErrorTypeInfo | null>(null);
@@ -126,7 +126,7 @@ export default function ErrorDisplay({
     backendConnection: {
       title: "Server Connection Issue",
       description:
-        "We can't reach the CrohnScope servers, but your internet connection appears to be working.",
+        "We can't reach the HistoScope servers, but your internet connection appears to be working.",
       icon: (
         <svg
           className="w-full h-full"

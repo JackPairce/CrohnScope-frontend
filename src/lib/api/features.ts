@@ -1,48 +1,41 @@
 import apiClient from "./client";
-import { paths } from "./types";
+import { components, paths } from "./types";
 
 // Types
-export type ApiCell = {
-  id: number;
-  name: string;
-  description: string;
-  img: string;
-};
+export type ApiFeature = components["schemas"]["ApiFeature"];
 
 /**
- * Get cells for an image
+ * Get Features for an image
  * @param imageId - The ID of the image
- * @returns Promise with cell data
+ * @returns Promise with Features data
  */
-export const getCells = async (imageId: number): Promise<ApiCell[]> => {
-  const response = await apiClient.get(`/cells/get/${imageId}`);
+export const getFeatures = async (): Promise<ApiFeature[]> => {
+  const response = await apiClient.get(`/features/all`);
   return response.data;
 };
 
-export const addCells = async (
-  imageId: number,
-  cells: paths["/cells/save/{image_id}"]["post"]["requestBody"]["content"]["application/json"]
+export const addFeatures = async (
+  features: paths["/features/save"]["post"]["requestBody"]["content"]["application/json"]
 ): Promise<
-  paths["/cells/save/{image_id}"]["post"]["responses"]["200"]["content"]["application/json"]
+  paths["/features/save"]["post"]["responses"]["200"]["content"]["application/json"]
 > => {
-  const response = await apiClient.post(`/cells/save/${imageId}`, cells);
+  const response = await apiClient.post(`/features/save`, features);
   return response.data;
 };
-export const updateCells = async (
-  imageId: number,
-  cells: paths["/cells/{cell_id}"]["put"]["requestBody"]["content"]["application/json"]
+export const updateFeatures = async (
+  features: paths["/features/{feature_id}"]["put"]["requestBody"]["content"]["application/json"]
 ): Promise<
-  paths["/cells/{cell_id}"]["put"]["responses"]["200"]["content"]["application/json"]
+  paths["/features/{feature_id}"]["put"]["responses"]["200"]["content"]["application/json"]
 > => {
-  const response = await apiClient.put(`/cells/${imageId}`, cells);
+  const response = await apiClient.put(`/features/${features.id}`, features);
   return response.data;
 };
 
-export const deleteCells = async (
-  cellId: number
+export const deleteFeatures = async (
+  featureId: number
 ): Promise<
-  paths["/cells/{cell_id}"]["delete"]["responses"]["200"]["content"]["application/json"]
+  paths["/features/{feature_id}"]["delete"]["responses"]["200"]["content"]["application/json"]
 > => {
-  const response = await apiClient.delete(`/cells/${cellId}`);
+  const response = await apiClient.delete(`/features/${featureId}`);
   return response.data;
 };

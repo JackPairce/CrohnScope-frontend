@@ -1,4 +1,4 @@
-import { getCells, getMask } from "@/lib/api";
+import { getFeatures, getMask } from "@/lib/api";
 import { Dispatch, SetStateAction } from "react";
 import type { DataProcessingMode, Mask, Tab } from "./types";
 
@@ -177,11 +177,11 @@ export function LoadMasks(
       width: img.naturalWidth,
       height: img.naturalHeight,
     });
-    const cells = await getCells(image.id);
     const masks = await getMask(image.id);
+    const features = await getFeatures(image.id);
     const tabs = await Promise.all(
-      cells.map(async (cell) => {
-        const mask = masks.find((mask) => mask.cell_id === cell.id);
+      features.map(async (feature) => {
+        const mask = masks.find((mask) => mask.feature_id === feature.id);
         let currentMask = mask
           ? await Img2Mask(mask.src)
           : await NewMask(img.naturalWidth, img.naturalHeight);
@@ -192,8 +192,8 @@ export function LoadMasks(
             : await NewMask(img.naturalWidth, img.naturalHeight);
         return {
           mask_id: mask?.id,
-          cell_id: cell.id,
-          name: cell.name,
+          feature_id: feature.id,
+          name: feature.name,
           isRename: false,
           mask: currentMask,
           isDone:
@@ -207,4 +207,29 @@ export function LoadMasks(
     setSelectedTab(tabs.length ? 0 : NaN);
     setIsLoading(false);
   };
+}
+
+export function NdarrayToImgSrc(array: number[][][]): string {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Failed to get canvas context");
+
+  const width = array[0].length;
+  const height = array.length;
+  canvas.width = width;
+  canvas.height = height;
+
+  const imageData = ctx.createImageData(width, height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const index = (y * width + x) * 4;
+      imageData.data[index + 0] = array[y][x][0]; // R
+      imageData.data[index + 1] = array[y][x][1]; // G
+      imageData.data[index + 2] = array[y][x][2]; // B
+      imageData.data[index + 3] = 255; // A
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL();
 }
