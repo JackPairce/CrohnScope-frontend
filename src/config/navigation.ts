@@ -19,40 +19,52 @@ export interface PipelineStep {
   description: string;
 }
 
-export const pipelineSteps: PipelineStep[] = [
+export const dataProcessingLinks: NavLink[] = [
   {
+    name: "Disease Management",
+    href: "/data/diseases",
+    icon: "/svgs/disease.svg",
+  },
+  {
+    name: "Features Management",
     href: "/data/features",
-    iconType: "svg",
     icon: "/svgs/feature-management.svg",
-    alt: "Feature Management",
-    title: "Feature Management",
-    description: "Manage and create features for image analysis",
   },
   {
+    name: "Image Library",
     href: "/data/images",
-    iconType: "svg",
     icon: "/svgs/image-management.svg",
-    alt: "Image Management",
-    title: "Image Management",
-    description: "Import and organize microscopy images",
   },
   {
+    name: "Segmentation",
     href: "/data/segmentation",
-    iconType: "svg",
     icon: "/svgs/segmentation.svg",
-    alt: "Segmentation",
-    title: "Feature Segmentation",
-    description: "Analyze and segment features with AI-assisted tools",
   },
   {
+    name: "Classification",
     href: "/data/classification",
-    iconType: "svg",
     icon: "/svgs/classification-new.svg",
-    alt: "Classification",
-    title: "Feature Classification",
-    description: "Classify and label segmented features",
   },
 ];
+
+const pipelineStepDescriptions: Record<string, string> = {
+  "Disease Management": "Manage and create disease types for analysis",
+  "Features Management": "Manage and create features for image analysis",
+  "Image Library": "Import and organize microscopy images",
+  Segmentation: "Analyze and segment features with AI-assisted tools",
+  Classification: "Classify and label segmented features",
+};
+
+export const pipelineSteps: PipelineStep[] = dataProcessingLinks.map(
+  (link) => ({
+    href: link.href,
+    iconType: "svg",
+    icon: link.icon,
+    alt: link.name,
+    title: link.name,
+    description: pipelineStepDescriptions[link.name] || "",
+  })
+);
 
 export const systemNavigation: NavSection[] = [
   {
@@ -71,28 +83,7 @@ export const systemNavigation: NavSection[] = [
   },
   {
     title: "Data Processing",
-    links: [
-      {
-        name: "Features Management",
-        href: "/data/features",
-        icon: "/svgs/feature-management.svg",
-      },
-      {
-        name: "Image Library",
-        href: "/data/images",
-        icon: "/svgs/image-management.svg",
-      },
-      {
-        name: "Segmentation",
-        href: "/data/segmentation",
-        icon: "/svgs/segmentation.svg",
-      },
-      {
-        name: "Classification",
-        href: "/data/classification",
-        icon: "/svgs/classification-new.svg",
-      },
-    ],
+    links: dataProcessingLinks,
   },
 ];
 
