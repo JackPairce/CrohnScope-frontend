@@ -4,6 +4,7 @@ import apiClient from "./client";
 export * from "./ai";
 export * from "./auth";
 export * from "./diagnosis";
+export * from "./diseases";
 export * from "./features";
 export * from "./images";
 export * from "./masks";

@@ -114,7 +114,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/features/": {
+  "/features/all": {
     parameters: {
       query?: never;
       header?: never;
@@ -124,28 +124,11 @@ export interface paths {
     /**
      * Get All Features
      * @description Get all feature types in the database.
+     *
+     *     Returns:
+     *         List of ApiFeature objects
      */
-    get: operations["get_all_features_features__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/features/all": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get Features
-     * @description Compatibility method for existing code - get all features.
-     */
-    get: operations["get_features_features_all_get"];
+    get: operations["get_all_features_features_all_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -162,19 +145,38 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Get Feature
-     * @description Get a specific feature by ID.
+     * Get Feature By Id
+     * @description Get a feature type by its ID.
+     *
+     *     Args:
+     *         feature_id: ID of the feature type
+     *
+     *     Returns:
+     *         ApiFeature object
      */
-    get: operations["get_feature_features__feature_id__get"];
+    get: operations["get_feature_by_id_features__feature_id__get"];
     /**
      * Update Feature
-     * @description Update an existing feature type.
+     * @description Update an existing feature type by its ID.
+     *
+     *     Args:
+     *         feature_id: ID of the feature type to update
+     *         feature: ApiFeature object containing the updated details
+     *
+     *     Returns:
+     *         FeatureTypeResponse with the updated feature
      */
     put: operations["update_feature_features__feature_id__put"];
     post?: never;
     /**
      * Delete Feature
-     * @description Delete a feature type and its associated masks.
+     * @description Delete a feature type by its ID.
+     *
+     *     Args:
+     *         feature_id: ID of the feature type to delete
+     *
+     *     Returns:
+     *         FeatureTypeDeleteResponse with the deleted feature ID
      */
     delete: operations["delete_feature_features__feature_id__delete"];
     options?: never;
@@ -182,7 +184,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/features/save": {
+  "/features/": {
     parameters: {
       query?: never;
       header?: never;
@@ -192,10 +194,16 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Add Feature
-     * @description Legacy method for compatibility with existing code.
+     * Create Feature
+     * @description Create a new feature type.
+     *
+     *     Args:
+     *         feature: ApiFeature object containing the feature details
+     *
+     *     Returns:
+     *         FeatureTypeResponse with the created feature
      */
-    post: operations["add_feature_features_save_post"];
+    post: operations["create_feature_features__post"];
     delete?: never;
     options?: never;
     head?: never;
@@ -620,11 +628,6 @@ export interface components {
       id: number;
       /** Name */
       name: string;
-      /**
-       * Severity
-       * @default 0
-       */
-      severity: number;
       /** Description */
       description: string;
       /**
@@ -632,6 +635,11 @@ export interface components {
        * @default
        */
       img: string;
+      /**
+       * Diseases
+       * @default []
+       */
+      diseases: components["schemas"]["ApiDisease"][];
     };
     /** ApiImage */
     ApiImage: {
@@ -795,18 +803,6 @@ export interface components {
       percentage: string;
     };
     /**
-     * FeatureTypeCreateResponse
-     * @description Response model for feature type creation
-     */
-    FeatureTypeCreateResponse: {
-      /**
-       * Message
-       * @default Feature type created successfully
-       */
-      message: string;
-      feature_type: components["schemas"]["ApiFeature"];
-    };
-    /**
      * FeatureTypeDeleteResponse
      * @description Response model for feature type deletion
      */
@@ -820,13 +816,13 @@ export interface components {
       id: number;
     };
     /**
-     * FeatureTypeUpdateResponse
-     * @description Response model for feature type update
+     * FeatureTypeResponse
+     * @description Response model for feature type creation
      */
-    FeatureTypeUpdateResponse: {
+    FeatureTypeResponse: {
       /**
        * Message
-       * @default Feature type updated successfully
+       * @default Feature type created successfully
        */
       message: string;
       feature_type: components["schemas"]["ApiFeature"];
@@ -1227,7 +1223,7 @@ export interface operations {
       };
     };
   };
-  get_all_features_features__get: {
+  get_all_features_features_all_get: {
     parameters: {
       query?: never;
       header?: never;
@@ -1247,27 +1243,7 @@ export interface operations {
       };
     };
   };
-  get_features_features_all_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiFeature"][];
-        };
-      };
-    };
-  };
-  get_feature_features__feature_id__get: {
+  get_feature_by_id_features__feature_id__get: {
     parameters: {
       query?: never;
       header?: never;
@@ -1302,9 +1278,7 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        feature_id: number;
-      };
+      path?: never;
       cookie?: never;
     };
     requestBody: {
@@ -1319,7 +1293,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["FeatureTypeUpdateResponse"];
+          "application/json": components["schemas"]["FeatureTypeResponse"];
         };
       };
       /** @description Validation Error */
@@ -1364,7 +1338,7 @@ export interface operations {
       };
     };
   };
-  add_feature_features_save_post: {
+  create_feature_features__post: {
     parameters: {
       query?: never;
       header?: never;
@@ -1383,7 +1357,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["FeatureTypeCreateResponse"];
+          "application/json": components["schemas"]["FeatureTypeResponse"];
         };
       };
       /** @description Validation Error */

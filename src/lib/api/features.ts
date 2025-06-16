@@ -1,5 +1,5 @@
 import apiClient from "./client";
-import { components, paths } from "./types";
+import { components, paths } from "./types.d";
 
 // Types
 export type ApiFeature = components["schemas"]["ApiFeature"];
@@ -9,19 +9,22 @@ export type ApiFeature = components["schemas"]["ApiFeature"];
  * @param imageId - The ID of the image
  * @returns Promise with Features data
  */
-export const getFeatures = async (): Promise<ApiFeature[]> => {
+export const getFeatures = async (): Promise<
+  paths["/features/all"]["get"]["responses"]["200"]["content"]["application/json"]
+> => {
   const response = await apiClient.get(`/features/all`);
   return response.data;
 };
 
 export const addFeatures = async (
-  features: paths["/features/save"]["post"]["requestBody"]["content"]["application/json"]
+  features: paths["/features/"]["post"]["requestBody"]["content"]["application/json"]
 ): Promise<
-  paths["/features/save"]["post"]["responses"]["200"]["content"]["application/json"]
+  paths["/features/"]["post"]["responses"]["200"]["content"]["application/json"]
 > => {
-  const response = await apiClient.post(`/features/save`, features);
+  const response = await apiClient.post(`/features`, features);
   return response.data;
 };
+
 export const updateFeatures = async (
   features: paths["/features/{feature_id}"]["put"]["requestBody"]["content"]["application/json"]
 ): Promise<
