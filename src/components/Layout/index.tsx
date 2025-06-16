@@ -82,8 +82,13 @@ export default function Layout({
           {/* Data Pipeline Button */}
           <Link
             href="/data"
-            className="inline-flex items-center px-3 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm"
-            style={{ marginRight: showUserMenu ? "1rem" : 0 }}
+            className="inline-flex items-center px-3 py-1.5 rounded transition-colors text-sm font-medium shadow-sm"
+            style={{
+              marginRight: showUserMenu ? "1rem" : 0,
+              backgroundColor: "var(--accent)",
+              color: "var(--color-white)",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+            }}
           >
             {/* Database with Gear icon for Data Pipeline Management */}
             <span className="relative flex items-center mr-2">

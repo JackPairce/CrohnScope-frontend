@@ -107,52 +107,86 @@ export default function DiseasesContent() {
   return (
     <div className="diseases-content">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Diseases</h2>
+        <h2
+          className="text-2xl font-semibold"
+          style={{ color: "var(--foreground)" }}
+        >
+          Diseases
+        </h2>
         <button
           onClick={handleAdd}
-          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+          style={{
+            background: "var(--button-primary)",
+            color: "var(--card-bg)",
+          }}
+          className="px-4 py-2 rounded hover:brightness-90"
         >
           Add Disease
         </button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-x-auto">
+          <div
+            className="shadow rounded-lg overflow-x-auto"
+            style={{
+              background: "var(--card-bg)",
+              border: "1px solid var(--card-border)",
+            }}
+          >
             <table className="min-w-full">
               <thead>
-                <tr className="bg-gray-50 dark:bg-gray-700">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <tr style={{ background: "var(--card-border)" }}>
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     Description
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th
+                    className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody style={{ background: "var(--card-bg)" }}>
                 {diseases.map((disease) => (
-                  <tr key={disease.id}>
+                  <tr
+                    key={disease.id}
+                    style={{ borderBottom: "1px solid var(--card-border)" }}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium">{disease.name}</div>
+                      <div
+                        className="font-medium"
+                        style={{ color: "var(--foreground)" }}
+                      >
+                        {disease.name}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-gray-500 dark:text-gray-300">
+                      <div style={{ color: "var(--text-muted)" }}>
                         {disease.description}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => handleEdit(disease)}
-                        className="text-indigo-600 hover:underline mr-4"
+                        style={{ color: "var(--accent)" }}
+                        className="hover:underline mr-4"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(disease)}
-                        className="text-red-600 hover:underline"
+                        style={{ color: "#ef4444" }}
+                        className="hover:underline"
                       >
                         Delete
                       </button>
@@ -170,15 +204,27 @@ export default function DiseasesContent() {
                 e.preventDefault();
                 handleSubmit(formData);
               }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+              className="rounded-lg shadow-md p-6"
+              style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--card-border)",
+              }}
             >
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-200 mb-2">
+                <label
+                  className="block mb-2"
+                  style={{ color: "var(--foreground)" }}
+                >
                   Name
                 </label>
                 <input
                   type="text"
                   className="w-full border rounded px-3 py-2"
+                  style={{
+                    background: "var(--input-bg)",
+                    color: "var(--foreground)",
+                    border: "1px solid var(--card-border)",
+                  }}
                   value={formData.name || ""}
                   onChange={(e) =>
                     setFormData((f: Partial<ApiDisease>) => ({
@@ -190,11 +236,19 @@ export default function DiseasesContent() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-200 mb-2">
+                <label
+                  className="block mb-2"
+                  style={{ color: "var(--foreground)" }}
+                >
                   Description
                 </label>
                 <textarea
                   className="w-full border rounded px-3 py-2"
+                  style={{
+                    background: "var(--input-bg)",
+                    color: "var(--foreground)",
+                    border: "1px solid var(--card-border)",
+                  }}
                   value={formData.description || ""}
                   onChange={(e) =>
                     setFormData((f: Partial<ApiDisease>) => ({
@@ -208,7 +262,11 @@ export default function DiseasesContent() {
               <div className="flex space-x-2">
                 <button
                   type="submit"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                  style={{
+                    background: "var(--button-primary)",
+                    color: "var(--card-bg)",
+                  }}
+                  className="px-4 py-2 rounded hover:brightness-90"
                   disabled={isSubmitting}
                 >
                   {isSubmitting
@@ -219,7 +277,11 @@ export default function DiseasesContent() {
                 </button>
                 <button
                   type="button"
-                  className="bg-gray-500 px-4 py-2 rounded"
+                  style={{
+                    background: "var(--button-secondary)",
+                    color: "var(--foreground)",
+                  }}
+                  className="px-4 py-2 rounded"
                   onClick={handleCancel}
                 >
                   Cancel
@@ -227,32 +289,50 @@ export default function DiseasesContent() {
               </div>
             </form>
           ) : selectedDisease ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-2">
+            <div
+              className="rounded-lg shadow-md p-6"
+              style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--card-border)",
+              }}
+            >
+              <h3
+                className="text-lg font-semibold mb-2"
+                style={{ color: "var(--foreground)" }}
+              >
                 {selectedDisease.name}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-2">
+              <p className="mb-2" style={{ color: "var(--text-muted)" }}>
                 {selectedDisease.description}
               </p>
               <div className="flex space-x-2">
                 <button
                   onClick={() => handleEdit(selectedDisease)}
-                  className="text-indigo-600 hover:underline"
+                  style={{ color: "var(--accent)" }}
+                  className="hover:underline"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(selectedDisease)}
-                  className="text-red-600 hover:underline"
+                  style={{ color: "#ef4444" }}
+                  className="hover:underline"
                 >
                   Delete
                 </button>
               </div>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-64 flex flex-col items-center justify-center text-center">
+            <div
+              className="rounded-lg shadow-md p-6 h-64 flex flex-col items-center justify-center text-center"
+              style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--card-border)",
+              }}
+            >
               <svg
-                className="w-12 h-12 text-gray-400 mb-4"
+                className="w-12 h-12 mb-4"
+                style={{ color: "var(--text-muted)" }}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -265,7 +345,7 @@ export default function DiseasesContent() {
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p style={{ color: "var(--text-muted)" }}>
                 Select a disease from the list to view details or click "Add
                 Disease" to create one
               </p>

@@ -154,7 +154,13 @@ export default function FeaturesContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column: Features list */}
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
+            <div
+              className="shadow rounded-lg"
+              style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--card-border)",
+              }}
+            >
               <FeatureList
                 features={features.filter(
                   (feature) =>
@@ -204,9 +210,16 @@ export default function FeaturesContent() {
                 }}
               />
             ) : (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 h-64 flex flex-col items-center justify-center text-center">
+              <div
+                className="rounded-lg shadow-md p-6 h-64 flex flex-col items-center justify-center text-center"
+                style={{
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--card-border)",
+                }}
+              >
                 <svg
-                  className="w-12 h-12 text-gray-400 mb-4"
+                  className="w-12 h-12 mb-4"
+                  style={{ color: "var(--text-muted)" }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -219,7 +232,7 @@ export default function FeaturesContent() {
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   ></path>
                 </svg>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p style={{ color: "var(--text-muted)" }}>
                   Select a feature from the list to view details or click "Add
                   New Feature" to create one
                 </p>

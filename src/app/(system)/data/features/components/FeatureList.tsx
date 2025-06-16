@@ -54,57 +54,74 @@ export default function FeatureList({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead className="bg-gray-50 dark:bg-gray-700">
+      <table
+        className="min-w-full"
+        style={{
+          background: "var(--card-bg)",
+          border: "1px solid var(--card-border)",
+        }}
+      >
+        <thead style={{ background: "var(--card-border)" }}>
           <tr>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              style={{ color: "var(--text-muted)" }}
             >
               ID
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              style={{ color: "var(--text-muted)" }}
             >
               Image
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              style={{ color: "var(--text-muted)" }}
             >
               Name
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              style={{ color: "var(--text-muted)" }}
             >
               Severity
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider"
+              style={{ color: "var(--text-muted)" }}
             >
               Actions
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody style={{ background: "var(--card-bg)" }}>
           {features.map((feature, index) => (
             <tr
               key={feature.id}
-              className={`hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
-                selectedFeature?.id === feature.id
-                  ? "bg-indigo-50 dark:bg-indigo-900/30"
-                  : ""
-              }`}
+              style={{
+                borderBottom: "1px solid var(--card-border)",
+                background:
+                  selectedFeature?.id === feature.id
+                    ? "var(--accent-light)"
+                    : undefined,
+              }}
+              className={`hover:brightness-95 cursor-pointer`}
               onClick={() => {
                 if (editMode === "view") {
                   onSelect(feature);
                 }
               }}
             >
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+              <td
+                className="px-6 py-4 whitespace-nowrap text-sm"
+                style={{ color: "var(--text-muted)" }}
+              >
                 {index + 1}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -113,11 +130,19 @@ export default function FeatureList({
                     src={`data:image/jpeg;base64,${feature.img}`}
                     alt={feature.name}
                     className="h-10 w-10 rounded-md object-cover"
+                    style={{ border: "1px solid var(--card-border)" }}
                   />
                 ) : (
-                  <div className="h-10 w-10 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center">
+                  <div
+                    className="h-10 w-10 rounded-md flex items-center justify-center"
+                    style={{
+                      background: "var(--input-bg)",
+                      border: "1px solid var(--card-border)",
+                    }}
+                  >
                     <svg
-                      className="h-6 w-6 text-gray-400"
+                      className="h-6 w-6"
+                      style={{ color: "var(--text-muted)" }}
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -134,7 +159,10 @@ export default function FeatureList({
                 )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                <div
+                  className="text-sm font-medium"
+                  style={{ color: "var(--foreground)" }}
+                >
                   {feature.name}
                 </div>
               </td>
@@ -145,7 +173,10 @@ export default function FeatureList({
                     max={maxSeverity.value}
                   />
                 ) : (
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div
+                    className="text-sm"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     —
                   </div>
                 )}
@@ -156,7 +187,8 @@ export default function FeatureList({
                     e.stopPropagation();
                     onEdit(feature);
                   }}
-                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-4"
+                  style={{ color: "var(--accent)" }}
+                  className="hover:underline mr-4"
                 >
                   Edit
                 </button>
@@ -165,7 +197,8 @@ export default function FeatureList({
                     e.stopPropagation();
                     onDelete(feature);
                   }}
-                  className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                  style={{ color: "#ef4444" }}
+                  className="hover:underline"
                 >
                   Delete
                 </button>

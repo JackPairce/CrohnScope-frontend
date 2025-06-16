@@ -110,20 +110,33 @@ export default function FeatureDetails({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-all duration-200 hover:shadow-lg">
+    <div
+      className="rounded-lg shadow-md p-6 transition-all duration-200 hover:shadow-lg"
+      style={{
+        background: "var(--card-bg)",
+        border: "1px solid var(--card-border)",
+      }}
+    >
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+          <h2
+            className="text-xl font-semibold"
+            style={{ color: "var(--foreground)" }}
+          >
             Feature Details
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
             ID: #{feature.id}
           </p>
         </div>
         <div className="flex space-x-2">
           <button
             onClick={() => onEdit(feature)}
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+            style={{
+              background: "var(--button-primary)",
+              color: "var(--card-bg)",
+            }}
+            className="inline-flex items-center px-4 py-2 rounded-md hover:brightness-90 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -143,7 +156,11 @@ export default function FeatureDetails({
           </button>
           <button
             onClick={() => onDelete(feature)}
-            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+            style={{
+              background: "#ef4444",
+              color: "var(--card-bg)",
+            }}
+            className="inline-flex items-center px-4 py-2 rounded-md hover:brightness-90 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -166,30 +183,51 @@ export default function FeatureDetails({
 
       <div className="space-y-6">
         <div className="relative group">
-          <div className="w-full aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+          <div
+            className="w-full aspect-video rounded-lg overflow-hidden"
+            style={{ background: "var(--input-bg)" }}
+          >
             {renderImageContent()}
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6">
           {/* Feature Info Card */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+          <div
+            className="rounded-lg p-6"
+            style={{ background: "var(--card-border)" }}
+          >
+            <h3
+              className="text-lg font-semibold mb-3"
+              style={{ color: "var(--foreground)" }}
+            >
               {feature.name}
             </h3>
             {feature.description && (
-              <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">
+              <p
+                className="text-sm leading-relaxed mb-4"
+                style={{ color: "var(--text-muted)" }}
+              >
                 {feature.description}
               </p>
             )}
 
             {/* Severity Section */}
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+            <div
+              className="pt-4 border-t"
+              style={{ borderColor: "var(--card-border)" }}
+            >
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <h4
+                  className="text-sm font-medium"
+                  style={{ color: "var(--foreground)" }}
+                >
                   Severity Level
                 </h4>
-                <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--accent)" }}
+                >
                   {feature.severity ?? 0} / {maxSeverity.value}
                 </span>
               </div>

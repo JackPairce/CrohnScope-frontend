@@ -61,15 +61,25 @@ export default function FeatureForm({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+    <div
+      className="rounded-lg shadow-md p-6"
+      style={{
+        background: "var(--card-bg)",
+        border: "1px solid var(--card-border)",
+      }}
+    >
+      <h2
+        className="text-xl font-semibold mb-4"
+        style={{ color: "var(--foreground)" }}
+      >
         {editMode === "add" ? "Add New Feature" : "Edit Feature"}
       </h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium mb-1"
+            style={{ color: "var(--foreground)" }}
           >
             Name
           </label>
@@ -78,15 +88,18 @@ export default function FeatureForm({
             id="name"
             value={formData.name || ""}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white ${
-              nameExists
-                ? "border-red-500 dark:border-red-400"
-                : "border-gray-300 dark:border-gray-600"
-            }`}
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            style={{
+              background: "var(--input-bg)",
+              color: "var(--foreground)",
+              border: nameExists
+                ? "1px solid #ef4444"
+                : "1px solid var(--card-border)",
+            }}
             required
           />
-          {nameExists && (
-            <p className="text-red-500 text-xs mt-1">
+          {nameExists && formData.name && (
+            <p style={{ color: "#ef4444" }} className="text-xs mt-1">
               A feature with this name already exists.
             </p>
           )}
@@ -95,7 +108,8 @@ export default function FeatureForm({
         <div className="mb-4">
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium mb-1"
+            style={{ color: "var(--foreground)" }}
           >
             Description
           </label>
@@ -105,14 +119,20 @@ export default function FeatureForm({
             onChange={(e) =>
               setFormData({ ...formData, description: e.target.value })
             }
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white h-24"
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 h-24"
+            style={{
+              background: "var(--input-bg)",
+              color: "var(--foreground)",
+              border: "1px solid var(--card-border)",
+            }}
           />
         </div>
 
         <div className="mb-6">
           <label
             htmlFor="severity"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium mb-1"
+            style={{ color: "var(--foreground)" }}
           >
             Severity
           </label>
@@ -134,7 +154,12 @@ export default function FeatureForm({
                   }
                 }
               }}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-150 ease-in-out"
+              className="px-3 py-2 border rounded-lg shadow-sm text-sm font-medium bg-white hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-150 ease-in-out"
+              style={{
+                color: "var(--foreground)",
+                background: "var(--input-bg)",
+                border: "1px solid var(--card-border)",
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -171,7 +196,12 @@ export default function FeatureForm({
                   });
                 }
               }}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-150 ease-in-out"
+              className="px-3 py-2 border rounded-lg shadow-sm text-sm font-medium bg-white hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-150 ease-in-out"
+              style={{
+                color: "var(--foreground)",
+                background: "var(--input-bg)",
+                border: "1px solid var(--card-border)",
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -187,7 +217,7 @@ export default function FeatureForm({
               </svg>
             </button>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
             Adjust the severity level of this feature
           </p>
         </div>
@@ -195,7 +225,8 @@ export default function FeatureForm({
         <div className="mb-6">
           <label
             htmlFor="featureImage"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="block text-sm font-medium mb-1"
+            style={{ color: "var(--foreground)" }}
           >
             Feature Image
           </label>
@@ -205,13 +236,21 @@ export default function FeatureForm({
                 <img
                   src={`data:image/jpeg;base64,${formData.img}`}
                   alt="Feature preview"
-                  className="h-24 w-24 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                  className="h-24 w-24 object-cover rounded-md"
+                  style={{ border: "1px solid var(--card-border)" }}
                 />
               </div>
             ) : (
-              <div className="mr-4 h-24 w-24 bg-gray-100 dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 flex items-center justify-center">
+              <div
+                className="mr-4 h-24 w-24 rounded-md flex items-center justify-center"
+                style={{
+                  background: "var(--input-bg)",
+                  border: "1px solid var(--card-border)",
+                }}
+              >
                 <svg
-                  className="h-12 w-12 text-gray-400"
+                  className="h-12 w-12"
+                  style={{ color: "var(--text-muted)" }}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -227,7 +266,14 @@ export default function FeatureForm({
               </div>
             )}
             <div>
-              <label className="cursor-pointer bg-white dark:bg-gray-700 py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <label
+                className="cursor-pointer py-2 px-3 rounded-md shadow-sm text-sm leading-4 font-medium hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                style={{
+                  background: "var(--input-bg)",
+                  color: "var(--foreground)",
+                  border: "1px solid var(--card-border)",
+                }}
+              >
                 <span>Upload a file</span>
                 <input
                   id="featureImage"
@@ -240,7 +286,7 @@ export default function FeatureForm({
               </label>
             </div>
           </div>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
             Upload a feature image (PNG, JPG, GIF up to 5MB)
           </p>
         </div>
@@ -253,14 +299,23 @@ export default function FeatureForm({
               maxSeverity.setter(previousMaxSeverity);
               onCancel();
             }}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="px-4 py-2 border rounded-md shadow-sm text-sm font-medium hover:brightness-95"
+            style={{
+              color: "var(--foreground)",
+              background: "var(--button-secondary)",
+              border: "1px solid var(--card-border)",
+            }}
             disabled={isSubmitting}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="inline-flex justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70"
+            className="inline-flex justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium"
+            style={{
+              background: "var(--button-primary)",
+              color: "var(--card-bg)",
+            }}
             disabled={isSubmitting || !!nameExists}
           >
             {isSubmitting ? (
