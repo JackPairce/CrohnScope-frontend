@@ -4,7 +4,6 @@ import { components, paths } from "./types";
 // Types
 export type ApiImage = components["schemas"]["ApiImage"];
 export type ImageListResponse = components["schemas"]["ImageListResponse"];
-export type process_type = components["schemas"]["process_type"];
 
 /**
  * Interface for image status information
@@ -25,25 +24,6 @@ export const getAllImages = async (
   page: number
 ): Promise<ImageListResponse> => {
   const response = await apiClient.get("/images/all/" + page);
-  return response.data;
-};
-
-/**
- * Get a paginated list of images
- * @param page - The page number to retrieve
- * @param done - Optional flag to filter by completion status
- * @returns Promise with the image list response
- */
-export const getImages = async (
-  page: number,
-  which: process_type,
-  done?: boolean
-): Promise<ImageListResponse> => {
-  const response = await apiClient.get(
-    `/images/which_all/${page}${
-      done !== undefined ? `?done=${done ? 1 : 0}` : ""
-    }&which=${which}`
-  );
   return response.data;
 };
 

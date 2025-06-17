@@ -10,16 +10,16 @@ export type ApiFeature = components["schemas"]["ApiFeature"];
  * @returns Promise with Features data
  */
 export const getFeatures = async (): Promise<
-  paths["/features/all"]["get"]["responses"]["200"]["content"]["application/json"]
+  paths["/features"]["get"]["responses"]["200"]["content"]["application/json"]
 > => {
-  const response = await apiClient.get(`/features/all`);
+  const response = await apiClient.get(`/features`);
   return response.data;
 };
 
 export const addFeatures = async (
-  features: paths["/features/"]["post"]["requestBody"]["content"]["application/json"]
+  features: paths["/features"]["post"]["requestBody"]["content"]["application/json"]
 ): Promise<
-  paths["/features/"]["post"]["responses"]["200"]["content"]["application/json"]
+  paths["/features"]["post"]["responses"]["200"]["content"]["application/json"]
 > => {
   const response = await apiClient.post(`/features`, features);
   return response.data;

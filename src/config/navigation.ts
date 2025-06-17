@@ -40,18 +40,12 @@ export const dataProcessingLinks: NavLink[] = [
     href: "/data/segmentation",
     icon: "/svgs/segmentation.svg",
   },
-  {
-    name: "Classification",
-    href: "/data/classification",
-    icon: "/svgs/classification-new.svg",
-  },
 ];
 
 const pipelineStepDescriptions: Record<string, string> = {
   "Disease Management": "Manage and create disease types for analysis",
   "Features Management": "Manage and create features for image analysis",
   "Image Library": "Import and organize microscopy images",
-  Segmentation: "Analyze and segment features with AI-assisted tools",
   Classification: "Classify and label segmented features",
 };
 

@@ -1,9 +1,7 @@
 "use client";
 
-import { DialogAction } from "@/components/ConfirmDialog";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
-import { useAnnotationContext } from "@/contexts/AnnotationContext";
-import { ApiImage, process_type } from "@/lib/api";
+import { ApiImage } from "@/lib/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import EmptyState from "./EmptyState";
@@ -16,7 +14,7 @@ import { useImages } from "./useImages";
 
 const queryClient = new QueryClient();
 
-export default function ImagesNav({ which }: { which: process_type }) {
+export default function ImagesNav() {
   const [hide, setHide] = useState(false);
   const addToast = (message: string, type: ToastType) => {
     const id = Date.now().toString();
@@ -69,14 +67,12 @@ export default function ImagesNav({ which }: { which: process_type }) {
       {" "}
       <section className="images-nav">
         <ImagesSection
-          which={which}
           hide={hide}
           setHide={setHide}
           addToast={addToast}
           refreshCounter={forceRefresh}
         />
         <ImagesSection
-          which={which}
           hide={!hide}
           setHide={setHide}
           done
@@ -99,7 +95,6 @@ export default function ImagesNav({ which }: { which: process_type }) {
 }
 
 interface ImagesSectionProps {
-  which: process_type;
   done?: boolean;
   hide: boolean;
   setHide: Dispatch<SetStateAction<boolean>>;
@@ -108,7 +103,6 @@ interface ImagesSectionProps {
 }
 
 function ImagesSection({
-  which,
   done,
   hide,
   setHide,
@@ -117,7 +111,7 @@ function ImagesSection({
 }: ImagesSectionProps) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const { images, isLoading, isError, pageLength, loadNextPage, selectImage } =
-    useImages(which, !!done, addToast, refreshCounter);
+    useImages(!!done, addToast, refreshCounter);
 
   // Create a wrapper for the selectImage function to avoid re-selecting current image
   const handleSelectImage = async (image: ApiImage, index: number) => {

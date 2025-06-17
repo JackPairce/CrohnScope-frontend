@@ -1,5 +1,5 @@
 "use client";
-import type { DataType } from "./DataList";
+import type { DataType } from "./types";
 
 interface DataHeaderProps {
   type: DataType;

@@ -3,18 +3,20 @@ import { components, paths } from "./types";
 
 // Types
 export type ApiMask = components["schemas"]["ApiMask"];
-export type MaskMatricesResponse =
-  components["schemas"]["MaskMatricesResponse"];
-export type SaveMaskRequest =
-  paths["/masks/save/{image_id}"]["post"]["requestBody"]["content"]["application/json"];
+export type SaveMaskRequest = components["schemas"]["MaskSaveRequest"];
+export type ApiMaskArray = components["schemas"]["MaskArray"];
 
 /**
  * Get masks for an image
  * @param imageId - The ID of the image
  * @returns Promise with mask data
  */
-export const getMask = async (imageId: number): Promise<ApiMask[]> => {
-  const response = await apiClient.get(`/masks/get/${imageId}`);
+export const getMask = async (
+  imageId: number
+): Promise<
+  paths["/masks/{image_id}"]["get"]["responses"]["200"]["content"]["application/json"]
+> => {
+  const response = await apiClient.get(`/masks/${imageId}`);
   return response.data;
 };
 
@@ -24,11 +26,10 @@ export const getMask = async (imageId: number): Promise<ApiMask[]> => {
  * @param masks - Array of mask data to save
  * @returns Promise with success message
  */
-export const uploadMasks = async (
-  imageId: number,
+export const saveMask = async (
   masks: SaveMaskRequest
 ): Promise<{ message: string }> => {
-  const response = await apiClient.post(`/masks/save/${imageId}`, masks);
+  const response = await apiClient.post(`/masks`, masks);
   return response.data;
 };
 
@@ -38,46 +39,8 @@ export const uploadMasks = async (
  * @returns Promise with success message
  */
 export const setMaskDone = async (
-  maskId: paths["/masks/done/{mask_id}"]["put"]["parameters"]["path"]["mask_id"],
-  which: paths["/masks/done/{mask_id}"]["put"]["parameters"]["query"]["which"]
+  maskId: paths["/masks/{mask_id}"]["put"]["parameters"]["path"]["mask_id"]
 ): Promise<{ message: string }> => {
-  const response = await apiClient.put(`/masks/done/${maskId}`);
+  const response = await apiClient.put(`/masks/${maskId}`);
   return response.data;
-};
-
-/**
- * Alternate (swap) two masks for an image
- * @param imageId - The ID of the image
- * @param mask1 - First mask filename
- * @param mask2 - Second mask filename
- * @returns Promise with success message
- */
-export const alternateMasks = async (
-  imageId: number,
-  mask1: string,
-  mask2: string
-): Promise<{ message: string }> => {
-  const response = await apiClient.post("/masks/alternate", {
-    imageId,
-    mask1,
-    mask2,
-  });
-  return response.data;
-};
-
-/**
- * Get mask matrices with labeled regions for an image
- * @param imageId - The ID of the image
- * @returns Promise with mask matrices data
- */
-export const getMaskMatrices = async (
-  imageId: number
-): Promise<MaskMatricesResponse> => {
-  try {
-    const response = await apiClient.get(`/masks/matrices/${imageId}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching mask matrices:", error);
-    throw new Error("Failed to get mask matrices");
-  }
 };

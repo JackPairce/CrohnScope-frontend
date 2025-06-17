@@ -4,33 +4,21 @@ import {
   useAnnotationContext,
 } from "@/contexts/AnnotationContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
 import EmptyStatePage from "./EmptyStatePage";
 import ImagesNav from "./ImagesNav";
 import "./styles.scss";
-import { process_type } from "@/lib/api";
+import BaseCanvas from "./BaseCanvas";
 
-const ClassificationCanvas = dynamic(() => import("./ClassificationCanvas"), {
-  ssr: false,
-});
-const MaskDrawingCanvas = dynamic(() => import("./MaskDrawingCanvas"), {
-  ssr: false,
-});
-
-interface Props {
-  areaType: process_type;
-}
-
-export default function AnnotationCanvas({ areaType }: Props) {
+export default function AnnotationCanvas() {
   const queryClient = new QueryClient();
 
   return (
     <AnnotationProvider>
       <div className="workspace-container">
-        <ImagesNav which={areaType} />
+        <ImagesNav />
         <section className="workspace-content">
           <QueryClientProvider client={queryClient}>
-            <AnnotationContent areaType={areaType} />
+            <AnnotationContent />
           </QueryClientProvider>
         </section>
       </div>
@@ -38,18 +26,10 @@ export default function AnnotationCanvas({ areaType }: Props) {
   );
 }
 
-function AnnotationContent({ areaType }: Props) {
-  const { currentImage } = useAnnotationContext();
+function AnnotationContent() {
+  const {
+    states: { currentImage },
+  } = useAnnotationContext();
 
-  return currentImage ? (
-    <>
-      {areaType === "segmentation" ? (
-        <MaskDrawingCanvas image={currentImage} />
-      ) : (
-        <ClassificationCanvas image={currentImage} />
-      )}
-    </>
-  ) : (
-    <EmptyStatePage />
-  );
+  return currentImage ? <BaseCanvas /> : <EmptyStatePage />;
 }

@@ -1,5 +1,7 @@
 import ThemeToggle from "@/components/ThemeToggle";
 import UserProfileButton from "@/components/UserProfileButton";
+import { authApi } from "@/lib/api";
+import { redirect } from "next/navigation";
 import "./styles.scss";
 
 const featuresList = [
@@ -23,7 +25,11 @@ const featuresList = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  await authApi.checkAuth().catch(() => {
+    redirect("/auth");
+  });
+
   return (
     <div className="home-page">
       <div className="header-controls">

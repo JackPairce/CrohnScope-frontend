@@ -160,6 +160,7 @@ export default function DiseasesContent() {
                   selectedDisease?.name.toLowerCase() &&
                 disease.id !== selectedDisease?.id
             )}
+            isSubmitting={isSubmitting}
             editMode={editMode}
           />
         </div>

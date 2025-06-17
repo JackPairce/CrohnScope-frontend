@@ -1,6 +1,4 @@
-import { getFeatures, getMask } from "@/lib/api";
-import { Dispatch, SetStateAction } from "react";
-import type { DataProcessingMode, Mask, Tab } from "./types";
+import type { Mask, MaskArray } from "./types";
 
 export const colorMappingToUser = {
   "0,0,0": "0,0,0,0",
@@ -11,23 +9,15 @@ export const colorMappingToModel = Object.fromEntries(
   Object.entries(colorMappingToUser).map(([k, v]) => [v, k])
 );
 
-export const NewMask = async (width: number, height: number): Promise<Mask> => {
-  // black image
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Failed to get canvas context");
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, width, height);
-
-  return await CanvasToMask(canvas);
+export const NewMaskArray = (width: number, height: number): MaskArray => {
+  return Array.from({ length: height }, () => new Uint8Array(width));
 };
 
-export const CanvasToMask = (canvas: HTMLCanvasElement): Promise<Mask> => {
+export const CanvasToImageElement = (
+  canvas: HTMLCanvasElement
+): Promise<HTMLImageElement> => {
   const img = new Image();
   img.src = canvas.toDataURL();
-
   return new Promise((resolve) => {
     img.onload = () => {
       resolve(img);
@@ -35,65 +25,49 @@ export const CanvasToMask = (canvas: HTMLCanvasElement): Promise<Mask> => {
   });
 };
 
-export function drawMaskToCanvas(
-  mask: Mask,
+export const CanvasToMaskArray = async (
   canvas: HTMLCanvasElement,
-  colorMap: { [value: string]: string }
-) {
-  const validateColorFormat = (key: string): boolean =>
-    key.split(",").length >= 3 &&
-    key.split(",").length <= 4 &&
-    key.split(",").every((value) => !isNaN(Number(value))) &&
-    key.split(",").every((value) => Number(value) >= 0 && Number(value) <= 255);
-  // check if colorMap keys and values are valid
-  const keysValid = Object.keys(colorMap).every(validateColorFormat);
-  const valuesValid = Object.values(colorMap).every(validateColorFormat);
-  if (!keysValid || !valuesValid) {
-    throw new Error("Invalid colorMap format");
+  id: number
+): Promise<MaskArray> => {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Failed to get canvas context");
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const maskArray = NewMaskArray(canvas.width, canvas.height);
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const index = (y * canvas.width + x) * 4;
+      const a = imageData.data[index + 3]; // alpha channel
+      maskArray[y][x] = a > 0 ? id : 0;
+    }
   }
+  return maskArray;
+};
+
+export function drawMaskToCanvas(mask: MaskArray, canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Failed to get canvas context");
   // clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (mask instanceof Promise) {
-    mask.then((mask) => {
-      drawMaskToCanvas(mask, canvas, colorMap);
-    });
-    return;
-  }
-
-  ctx.drawImage(mask, 0, 0, canvas.width, canvas.height);
-
   if (!ctx) throw new Error("Failed to get canvas context");
   // get image data
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-  for (const [key, value] of Object.entries(colorMap)) {
-    const [R_target, G_target, B_target, _] = key.split(",").map(Number);
-    const [R_replace, G_replace, B_replace, A_replace] = value
-      .split(",")
-      .map(Number);
-
-    for (let y = 0; y < canvas.height; y++) {
-      for (let x = 0; x < canvas.width; x++) {
-        const index = (y * canvas.width + x) * 4;
-        const r = imageData.data[index + 0];
-        const g = imageData.data[index + 1];
-        const b = imageData.data[index + 2];
-        if (r === R_target && g === G_target && b === B_target) {
-          imageData.data[index + 0] = R_replace;
-          imageData.data[index + 1] = G_replace;
-          imageData.data[index + 2] = B_replace;
-          imageData.data[index + 3] = A_replace ?? 255; // default to 255 if not provided
-        }
+  for (let y = 0; y < mask.length; y++) {
+    for (let x = 0; x < mask[y].length; x++) {
+      if (mask[y] === undefined || mask[y][x] === undefined) {
+        console.warn(`Mask array is not defined for coordinates (${x}, ${y})`);
       }
+      const index = (y * canvas.width + x) * 4;
+      imageData.data[index + 0] = 255;
+      imageData.data[index + 1] = 255;
+      imageData.data[index + 2] = 255;
+      imageData.data[index + 3] = mask[y][x] > 0 ? 255 : 0;
     }
   }
   ctx.putImageData(imageData, 0, 0);
 }
-type MaskArray = (0 | 1)[][];
-export function MaskToArray(mask: HTMLImageElement): MaskArray {
+export function MaskToArray(mask: HTMLImageElement): (0 | 1)[][] {
   const canvas = document.createElement("canvas");
   const width = mask.naturalWidth;
   const height = mask.naturalHeight;
@@ -116,7 +90,7 @@ export function MaskToArray(mask: HTMLImageElement): MaskArray {
   return array;
 }
 
-export function Img2Mask(imageSrc: string) {
+export function CreateImageElementFromSrc(imageSrc: string) {
   const img = new Image();
   img.src = imageSrc;
   return new Promise<Mask>((resolve) => {
@@ -126,7 +100,7 @@ export function Img2Mask(imageSrc: string) {
   });
 }
 
-export function ArrayToImg(array: (0 | 1 | 2)[][]) {
+export function ArrayToImg(array: MaskArray) {
   const canvas = document.createElement("canvas");
   const width = array[0].length;
   const height = array.length;
@@ -149,64 +123,6 @@ export function ArrayToImg(array: (0 | 1 | 2)[][]) {
   ctx.putImageData(imageData, 0, 0);
 
   return canvas.toDataURL();
-}
-
-export function LoadMasks(
-  image: {
-    id: number;
-    filename: string;
-    src: string;
-    is_done: boolean;
-  },
-  setIsLoading: Dispatch<SetStateAction<boolean>>,
-  setImgDim: Dispatch<
-    SetStateAction<{
-      width: number;
-      height: number;
-    } | null>
-  >,
-  setTabs: Dispatch<SetStateAction<Tab[]>>,
-  setSelectedTab: Dispatch<SetStateAction<number>>,
-  DataTransformationMode: DataProcessingMode
-) {
-  setIsLoading(true);
-  const img = new Image();
-  img.src = image.src;
-  img.onload = async () => {
-    setImgDim({
-      width: img.naturalWidth,
-      height: img.naturalHeight,
-    });
-    const masks = await getMask(image.id);
-    const features = await getFeatures(image.id);
-    const tabs = await Promise.all(
-      features.map(async (feature) => {
-        const mask = masks.find((mask) => mask.feature_id === feature.id);
-        let currentMask = mask
-          ? await Img2Mask(mask.src)
-          : await NewMask(img.naturalWidth, img.naturalHeight);
-        currentMask =
-          currentMask.width == img.naturalWidth &&
-          currentMask.height == img.naturalHeight
-            ? currentMask
-            : await NewMask(img.naturalWidth, img.naturalHeight);
-        return {
-          mask_id: mask?.id,
-          feature_id: feature.id,
-          name: feature.name,
-          isRename: false,
-          mask: currentMask,
-          isDone:
-            DataTransformationMode === "segmentation"
-              ? mask?.is_segmented
-              : mask?.is_annotated,
-        } as Tab;
-      })
-    );
-    setTabs(tabs);
-    setSelectedTab(tabs.length ? 0 : NaN);
-    setIsLoading(false);
-  };
 }
 
 export function NdarrayToImgSrc(array: number[][][]): string {

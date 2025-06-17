@@ -37,5 +37,5 @@ export default function SegmentationContent() {
     return <Loader message="Loading segmentation canvas..." />;
   }
 
-  return <AnnotationCanvas areaType="segmentation" />;
+  return <AnnotationCanvas />;
 }

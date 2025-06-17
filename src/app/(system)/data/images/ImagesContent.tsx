@@ -30,7 +30,6 @@ export default function ImagesContent() {
 
   const {
     images,
-    page,
     pageLength,
     isLoading,
     isError,
@@ -38,7 +37,6 @@ export default function ImagesContent() {
     handleUploadImage: uploadImage,
     handleDeleteImage: deleteImage,
   } = useImages(
-    "all",
     false, // done
     addToast
   );
