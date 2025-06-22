@@ -17,8 +17,8 @@ export default function SectionHeader({
   return (
     <>
       {/* Section header */}
-      <div className="section-header">
-        <h3 className="section-title" onClick={onToggle}>
+      <div className="section-header" onClick={onToggle}>
+        <h3 className="section-title">
           {isDone ? "Completed Images" : "Pending Images"}
           <span className="section-count">
             {Number.isNaN(count) ? 0 : count}
@@ -27,7 +27,6 @@ export default function SectionHeader({
         <div className="section-actions">
           <span
             className={`toggle-icon ${isCollapsed ? "collapsed" : "expanded"}`}
-            onClick={onToggle}
           >
             <Image
               src="/svgs/chevron.svg"

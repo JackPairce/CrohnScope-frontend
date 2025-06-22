@@ -21,9 +21,12 @@ export interface ImageStatus {
  * @returns Promise with the image list response
  */
 export const getAllImages = async (
-  page: number
+  page: number,
+  done?: boolean
 ): Promise<ImageListResponse> => {
-  const response = await apiClient.get("/images/all/" + page);
+  const response = await apiClient.get(
+    "/images/all/" + page + (done !== undefined ? `?done=${done}` : "")
+  );
   return response.data;
 };
 

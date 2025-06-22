@@ -15,10 +15,12 @@ interface UseImagesResult {
   isError: string;
   pageLength: number;
   page: number;
+  selectedImage: number | null;
   loadNextPage: () => void;
   selectImage: (image: ApiImage) => Promise<boolean>;
   handleUploadImage: (file: File) => Promise<void>;
   handleDeleteImage: (imageId: number, imageName: string) => Promise<boolean>;
+  setSelectedImage: (id: number) => void;
 }
 
 export function useImages(
@@ -29,6 +31,7 @@ export function useImages(
   const {
     actions: { setCurrentImage },
   } = useAnnotationContext();
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [isError, setIsError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [images, setImages] = useState<ApiImage[]>([]);
@@ -55,7 +58,7 @@ export function useImages(
   // Load images on component mount, when page changes, and when refreshCounter changes
   useEffect(() => {
     setIsLoading(true);
-    getAllImages(page)
+    getAllImages(page, done)
       .then((res) => {
         if (res.total !== pageLength) setPageLength(res.total);
         setImages((prev) => [
@@ -63,6 +66,12 @@ export function useImages(
           ...(page === 1 ? [] : prev),
           ...res.images.map((item) => formatImageForDisplay(item)),
         ]);
+        // find the first image that has same id as selectedImage
+        const firstImage = res.images.find((img) => img.id === selectedImage);
+        if (!firstImage && selectedImage) {
+          // If the selected image is not found, reset selectedImage
+          setSelectedImage(null);
+        }
         setIsLoading(false);
       })
       .catch((error) => {
@@ -149,9 +158,11 @@ export function useImages(
     isError,
     pageLength,
     page,
+    selectedImage,
     loadNextPage,
     selectImage,
     handleUploadImage,
     handleDeleteImage,
+    setSelectedImage: (id: number) => setSelectedImage(id),
   };
 }

@@ -9,16 +9,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "i.pravatar.cc",
-        port: "",
-        pathname: "/**",
-      },
-    ],
-  },
+  output: "standalone",
 };
 
 export default nextConfig;

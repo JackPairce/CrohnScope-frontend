@@ -1,6 +1,7 @@
 "use client";
 
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
+import { useAnnotationContext } from "@/contexts/AnnotationContext";
 import { ApiImage } from "@/lib/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -23,40 +24,23 @@ export default function ImagesNav() {
   const [toasts, setToasts] = useState<
     Array<{ id: string; message: string; type: ToastType }>
   >([]);
-  const [forceRefresh, setForceRefresh] = useState(0); // Counter to force refresh of images
-  // Listen for imageCompleted events to move images between lists
+  const {
+    states: { forceImagesRefresh },
+    actions: { setCurrentImage },
+  } = useAnnotationContext();
+  const [oldStateRefresh, setOldStateRefresh] = useState(forceImagesRefresh);
+
   useEffect(() => {
-    // Define the type for our custom event
-    type ImageCompletedEvent = CustomEvent<{
-      imageId: number;
-      image: ApiImage;
-    }>;
-
-    const handleImageCompleted = (event: ImageCompletedEvent) => {
-      // Force a refresh of both image lists
-      setForceRefresh((prev) => prev + 1);
-
-      // Show a toast notification
-      addToast(
-        `Image ${event.detail.image.filename} marked as completed!`,
-        "success"
-      );
-    };
-
-    // Add event listener
-    window.addEventListener(
-      "imageCompleted",
-      handleImageCompleted as EventListener
-    );
-
-    // Clean up
-    return () => {
-      window.removeEventListener(
-        "imageCompleted",
-        handleImageCompleted as EventListener
-      );
-    };
-  }, [addToast]);
+    // Show a toast notification
+    if (forceImagesRefresh > oldStateRefresh) {
+      addToast(`Image marked as completed!`, "success");
+      // Reset the current image when a new image is marked as completed
+      setCurrentImage(null);
+    } else if (forceImagesRefresh < oldStateRefresh) {
+      addToast(`Mask is saved!`, "info");
+    }
+    setOldStateRefresh(forceImagesRefresh);
+  }, [forceImagesRefresh]);
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -70,14 +54,14 @@ export default function ImagesNav() {
           hide={hide}
           setHide={setHide}
           addToast={addToast}
-          refreshCounter={forceRefresh}
+          refreshCounter={forceImagesRefresh}
         />
         <ImagesSection
           hide={!hide}
           setHide={setHide}
           done
           addToast={addToast}
-          refreshCounter={forceRefresh}
+          refreshCounter={forceImagesRefresh}
         />
       </section>
       <ToastContainer>
@@ -109,20 +93,27 @@ function ImagesSection({
   addToast,
   refreshCounter,
 }: ImagesSectionProps) {
-  const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const { images, isLoading, isError, pageLength, loadNextPage, selectImage } =
-    useImages(!!done, addToast, refreshCounter);
+  const {
+    images,
+    isLoading,
+    isError,
+    pageLength,
+    selectedImage,
+    loadNextPage,
+    selectImage,
+    setSelectedImage,
+  } = useImages(!!done, addToast, refreshCounter);
 
   // Create a wrapper for the selectImage function to avoid re-selecting current image
-  const handleSelectImage = async (image: ApiImage, index: number) => {
+  const handleSelectImage = async (image: ApiImage, id: number) => {
     // If this image is already selected, do nothing
-    if (selectedImage === index) {
+    if (selectedImage === id) {
       return;
     }
     // Otherwise, select the image
     selectImage(image)
       .then((selected) => {
-        if (selected) setSelectedImage(index);
+        if (selected) setSelectedImage(id);
       })
       .catch((error) => {
         console.error("Error selecting image:", error);
@@ -144,7 +135,7 @@ function ImagesSection({
         isDone={!!done}
         isCollapsed={hide}
         count={Number.isNaN(pageLength) ? 0 : pageLength}
-        onToggle={() => setHide(!hide)}
+        onToggle={() => setHide((prev) => !prev)}
       />
 
       {!hide && (
@@ -157,8 +148,8 @@ function ImagesSection({
                   <ImageItem
                     key={index}
                     image={image}
-                    isSelected={selectedImage === index}
-                    onSelect={() => handleSelectImage(image, index)}
+                    isSelected={selectedImage === image.id}
+                    onSelect={() => handleSelectImage(image, image.id)}
                   />
                 ))}
               </ul>

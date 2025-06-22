@@ -1376,7 +1376,9 @@ export interface operations {
   };
   get_images_all_images_all__page__get: {
     parameters: {
-      query?: never;
+      query?: {
+        done?: boolean;
+      };
       header?: never;
       path: {
         page: number;

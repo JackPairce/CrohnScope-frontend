@@ -79,7 +79,7 @@ export default function Layout({
           </div>
         </div>
         <div className="flex items-center gap-4">
-          {/* Data Pipeline Button */}
+          {/* Data Processing Button */}
           <Link
             href="/data"
             className="inline-flex items-center px-3 py-1.5 rounded transition-colors text-sm font-medium shadow-sm"
@@ -121,7 +121,7 @@ export default function Layout({
                 />
               </svg>
             </span>
-            Data Pipeline
+            Data Processing
           </Link>
           {showUserMenu && (
             <div className="flex items-center gap-4">

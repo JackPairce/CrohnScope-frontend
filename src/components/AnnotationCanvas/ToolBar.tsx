@@ -6,21 +6,15 @@ import { MaskArray, modes, ModesLabels } from "./types";
 
 export default function ToolBar() {
   const {
-    states: {
-      currentImage,
-      mode,
-      brushSize,
-      imgDim,
-      tabs,
-      selectedTab,
-      saveStatus,
-    },
+    states: { currentImage, mode, brushSize, imgDim, saveStatus },
     actions: {
+      setCurrentImage,
       setMode,
       setBrushSize,
       setSaveStatus,
       triggerMaskReset,
-      defaultActions: { saveMask, markDone },
+      saveMask,
+      markDone,
       generateWithAI,
     },
   } = useAnnotationContext();

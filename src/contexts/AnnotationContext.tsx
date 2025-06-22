@@ -52,6 +52,7 @@ interface AnnotationContextState {
     tabs: Tab[];
     selectedTab: number;
     saveStatus: SaveSatues;
+    forceImagesRefresh: number; // Counter to force refresh of images
   };
 
   actions: {
@@ -70,10 +71,8 @@ interface AnnotationContextState {
     generateWithAI: () => Promise<void>;
     setCurrentStainView: Dispatch<SetStateAction<StainViewType | null>>;
 
-    defaultActions: {
-      saveMask: (image: ImageMask) => Promise<void>;
-      markDone: (id: number) => Promise<void>;
-    };
+    saveMask: (image: ImageMask) => Promise<void>;
+    markDone: (id: number) => Promise<void>;
   };
 }
 const initialAnnotationContext: AnnotationContextState = {
@@ -99,6 +98,7 @@ const initialAnnotationContext: AnnotationContextState = {
     },
     currentStainView: "original",
     triggerMaskReset: 0,
+    forceImagesRefresh: 0, // Counter to force refresh of images
   },
   actions: {
     setMode: () => {},
@@ -116,17 +116,11 @@ const initialAnnotationContext: AnnotationContextState = {
     generateWithAI: async () => {},
     setCurrentStainView: () => {},
     triggerMaskReset: () => {},
-
-    defaultActions: {
-      saveMask: async (image: ImageMask) => {
-        await saveMask({
-          image_id: image.id,
-          data: image.mask.map((row) => Array.from(row)),
-        });
-      },
-      markDone: async (id: number) => {
-        await setMaskDone(id);
-      },
+    saveMask: async () => {
+      throw new Error("saveMask function not implemented");
+    },
+    markDone: async () => {
+      throw new Error("markDone function not implemented");
     },
   },
 };
@@ -136,6 +130,7 @@ const AnnotationContext = createContext<AnnotationContextState>(
 );
 
 export function AnnotationProvider({ children }: { children: ReactNode }) {
+  const [forceRefresh, setForceRefresh] = useState(0); // Counter to force refresh of images
   const [currentImage, setCurrentImageState] = useState<ImageMask | null>(
     initialAnnotationContext.states.currentImage
   );
@@ -227,9 +222,7 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
           case "save-and-continue":
             try {
               if (currentImage)
-                await initialAnnotationContext.actions.defaultActions.saveMask(
-                  currentImage
-                );
+                await initialAnnotationContext.actions.saveMask(currentImage);
             } catch (error) {
               console.error("Error saving:", error);
               throw error;
@@ -314,6 +307,7 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
       currentStainView,
       showOtherFeatures,
       triggerMaskReset,
+      forceImagesRefresh: forceRefresh,
     },
     actions: {
       setMode,
@@ -361,7 +355,25 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
         }));
       },
       setCurrentStainView,
-      defaultActions: initialAnnotationContext.actions.defaultActions,
+      saveMask: async (image: ImageMask) => {
+        await saveMask({
+          image_id: image.id,
+          data: image.mask.map((row) => Array.from(row)),
+        });
+        setCurrentImageState((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            is_done: false,
+          };
+        });
+        setForceRefresh((prev) => prev - 1); // Decrement counter to force refresh of images
+      },
+      markDone: async (id: number) => {
+        await setMaskDone(id);
+        setCurrentImageState(null);
+        setForceRefresh((prev) => prev + 1); // Increment counter to force refresh of images
+      },
     },
   };
 

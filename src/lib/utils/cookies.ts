@@ -6,6 +6,7 @@ interface CookieOptions {
   maxAge?: number;
   domain?: string;
   secure?: boolean;
+  httpOnly?: boolean;
   sameSite?: "Strict" | "Lax" | "None";
 }
 
@@ -24,6 +25,7 @@ export function setCookie(
     domain,
     secure = process.env.NODE_ENV === "production",
     sameSite = "Lax",
+    httpOnly = false,
   } = options;
 
   let cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
@@ -34,6 +36,7 @@ export function setCookie(
   if (domain) cookie += `; domain=${domain}`;
   if (secure) cookie += "; secure";
   if (sameSite) cookie += `; samesite=${sameSite}`;
+  if (httpOnly) cookie += "; httponly";
 
   document.cookie = cookie;
 }
@@ -66,8 +69,9 @@ export const authCookies = {
     // get exp from token
     const { exp } = JSON.parse(atob(token.split(".")[1]));
     setCookie("token", token, {
-      secure: true,
-      sameSite: "Strict",
+      // TODO: enable in production
+      secure: false,
+      sameSite: "Lax",
       maxAge: exp - Math.floor(Date.now() / 1000),
     });
   },
