@@ -8,7 +8,6 @@ export default function ToolBar() {
   const {
     states: { currentImage, mode, brushSize, imgDim, saveStatus },
     actions: {
-      setCurrentImage,
       setMode,
       setBrushSize,
       setSaveStatus,
