@@ -64,10 +64,13 @@ export default function ImagesContent() {
     <div className="container mx-auto px-4 py-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+          <h1
+            className="text-3xl font-bold"
+            style={{ color: "var(--foreground)" }}
+          >
             Image Library
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">
+          <p className="mt-1" style={{ color: "var(--text-muted)" }}>
             Browse and manage your image collection
           </p>
         </div>
@@ -81,7 +84,6 @@ export default function ImagesContent() {
                 `Image ${image.filename} uploaded successfully`,
                 "success"
               );
-              // Images will be refreshed by the useImages hook's internal state management
             }}
             onError={(err) => {
               console.error("Error uploading image:", err);
@@ -106,10 +108,16 @@ export default function ImagesContent() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search images..."
-              className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{
+                background: "var(--input-bg)",
+                color: "var(--foreground)",
+                borderColor: "var(--card-border)",
+              }}
+              className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <svg
-              className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+              className="absolute left-3 top-2.5 h-5 w-5"
+              style={{ color: "var(--text-muted)" }}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -124,13 +132,22 @@ export default function ImagesContent() {
             </svg>
           </div>
 
-          <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+          <div
+            className="flex items-center space-x-2 rounded-lg p-1"
+            style={{ background: "var(--input-bg)" }}
+          >
             <button
               onClick={() => setViewMode("grid")}
+              style={{
+                background:
+                  viewMode === "grid" ? "var(--card-bg)" : "transparent",
+                color:
+                  viewMode === "grid"
+                    ? "var(--foreground)"
+                    : "var(--text-muted)",
+              }}
               className={`p-2 rounded-md ${
-                viewMode === "grid"
-                  ? "bg-white dark:bg-gray-600 shadow"
-                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                viewMode === "grid" ? "shadow" : "hover:text-gray-700"
               }`}
             >
               <svg
@@ -152,10 +169,16 @@ export default function ImagesContent() {
             </button>
             <button
               onClick={() => setViewMode("list")}
+              style={{
+                background:
+                  viewMode === "list" ? "var(--card-bg)" : "transparent",
+                color:
+                  viewMode === "list"
+                    ? "var(--foreground)"
+                    : "var(--text-muted)",
+              }}
               className={`p-2 rounded-md ${
-                viewMode === "list"
-                  ? "bg-white dark:bg-gray-600 shadow"
-                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                viewMode === "list" ? "shadow" : "hover:text-gray-700"
               }`}
             >
               <svg
@@ -181,7 +204,10 @@ export default function ImagesContent() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <div
+        style={{ background: "var(--card-bg)" }}
+        className="rounded-lg shadow-md"
+      >
         {isLoading && images.length === 0 ? (
           <div className="h-64">
             <Loader message="Loading images library..." />
@@ -191,7 +217,8 @@ export default function ImagesContent() {
             {searchQuery ? (
               <>
                 <svg
-                  className="w-16 h-16 text-gray-400 mb-4"
+                  className="w-16 h-16 mb-4"
+                  style={{ color: "var(--text-muted)" }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -204,17 +231,21 @@ export default function ImagesContent() {
                     d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
                   ></path>
                 </svg>
-                <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">
+                <h3
+                  className="text-xl font-medium"
+                  style={{ color: "var(--foreground)" }}
+                >
                   No images found
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400 mt-1">
+                <p style={{ color: "var(--text-muted)" }} className="mt-1">
                   No images match your search query. Try another search term.
                 </p>
               </>
             ) : (
               <>
                 <svg
-                  className="w-16 h-16 text-gray-400 mb-4"
+                  className="w-16 h-16 mb-4"
+                  style={{ color: "var(--text-muted)" }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -227,10 +258,13 @@ export default function ImagesContent() {
                     d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
                   ></path>
                 </svg>
-                <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300">
+                <h3
+                  className="text-xl font-medium"
+                  style={{ color: "var(--foreground)" }}
+                >
                   No images available
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400 mt-1">
+                <p style={{ color: "var(--text-muted)" }} className="mt-1">
                   Upload new images to start building your library.
                 </p>
               </>
@@ -240,12 +274,24 @@ export default function ImagesContent() {
           <div
             className={`p-6 ${viewMode === "grid" ? "grid-view" : "list-view"}`}
           >
-            <div className="flex justify-between items-center px-4 m-3 border-b border-gray-200 dark:border-gray-700 pb-4">
+            <div
+              className="flex justify-between items-center px-4 m-3 pb-4"
+              style={{ borderBottom: "1px solid var(--card-border)" }}
+            >
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center justify-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm font-medium px-2.5 py-1 rounded-md">
+                <span
+                  className="inline-flex items-center justify-center text-sm font-medium px-2.5 py-1 rounded-md"
+                  style={{
+                    background: "var(--button-secondary)",
+                    color: "var(--foreground)",
+                  }}
+                >
                   {filteredImages.length}
                 </span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span
+                  className="text-sm"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   of {pageLength} images
                 </span>
               </div>
@@ -257,11 +303,17 @@ export default function ImagesContent() {
                   {filteredImages.map((image) => (
                     <div
                       key={image.id}
-                      className="group relative overflow-hidden rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600"
+                      style={{
+                        background: "var(--card-bg)",
+                        borderColor: "var(--card-border)",
+                      }}
+                      className="group relative overflow-hidden rounded-lg shadow-sm border cursor-pointer transition-all duration-200 hover:shadow-md"
                       onClick={() => setSelectedImage(image)}
                     >
-                      {/* Image Container with fixed aspect ratio */}
-                      <div className="relative pt-[100%] bg-gray-100 dark:bg-gray-700">
+                      <div
+                        className="relative pt-[100%]"
+                        style={{ background: "var(--input-bg)" }}
+                      >
                         <Image
                           src={image.src}
                           alt={image.filename}
@@ -269,8 +321,7 @@ export default function ImagesContent() {
                           width={400}
                           height={400}
                         />
-                      </div>{" "}
-                      {/* Image Name Container with Hover Effect */}
+                      </div>
                       <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
                         <p
                           className="text-sm font-medium text-white truncate"
@@ -284,8 +335,17 @@ export default function ImagesContent() {
                 </div>
                 {isLoading && images.length > 0 && (
                   <div className="flex justify-center py-8">
-                    <div className="flex items-center justify-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                      <div className="w-5 h-5 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
+                    <div
+                      className="flex items-center justify-center gap-3 text-sm"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      <div
+                        className="w-5 h-5 border-2 border-t-blue-600 rounded-full animate-spin"
+                        style={{
+                          borderColor: "var(--accent)",
+                          borderTopColor: "var(--button-primary)",
+                        }}
+                      ></div>
                       <span>Loading more images...</span>
                     </div>
                   </div>
@@ -294,10 +354,17 @@ export default function ImagesContent() {
                   <div className="flex justify-center mt-8 mb-2">
                     <button
                       onClick={loadNextPage}
-                      className="group inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-blue-400 disabled:to-blue-500 rounded-lg shadow-sm transition-all duration-200 ease-in-out gap-2 hover:shadow-md"
+                      style={{
+                        background: "var(--button-primary)",
+                        color: "white",
+                      }}
+                      className="group inline-flex items-center px-6 py-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 ease-in-out gap-2 hover:shadow-md disabled:opacity-50"
                     >
                       <span>Load More</span>
-                      <span className="inline-flex items-center justify-center bg-blue-500/20 group-hover:bg-blue-600/20 text-white text-xs font-medium px-2 py-0.5 rounded-md transition-colors">
+                      <span
+                        className="inline-flex items-center justify-center text-white text-xs font-medium px-2 py-0.5 rounded-md"
+                        style={{ background: "var(--button-secondary)" }}
+                      >
                         {pageLength - filteredImages.length}
                       </span>
                     </button>

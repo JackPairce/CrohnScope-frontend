@@ -47,10 +47,13 @@ export default function PatientsContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1
+          className="text-3xl font-bold"
+          style={{ color: "var(--foreground)" }}
+        >
           Patients
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 mt-2">
+        <p className="mt-2" style={{ color: "var(--text-muted)" }}>
           Manage and view your patient records
         </p>
       </div>
@@ -60,43 +63,65 @@ export default function PatientsContent() {
           <Loader />
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+        <div
+          style={{
+            background: "var(--card-bg)",
+            borderColor: "var(--card-border)",
+          }}
+          className="shadow-md rounded-lg overflow-hidden"
+        >
+          <table
+            className="min-w-full divide-y"
+            style={{ borderColor: "var(--card-border)" }}
+          >
+            <thead style={{ background: "var(--header-bg)" }}>
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   Name
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   Age
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   Status
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody
+              style={{ background: "var(--card-bg)" }}
+              className="divide-y"
+            >
               {patients.map((patient) => (
                 <tr key={patient.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                  <td
+                    className="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                    style={{ color: "var(--foreground)" }}
+                  >
                     {patient.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                  <td
+                    className="px-6 py-4 whitespace-nowrap text-sm"
+                    style={{ color: "var(--text-muted)" }}
+                  >
                     {patient.age}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -104,20 +129,26 @@ export default function PatientsContent() {
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                       ${
                         patient.status === "Active"
-                          ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                          ? "bg-green-100 text-green-800"
                           : patient.status === "In Treatment"
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
-                          : "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-blue-100 text-blue-800"
                       }`}
                     >
                       {patient.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <button
+                      style={{ color: "var(--accent)" }}
+                      className="hover:opacity-80 mr-3"
+                    >
                       View
                     </button>
-                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300">
+                    <button
+                      style={{ color: "var(--accent)" }}
+                      className="hover:opacity-80"
+                    >
                       Edit
                     </button>
                   </td>
