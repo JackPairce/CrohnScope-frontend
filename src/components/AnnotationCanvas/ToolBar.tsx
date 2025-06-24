@@ -12,6 +12,7 @@ export default function ToolBar() {
       setBrushSize,
       setSaveStatus,
       triggerMaskReset,
+      setMask,
       saveMask,
       markDone,
       generateWithAI,
@@ -95,9 +96,7 @@ export default function ToolBar() {
     if (isGenerating) return; // Prevent multiple clicks
     setIsGenerating(true);
     try {
-      setTmpMask(
-        NewMaskArray(currentImage.mask.length, currentImage.mask[0].length)
-      );
+      setTmpMask(currentImage.mask as MaskArray);
       await generateWithAI();
       setIsGenerated(true);
     } catch (error) {
@@ -234,7 +233,7 @@ export default function ToolBar() {
                 className="ai-button ai-keep-all"
                 onClick={() => {
                   setIsGenerated(false);
-                  setTmpMask([]);
+                  setTmpMask(undefined);
                 }}
               >
                 <Image
@@ -275,7 +274,8 @@ export default function ToolBar() {
                 className="ai-button ai-discard-all"
                 onClick={() => {
                   setIsGenerated(false);
-                  setTmpMask([]);
+                  setMask(tmpMask || NewMaskArray(imgDim.width, imgDim.height));
+                  setTmpMask(undefined);
                 }}
               >
                 <Image

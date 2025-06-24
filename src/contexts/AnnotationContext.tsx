@@ -10,6 +10,7 @@ import {
 import ConfirmDialog, { DialogAction } from "@/components/ConfirmDialog";
 import {
   ApiImage,
+  generateMask,
   getFeatures,
   getMask,
   saveMask,
@@ -344,11 +345,18 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
           console.warn("No current image to generate masks for.");
           return;
         }
-        // const generated_masks = await generateMask(currentImage.id);
+        const generated_masks = (await generateMask(currentImage.id)).data;
 
         // Update state with processed results
-        // setTabs(updatedTabs);
-        // Set canvas save status to modified
+        setCurrentImageState((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            mask: generated_masks.map(
+              (row) => new Uint8Array(row)
+            ) as MaskArray,
+          };
+        });
         setSaveStatus((prev) => ({
           ...prev,
           isModified: true,
