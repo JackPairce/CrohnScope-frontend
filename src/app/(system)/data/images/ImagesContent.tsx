@@ -36,10 +36,7 @@ export default function ImagesContent() {
     loadNextPage,
     handleUploadImage: uploadImage,
     handleDeleteImage: deleteImage,
-  } = useImages(
-    false, // done
-    addToast
-  );
+  } = useImages(addToast);
 
   // Calculate if there are more images to load
   const hasMoreImages = images.length < pageLength;

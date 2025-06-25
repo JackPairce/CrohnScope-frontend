@@ -44,6 +44,8 @@ export const generateMask = async (
 ): Promise<
   paths["/ai/generate-mask/{image_id}"]["get"]["responses"]["200"]["content"]["application/json"]
 > => {
-  const response = await apiClient.get(`/ai/generate-mask/${imageId}`);
+  const response = await apiClient.get(`/ai/generate-mask/${imageId}`, {
+    timeout: 120000, // 2 minutes in milliseconds
+  });
   return response.data;
 };

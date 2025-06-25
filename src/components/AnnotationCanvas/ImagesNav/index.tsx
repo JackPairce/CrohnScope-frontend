@@ -102,7 +102,7 @@ function ImagesSection({
     loadNextPage,
     selectImage,
     setSelectedImage,
-  } = useImages(!!done, addToast, refreshCounter);
+  } = useImages(addToast, refreshCounter, !!done);
 
   // Create a wrapper for the selectImage function to avoid re-selecting current image
   const handleSelectImage = async (image: ApiImage, id: number) => {

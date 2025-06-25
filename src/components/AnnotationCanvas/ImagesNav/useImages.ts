@@ -24,9 +24,9 @@ interface UseImagesResult {
 }
 
 export function useImages(
-  done: boolean = false,
   addToast: (message: string, type: ToastType) => void,
-  refreshCounter: number = 0
+  refreshCounter: number = 0,
+  done?: boolean
 ): UseImagesResult {
   const {
     actions: { setCurrentImage },
