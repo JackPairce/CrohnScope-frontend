@@ -72,6 +72,8 @@ export function useImages(
           // If the selected image is not found, reset selectedImage
           setSelectedImage(null);
         }
+        console.log("set IsLoading to false");
+
         setIsLoading(false);
       })
       .catch((error) => {
@@ -79,6 +81,9 @@ export function useImages(
         setIsLoading(false);
       });
   }, [page, done, pageLength, refreshCounter]);
+  useEffect(() => {
+    console.log("is Loading changed:", isLoading);
+  }, [isLoading]);
 
   const handleUploadImage = useCallback(
     async (file: File) => {

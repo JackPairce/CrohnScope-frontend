@@ -6,6 +6,7 @@ import { ApiImage } from "@/lib/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import EmptyState from "./EmptyState";
+import ErrorState from "./ErrorState";
 import ImageItem from "./ImageItem";
 import LoadingState from "./LoadingState";
 import LoadMore from "./LoadMore";
@@ -17,13 +18,17 @@ const queryClient = new QueryClient();
 
 export default function ImagesNav() {
   const [hide, setHide] = useState(false);
+  const [isError, setIsError] = useState<string | null>(null);
+
   const addToast = (message: string, type: ToastType) => {
     const id = Date.now().toString();
     setToasts((prev) => [...prev, { id, message, type }]);
   };
+
   const [toasts, setToasts] = useState<
     Array<{ id: string; message: string; type: ToastType }>
   >([]);
+
   const {
     states: { forceImagesRefresh },
     actions: { setCurrentImage },
@@ -46,15 +51,40 @@ export default function ImagesNav() {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
+  const handleError = (error: string) => {
+    // Only set error if it's different to prevent unnecessary re-renders
+    if (error !== isError) {
+      setIsError(error);
+    }
+  };
+
+  const handleRetry = () => {
+    setIsError(null);
+    // Invalidate and refetch in next tick to ensure state is updated
+    setTimeout(() => {
+      queryClient.invalidateQueries();
+    }, 0);
+  };
+
+  if (isError) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <section className="images-nav">
+          <ErrorState error={isError} onRetry={handleRetry} />
+        </section>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
-      {" "}
       <section className="images-nav">
         <ImagesSection
           hide={hide}
           setHide={setHide}
           addToast={addToast}
           refreshCounter={forceImagesRefresh}
+          onError={handleError}
         />
         <ImagesSection
           hide={!hide}
@@ -62,6 +92,7 @@ export default function ImagesNav() {
           done
           addToast={addToast}
           refreshCounter={forceImagesRefresh}
+          onError={handleError}
         />
       </section>
       <ToastContainer>
@@ -84,6 +115,7 @@ interface ImagesSectionProps {
   setHide: Dispatch<SetStateAction<boolean>>;
   addToast: (message: string, type: ToastType) => void;
   refreshCounter: number; // Counter to force refresh of images
+  onError: (error: string) => void;
 }
 
 function ImagesSection({
@@ -92,6 +124,7 @@ function ImagesSection({
   setHide,
   addToast,
   refreshCounter,
+  onError,
 }: ImagesSectionProps) {
   const {
     images,
@@ -117,6 +150,7 @@ function ImagesSection({
       })
       .catch((error) => {
         console.error("Error selecting image:", error);
+        onError("Failed to select image. Please try again.");
       });
   };
 
@@ -125,8 +159,15 @@ function ImagesSection({
     return !done && <LoadingState />;
   }
 
-  if (isError) {
-    return <p>Error loading images: {isError}</p>;
+  // Handle error state without using useEffect
+  if (isError && !isLoading) {
+    // Only report error if we're not in a loading state to prevent error flashing
+    const errorMessage =
+      typeof isError === "string"
+        ? isError
+        : "Failed to load images. Please try again.";
+    onError(errorMessage);
+    return null; // Return null since the parent will handle the error display
   }
 
   return (
@@ -143,7 +184,6 @@ function ImagesSection({
           {images.length > 0 ? (
             <div className="images-container">
               <ul className="images-grid">
-                {" "}
                 {images.map((image, index) => (
                   <ImageItem
                     key={index}

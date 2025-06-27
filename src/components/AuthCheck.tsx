@@ -72,8 +72,6 @@ export default function AuthCheck({
     // Check authentication status
     const checkAuth = async () => {
       const success = await refreshUser();
-      console.log("AuthCheck: User data loaded:", success, user);
-
       if (!success && !isAuthPage) {
         router.push("/auth");
       }

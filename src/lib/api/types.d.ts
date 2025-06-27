@@ -4,1710 +4,2052 @@
  */
 
 export interface paths {
-  "/auth/check": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/auth/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check
+         * @description Check if the user is authenticated.
+         */
+        get: operations["check_auth_check_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Check
-     * @description Check if the user is authenticated.
-     */
-    get: operations["check_auth_check_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/login": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Login
+         * @description Login a user.
+         */
+        post: operations["login_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Login
-     * @description Login a user.
-     */
-    post: operations["login_auth_login_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/auth/register": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register
+         * @description Register a new user.
+         */
+        post: operations["register_auth_register_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Register
-     * @description Register a new user.
-     */
-    post: operations["register_auth_register_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/ai/generate-mask/{image_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/ai/generate-mask/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Generate Mask
+         * @description Generate a mask for a specific image using the AI model.
+         *
+         *     Args:
+         *         image_id: ID of the image to generate the mask for
+         *
+         *     Returns:
+         *         MaskGenerationResponse: Status message indicating success or failure
+         */
+        get: operations["generate_mask_ai_generate_mask__image_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Generate Mask
-     * @description Generate a mask for a specific image using the AI model.
-     *
-     *     Args:
-     *         image_id: ID of the image to generate the mask for
-     *
-     *     Returns:
-     *         MaskGenerationResponse: Status message indicating success or failure
-     */
-    get: operations["generate_mask_ai_generate_mask__image_id__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/ai/generate-masks": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/ai/generate-masks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate All Masks
+         * @description Generate masks for all images that don't have masks yet.
+         *     This runs in the background as it may take some time.
+         *
+         *     Returns:
+         *         StatusResponse: Status message indicating task has started
+         */
+        post: operations["generate_all_masks_ai_generate_masks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Generate All Masks
-     * @description Generate masks for all images that don't have masks yet.
-     *     This runs in the background as it may take some time.
-     *
-     *     Returns:
-     *         StatusResponse: Status message indicating task has started
-     */
-    post: operations["generate_all_masks_ai_generate_masks_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/features": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/features": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get All Features
+         * @description Get all feature types in the database.
+         *
+         *     Returns:
+         *         List of ApiFeature objects
+         */
+        get: operations["get_all_features_features_get"];
+        put?: never;
+        /**
+         * Create Feature
+         * @description Create a new feature type.
+         *
+         *     Args:
+         *         feature: ApiFeature object containing the feature details
+         *
+         *     Returns:
+         *         FeatureTypeResponse with the created feature
+         */
+        post: operations["create_feature_features_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get All Features
-     * @description Get all feature types in the database.
-     *
-     *     Returns:
-     *         List of ApiFeature objects
-     */
-    get: operations["get_all_features_features_get"];
-    put?: never;
-    /**
-     * Create Feature
-     * @description Create a new feature type.
-     *
-     *     Args:
-     *         feature: ApiFeature object containing the feature details
-     *
-     *     Returns:
-     *         FeatureTypeResponse with the created feature
-     */
-    post: operations["create_feature_features_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/features/{feature_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/features/{feature_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Feature By Id
+         * @description Get a feature type by its ID.
+         *
+         *     Args:
+         *         feature_id: ID of the feature type
+         *
+         *     Returns:
+         *         ApiFeature object
+         */
+        get: operations["get_feature_by_id_features__feature_id__get"];
+        /**
+         * Update Feature
+         * @description Update an existing feature type by its ID.
+         *
+         *     Args:
+         *         feature_id: ID of the feature type to update
+         *         feature: ApiFeature object containing the updated details
+         *
+         *     Returns:
+         *         FeatureTypeResponse with the updated feature
+         */
+        put: operations["update_feature_features__feature_id__put"];
+        post?: never;
+        /**
+         * Delete Feature
+         * @description Delete a feature type by its ID.
+         *
+         *     Args:
+         *         feature_id: ID of the feature type to delete
+         *
+         *     Returns:
+         *         FeatureTypeDeleteResponse with the deleted feature ID
+         */
+        delete: operations["delete_feature_features__feature_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Feature By Id
-     * @description Get a feature type by its ID.
-     *
-     *     Args:
-     *         feature_id: ID of the feature type
-     *
-     *     Returns:
-     *         ApiFeature object
-     */
-    get: operations["get_feature_by_id_features__feature_id__get"];
-    /**
-     * Update Feature
-     * @description Update an existing feature type by its ID.
-     *
-     *     Args:
-     *         feature_id: ID of the feature type to update
-     *         feature: ApiFeature object containing the updated details
-     *
-     *     Returns:
-     *         FeatureTypeResponse with the updated feature
-     */
-    put: operations["update_feature_features__feature_id__put"];
-    post?: never;
-    /**
-     * Delete Feature
-     * @description Delete a feature type by its ID.
-     *
-     *     Args:
-     *         feature_id: ID of the feature type to delete
-     *
-     *     Returns:
-     *         FeatureTypeDeleteResponse with the deleted feature ID
-     */
-    delete: operations["delete_feature_features__feature_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/diseases": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/diseases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Diseases */
+        get: operations["read_diseases_diseases_get"];
+        put?: never;
+        /** Create Disease */
+        post: operations["create_disease_diseases_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Read Diseases */
-    get: operations["read_diseases_diseases_get"];
-    put?: never;
-    /** Create Disease */
-    post: operations["create_disease_diseases_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/diseases/{disease_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/diseases/{disease_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Disease */
+        get: operations["read_disease_diseases__disease_id__get"];
+        /** Update Disease */
+        put: operations["update_disease_diseases__disease_id__put"];
+        post?: never;
+        /** Delete Disease */
+        delete: operations["delete_disease_diseases__disease_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Read Disease */
-    get: operations["read_disease_diseases__disease_id__get"];
-    /** Update Disease */
-    put: operations["update_disease_diseases__disease_id__put"];
-    post?: never;
-    /** Delete Disease */
-    delete: operations["delete_disease_diseases__disease_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/images/status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/images/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Status
+         * @description Get the status of the image service.
+         */
+        get: operations["get_status_images_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Status
-     * @description Get the status of the image service.
-     */
-    get: operations["get_status_images_status_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/images/all/{page}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/images/all/{page}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Images All
+         * @description Get a paginated list of all images.
+         *
+         *     Args:
+         *         page: Page number
+         */
+        get: operations["get_images_all_images_all__page__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Images All
-     * @description Get a paginated list of all images.
-     *
-     *     Args:
-     *         page: Page number
-     */
-    get: operations["get_images_all_images_all__page__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/images/upload": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/images/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Image
+         * @description Upload a new image.
+         */
+        post: operations["upload_image_images_upload_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Upload Image
-     * @description Upload a new image.
-     */
-    post: operations["upload_image_images_upload_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/images/delete/{image_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/images/delete/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Image
+         * @description Delete an image and its associated files.
+         */
+        delete: operations["delete_image_images_delete__image_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post?: never;
-    /**
-     * Delete Image
-     * @description Delete an image and its associated files.
-     */
-    delete: operations["delete_image_images_delete__image_id__delete"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/images/stain/{image_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/images/stain/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Stain Image
+         * @description Get the stain image for a specific image ID.
+         *
+         *     Args:
+         *         image_id: ID of the image to retrieve
+         *
+         *     Returns:
+         *         StainingNormalizedImage object containing the stain normalized image data.
+         */
+        get: operations["get_stain_image_images_stain__image_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Stain Image
-     * @description Get the stain image for a specific image ID.
-     *
-     *     Args:
-     *         image_id: ID of the image to retrieve
-     *
-     *     Returns:
-     *         StainingNormalizedImage object containing the stain normalized image data.
-     */
-    get: operations["get_stain_image_images_stain__image_id__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/images/stain": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/images/stain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Get Stain Image From Base64
+         * @description Get the stain image from base64 encoded image data.
+         *
+         *     Args:
+         *         image_data: Base64 encoded image data
+         *
+         *     Returns:
+         *         StainingNormalizedImage object containing the stain normalized image data.
+         */
+        post: operations["get_stain_image_from_base64_images_stain_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Get Stain Image From Base64
-     * @description Get the stain image from base64 encoded image data.
-     *
-     *     Args:
-     *         image_data: Base64 encoded image data
-     *
-     *     Returns:
-     *         StainingNormalizedImage object containing the stain normalized image data.
-     */
-    post: operations["get_stain_image_from_base64_images_stain_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/masks/{image_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/masks/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Mask
+         * @description Get mask for a specific image.
+         *
+         *     Args:
+         *         image_id: ID of the image to get mask for
+         */
+        get: operations["get_mask_masks__image_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Mask
-     * @description Get mask for a specific image.
-     *
-     *     Args:
-     *         image_id: ID of the image to get mask for
-     */
-    get: operations["get_mask_masks__image_id__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/masks": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/masks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Save Mask
+         * @description Save mask for an image.
+         *
+         *     Args:
+         *         image_id: ID of the image to save mask for
+         *         body: mask to save
+         */
+        post: operations["save_mask_masks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    /**
-     * Save Mask
-     * @description Save mask for an image.
-     *
-     *     Args:
-     *         image_id: ID of the image to save mask for
-     *         body: mask to save
-     */
-    post: operations["save_mask_masks_post"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/masks/{mask_id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/masks/{mask_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mark Mask Done
+         * @description Mark a mask as done.
+         *
+         *     Args:
+         *         mask_id: ID of the mask to mark as done
+         *         background_tasks: Background tasks runner
+         */
+        put: operations["mark_mask_done_masks__mask_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    /**
-     * Mark Mask Done
-     * @description Mark a mask as done.
-     *
-     *     Args:
-     *         mask_id: ID of the mask to mark as done
-     */
-    put: operations["mark_mask_done_masks__mask_id__put"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/monitoring/system": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/monitoring/system": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get System Info
+         * @description Get static system information.
+         */
+        get: operations["get_system_info_monitoring_system_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get System Info
-     * @description Get static system information.
-     */
-    get: operations["get_system_info_monitoring_system_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/monitoring/data-usage": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/monitoring/data-usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Data Usage
+         * @description Get detailed information about data directory usage.
+         */
+        get: operations["get_data_usage_monitoring_data_usage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get Data Usage
-     * @description Get detailed information about data directory usage.
-     */
-    get: operations["get_data_usage_monitoring_data_usage_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/monitoring/metrics": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/monitoring/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get System Metrics
+         * @description Get real-time system metrics (CPU, Memory, GPU).
+         */
+        get: operations["get_system_metrics_monitoring_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /**
-     * Get System Metrics
-     * @description Get real-time system metrics (CPU, Memory, GPU).
-     */
-    get: operations["get_system_metrics_monitoring_metrics_get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/diagnosis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Diagnoses
+         * @description List all diagnoses with optional filtering by disease
+         */
+        get: operations["list_diagnoses_diagnosis_get"];
+        put?: never;
+        /**
+         * Create Diagnosis
+         * @description Create a new diagnosis
+         */
+        post: operations["create_diagnosis_diagnosis_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** Read Root */
-    get: operations["read_root__get"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/diagnosis/{diagnosis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Diagnosis
+         * @description Get a specific diagnosis by ID
+         */
+        get: operations["read_diagnosis_diagnosis__diagnosis_id__get"];
+        /**
+         * Update Diagnosis
+         * @description Update a diagnosis
+         */
+        put: operations["update_diagnosis_diagnosis__diagnosis_id__put"];
+        post?: never;
+        /**
+         * Delete Diagnosis
+         * @description Delete a diagnosis
+         */
+        delete: operations["delete_diagnosis_diagnosis__diagnosis_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/diagnosis/image/{image_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Diagnoses By Image
+         * @description Get all diagnoses for a specific image
+         */
+        get: operations["get_diagnoses_by_image_diagnosis_image__image_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Root */
+        get: operations["read_root__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** ApiDisease */
-    ApiDisease: {
-      /** Id */
-      id: number;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
+    schemas: {
+        /** ApiDisease */
+        ApiDisease: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+        };
+        /** ApiFeature */
+        ApiFeature: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /**
+             * Img
+             * @default
+             */
+            img: string;
+            /**
+             * Diseases
+             * @default []
+             */
+            diseases: components["schemas"]["ApiDisease"][];
+        };
+        /** ApiImage */
+        ApiImage: {
+            /** Id */
+            id: number;
+            /** Filename */
+            filename: string;
+            /** Src */
+            src: string;
+            /**
+             * Is Done
+             * @default false
+             */
+            is_done: boolean;
+            mask?: components["schemas"]["MaskArray"] | null;
+        };
+        /**
+         * ApiMask
+         * @description API representation of a mask
+         */
+        ApiMask: {
+            /** Id */
+            id: number;
+            data: components["schemas"]["MaskArray"];
+            /**
+             * Is Segmented
+             * @default false
+             */
+            is_segmented: boolean;
+        };
+        /**
+         * ApiUser
+         * @description Represents a user in the system.
+         */
+        ApiUser: {
+            /** Id */
+            id: number;
+            /** Username */
+            username: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Is Superuser
+             * @default false
+             */
+            is_superuser: boolean;
+            /** Token */
+            token: string;
+            /** Picture */
+            picture?: string | null;
+        };
+        /** CpuInfo */
+        CpuInfo: {
+            /** Physical Cores */
+            physical_cores: number;
+            /** Total Cores */
+            total_cores: number;
+            /** Max Frequency */
+            max_frequency: string;
+            /** Current Frequency */
+            current_frequency: string;
+            /** Usage Per Core */
+            usage_per_core: string[];
+            /** Total Usage */
+            total_usage: string;
+            /**
+             * Temperatures
+             * @description CPU temperatures in Celsius
+             */
+            temperatures?: {
+                [key: string]: number;
+            } | null;
+        };
+        /** DataDirectoryInfo */
+        DataDirectoryInfo: {
+            /** Path */
+            path: string;
+            /** Total Size */
+            total_size: string;
+            /** Max Size */
+            max_size: string;
+            dataset: components["schemas"]["DatasetInfo"];
+        };
+        /** DataUsageBreakdown */
+        DataUsageBreakdown: {
+            dataset: components["schemas"]["DatasetBreakdown"];
+            models: components["schemas"]["ModelInfo"];
+        };
+        /** DataUsageResponse */
+        DataUsageResponse: {
+            /** Total Usage */
+            total_usage: string;
+            /** Max Size */
+            max_size: string;
+            /** Percentage Used */
+            percentage_used: string;
+            breakdown: components["schemas"]["DataUsageBreakdown"];
+        };
+        /** DatasetBreakdown */
+        DatasetBreakdown: {
+            /** Total Size */
+            total_size: string;
+            images: components["schemas"]["DirectoryStats"];
+            masks: components["schemas"]["DirectoryStats"];
+        };
+        /** DatasetInfo */
+        DatasetInfo: {
+            /** Images */
+            images: number;
+            /** Masks */
+            masks: number;
+        };
+        /** DiagnosisCreate */
+        DiagnosisCreate: {
+            /** Disease Id */
+            disease_id?: number | null;
+            /** Image Id */
+            image_id: number;
+            /** Phase */
+            phase?: number | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** DiagnosisRead */
+        DiagnosisRead: {
+            /** Disease Id */
+            disease_id?: number | null;
+            /** Image Id */
+            image_id: number;
+            /** Phase */
+            phase?: number | null;
+            /** Notes */
+            notes?: string | null;
+            /** Id */
+            id: number;
+        };
+        /** DiagnosisUpdate */
+        DiagnosisUpdate: {
+            /** Disease Id */
+            disease_id?: number | null;
+            /** Phase */
+            phase?: number | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** DirectoryStats */
+        DirectoryStats: {
+            /** Count */
+            count: number;
+            /** Size */
+            size: string;
+        };
+        /** DiskInfo */
+        DiskInfo: {
+            /** Total */
+            total: string;
+            /** Used */
+            used: string;
+            /** Free */
+            free: string;
+            /** Percentage */
+            percentage: string;
+        };
+        /**
+         * FeatureTypeDeleteResponse
+         * @description Response model for feature type deletion
+         */
+        FeatureTypeDeleteResponse: {
+            /**
+             * Message
+             * @default Feature type deleted successfully
+             */
+            message: string;
+            /** Id */
+            id: number;
+        };
+        /**
+         * FeatureTypeResponse
+         * @description Response model for feature type creation
+         */
+        FeatureTypeResponse: {
+            /**
+             * Message
+             * @default Feature type created successfully
+             */
+            message: string;
+            feature_type: components["schemas"]["ApiFeature"];
+        };
+        /** GpuInfo */
+        GpuInfo: {
+            /** Gpu Count */
+            gpu_count: number;
+            /** Current Device */
+            current_device: number;
+            /** Device Name */
+            device_name: string;
+            /** Memory Allocated */
+            memory_allocated: string;
+            /** Memory Reserved */
+            memory_reserved: string;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        ImageArray: number[][][];
+        /**
+         * ImageListResponse
+         * @description Response model for paginated image list
+         */
+        ImageListResponse: {
+            /** Images */
+            images: components["schemas"]["ApiImage"][];
+            /** Page */
+            page: number;
+            /** Total */
+            total: number;
+        };
+        /**
+         * ImageStatus
+         * @description Image service status response
+         */
+        ImageStatus: {
+            /** Status */
+            status: string;
+        };
+        /**
+         * MaskArray
+         * @description 2D array of mask values, where each value is an integer representing a class label (e.g., 0 for background, 1 for class 1, etc.)
+         */
+        MaskArray: number[][];
+        /**
+         * MaskSaveRequest
+         * @description Model for mask saving request.
+         */
+        MaskSaveRequest: {
+            /** Image Id */
+            image_id: number;
+            data: components["schemas"]["MaskArray"];
+        };
+        /** MemoryInfo */
+        MemoryInfo: {
+            /** Total */
+            total: string;
+            /** Available */
+            available: string;
+            /** Used */
+            used: string;
+            /** Percentage */
+            percentage: string;
+        };
+        /** ModelInfo */
+        ModelInfo: {
+            /** Size */
+            size: string;
+            /** Files */
+            files: string[];
+        };
+        /**
+         * StainingNormalizedImage
+         * @description Normalized image for staining
+         */
+        StainingNormalizedImage: {
+            inorm: components["schemas"]["ImageArray"];
+            hematoxylin: components["schemas"]["ImageArray"];
+            eosin: components["schemas"]["ImageArray"];
+        };
+        /**
+         * StatusResponse
+         * @description Response model for operations that include progress information.
+         */
+        StatusResponse: {
+            /** Message */
+            message: string;
+            /** Status */
+            status: string;
+            /**
+             * Current
+             * @default 0
+             */
+            current: number;
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+        };
+        /** StorageInfo */
+        StorageInfo: {
+            data_directory: components["schemas"]["DataDirectoryInfo"];
+        };
+        /** SystemInfo */
+        SystemInfo: {
+            /** System */
+            system: string;
+            /** Node Name */
+            node_name: string;
+            /** Release */
+            release: string;
+            /** Version */
+            version: string;
+            /** Machine */
+            machine: string;
+            /** Processor */
+            processor: string;
+            /** Uptime */
+            uptime: string;
+        };
+        /** SystemMetrics */
+        SystemMetrics: {
+            /** Timestamp */
+            timestamp: string;
+            cpu: components["schemas"]["CpuInfo"];
+            memory: components["schemas"]["MemoryInfo"];
+            gpu: components["schemas"]["GpuInfo"] | null;
+        };
+        /** SystemResponse */
+        SystemResponse: {
+            /** Timestamp */
+            timestamp: string;
+            system: components["schemas"]["SystemInfo"];
+            storage: components["schemas"]["StorageInfo"];
+            disk: components["schemas"]["DiskInfo"];
+        };
+        /**
+         * UploadImageRequest
+         * @description Request model for uploading an image
+         */
+        UploadImageRequest: {
+            /** Base64 Data */
+            base64_data: string;
+        };
+        /**
+         * UserCreateRequest
+         * @description Request model for creating a new user.
+         */
+        UserCreateRequest: {
+            /** Username */
+            username: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Password */
+            password: string;
+        };
+        /**
+         * UserLoginRequest
+         * @description Request model for user login.
+         */
+        UserLoginRequest: {
+            /** Username */
+            username: string;
+            /** Password */
+            password: string;
+        };
+        /**
+         * UserResponse
+         * @description Response model for user operations.
+         */
+        UserResponse: {
+            /** Success */
+            success: boolean;
+            /** Message */
+            message: string;
+            user?: components["schemas"]["ApiUser"] | null;
+            /** Token */
+            token?: string | null;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
     };
-    /** ApiFeature */
-    ApiFeature: {
-      /** Id */
-      id: number;
-      /** Name */
-      name: string;
-      /** Description */
-      description: string;
-      /**
-       * Img
-       * @default
-       */
-      img: string;
-      /**
-       * Diseases
-       * @default []
-       */
-      diseases: components["schemas"]["ApiDisease"][];
-    };
-    /** ApiImage */
-    ApiImage: {
-      /** Id */
-      id: number;
-      /** Filename */
-      filename: string;
-      /** Src */
-      src: string;
-      /**
-       * Is Done
-       * @default false
-       */
-      is_done: boolean;
-      mask?: components["schemas"]["MaskArray"] | null;
-    };
-    /**
-     * ApiMask
-     * @description API representation of a mask
-     */
-    ApiMask: {
-      /** Id */
-      id: number;
-      data: components["schemas"]["MaskArray"];
-      /**
-       * Is Segmented
-       * @default false
-       */
-      is_segmented: boolean;
-    };
-    /**
-     * ApiUser
-     * @description Represents a user in the system.
-     */
-    ApiUser: {
-      /** Id */
-      id: number;
-      /** Username */
-      username: string;
-      /**
-       * Email
-       * Format: email
-       */
-      email: string;
-      /**
-       * Is Active
-       * @default true
-       */
-      is_active: boolean;
-      /**
-       * Is Superuser
-       * @default false
-       */
-      is_superuser: boolean;
-      /** Token */
-      token: string;
-      /** Picture */
-      picture?: string | null;
-    };
-    /** CpuInfo */
-    CpuInfo: {
-      /** Physical Cores */
-      physical_cores: number;
-      /** Total Cores */
-      total_cores: number;
-      /** Max Frequency */
-      max_frequency: string;
-      /** Current Frequency */
-      current_frequency: string;
-      /** Usage Per Core */
-      usage_per_core: string[];
-      /** Total Usage */
-      total_usage: string;
-      /**
-       * Temperatures
-       * @description CPU temperatures in Celsius
-       */
-      temperatures?: {
-        [key: string]: number;
-      } | null;
-    };
-    /** DataDirectoryInfo */
-    DataDirectoryInfo: {
-      /** Path */
-      path: string;
-      /** Total Size */
-      total_size: string;
-      /** Max Size */
-      max_size: string;
-      dataset: components["schemas"]["DatasetInfo"];
-    };
-    /** DataUsageBreakdown */
-    DataUsageBreakdown: {
-      dataset: components["schemas"]["DatasetBreakdown"];
-      models: components["schemas"]["ModelInfo"];
-    };
-    /** DataUsageResponse */
-    DataUsageResponse: {
-      /** Total Usage */
-      total_usage: string;
-      /** Max Size */
-      max_size: string;
-      /** Percentage Used */
-      percentage_used: string;
-      breakdown: components["schemas"]["DataUsageBreakdown"];
-    };
-    /** DatasetBreakdown */
-    DatasetBreakdown: {
-      /** Total Size */
-      total_size: string;
-      images: components["schemas"]["DirectoryStats"];
-      masks: components["schemas"]["DirectoryStats"];
-    };
-    /** DatasetInfo */
-    DatasetInfo: {
-      /** Images */
-      images: number;
-      /** Masks */
-      masks: number;
-    };
-    /** DirectoryStats */
-    DirectoryStats: {
-      /** Count */
-      count: number;
-      /** Size */
-      size: string;
-    };
-    /** DiskInfo */
-    DiskInfo: {
-      /** Total */
-      total: string;
-      /** Used */
-      used: string;
-      /** Free */
-      free: string;
-      /** Percentage */
-      percentage: string;
-    };
-    /**
-     * FeatureTypeDeleteResponse
-     * @description Response model for feature type deletion
-     */
-    FeatureTypeDeleteResponse: {
-      /**
-       * Message
-       * @default Feature type deleted successfully
-       */
-      message: string;
-      /** Id */
-      id: number;
-    };
-    /**
-     * FeatureTypeResponse
-     * @description Response model for feature type creation
-     */
-    FeatureTypeResponse: {
-      /**
-       * Message
-       * @default Feature type created successfully
-       */
-      message: string;
-      feature_type: components["schemas"]["ApiFeature"];
-    };
-    /** GpuInfo */
-    GpuInfo: {
-      /** Gpu Count */
-      gpu_count: number;
-      /** Current Device */
-      current_device: number;
-      /** Device Name */
-      device_name: string;
-      /** Memory Allocated */
-      memory_allocated: string;
-      /** Memory Reserved */
-      memory_reserved: string;
-    };
-    /** HTTPValidationError */
-    HTTPValidationError: {
-      /** Detail */
-      detail?: components["schemas"]["ValidationError"][];
-    };
-    ImageArray: number[][][];
-    /**
-     * ImageListResponse
-     * @description Response model for paginated image list
-     */
-    ImageListResponse: {
-      /** Images */
-      images: components["schemas"]["ApiImage"][];
-      /** Page */
-      page: number;
-      /** Total */
-      total: number;
-    };
-    /**
-     * ImageStatus
-     * @description Image service status response
-     */
-    ImageStatus: {
-      /** Status */
-      status: string;
-    };
-    /**
-     * MaskArray
-     * @description 2D array of mask values, where each value is an integer representing a class label (e.g., 0 for background, 1 for class 1, etc.)
-     */
-    MaskArray: number[][];
-    /**
-     * MaskSaveRequest
-     * @description Model for mask saving request.
-     */
-    MaskSaveRequest: {
-      /** Image Id */
-      image_id: number;
-      data: components["schemas"]["MaskArray"];
-    };
-    /** MemoryInfo */
-    MemoryInfo: {
-      /** Total */
-      total: string;
-      /** Available */
-      available: string;
-      /** Used */
-      used: string;
-      /** Percentage */
-      percentage: string;
-    };
-    /** ModelInfo */
-    ModelInfo: {
-      /** Size */
-      size: string;
-      /** Files */
-      files: string[];
-    };
-    /**
-     * StainingNormalizedImage
-     * @description Normalized image for staining
-     */
-    StainingNormalizedImage: {
-      inorm: components["schemas"]["ImageArray"];
-      hematoxylin: components["schemas"]["ImageArray"];
-      eosin: components["schemas"]["ImageArray"];
-    };
-    /**
-     * StatusResponse
-     * @description Response model for operations that include progress information.
-     */
-    StatusResponse: {
-      /** Message */
-      message: string;
-      /** Status */
-      status: string;
-      /**
-       * Current
-       * @default 0
-       */
-      current: number;
-      /**
-       * Total
-       * @default 0
-       */
-      total: number;
-    };
-    /** StorageInfo */
-    StorageInfo: {
-      data_directory: components["schemas"]["DataDirectoryInfo"];
-    };
-    /** SystemInfo */
-    SystemInfo: {
-      /** System */
-      system: string;
-      /** Node Name */
-      node_name: string;
-      /** Release */
-      release: string;
-      /** Version */
-      version: string;
-      /** Machine */
-      machine: string;
-      /** Processor */
-      processor: string;
-      /** Uptime */
-      uptime: string;
-    };
-    /** SystemMetrics */
-    SystemMetrics: {
-      /** Timestamp */
-      timestamp: string;
-      cpu: components["schemas"]["CpuInfo"];
-      memory: components["schemas"]["MemoryInfo"];
-      gpu: components["schemas"]["GpuInfo"] | null;
-    };
-    /** SystemResponse */
-    SystemResponse: {
-      /** Timestamp */
-      timestamp: string;
-      system: components["schemas"]["SystemInfo"];
-      storage: components["schemas"]["StorageInfo"];
-      disk: components["schemas"]["DiskInfo"];
-    };
-    /**
-     * UploadImageRequest
-     * @description Request model for uploading an image
-     */
-    UploadImageRequest: {
-      /** Base64 Data */
-      base64_data: string;
-    };
-    /**
-     * UserCreateRequest
-     * @description Request model for creating a new user.
-     */
-    UserCreateRequest: {
-      /** Username */
-      username: string;
-      /**
-       * Email
-       * Format: email
-       */
-      email: string;
-      /** Password */
-      password: string;
-    };
-    /**
-     * UserLoginRequest
-     * @description Request model for user login.
-     */
-    UserLoginRequest: {
-      /** Username */
-      username: string;
-      /** Password */
-      password: string;
-    };
-    /**
-     * UserResponse
-     * @description Response model for user operations.
-     */
-    UserResponse: {
-      /** Success */
-      success: boolean;
-      /** Message */
-      message: string;
-      user?: components["schemas"]["ApiUser"] | null;
-      /** Token */
-      token?: string | null;
-    };
-    /** ValidationError */
-    ValidationError: {
-      /** Location */
-      loc: (string | number)[];
-      /** Message */
-      msg: string;
-      /** Error Type */
-      type: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  check_auth_check_get: {
-    parameters: {
-      query: {
-        with_user: boolean;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiUser"] | boolean;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  login_auth_login_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UserLoginRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UserResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  register_auth_register_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UserCreateRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["UserResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  generate_mask_ai_generate_mask__image_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        image_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiMask"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  generate_all_masks_ai_generate_masks_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["StatusResponse"];
-        };
-      };
-    };
-  };
-  get_all_features_features_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiFeature"][];
-        };
-      };
-    };
-  };
-  create_feature_features_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ApiFeature"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["FeatureTypeResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_feature_by_id_features__feature_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        feature_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiFeature"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_feature_features__feature_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ApiFeature"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["FeatureTypeResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_feature_features__feature_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        feature_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["FeatureTypeDeleteResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  read_diseases_diseases_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiDisease"][];
-        };
-      };
-    };
-  };
-  create_disease_diseases_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ApiDisease"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiDisease"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  read_disease_diseases__disease_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        disease_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiDisease"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  update_disease_diseases__disease_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        disease_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ApiDisease"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiDisease"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_disease_diseases__disease_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        disease_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiDisease"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_status_images_status_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ImageStatus"];
-        };
-      };
-    };
-  };
-  get_images_all_images_all__page__get: {
-    parameters: {
-      query?: {
-        done?: boolean;
-      };
-      header?: never;
-      path: {
-        page: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ImageListResponse"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  upload_image_images_upload_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UploadImageRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiImage"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  delete_image_images_delete__image_id__delete: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        image_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_stain_image_images_stain__image_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        image_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["StainingNormalizedImage"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_stain_image_from_base64_images_stain_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UploadImageRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["StainingNormalizedImage"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_mask_masks__image_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        image_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ApiMask"];
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  save_mask_masks_post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["MaskSaveRequest"];
-      };
-    };
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  mark_mask_done_masks__mask_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        mask_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"];
-        };
-      };
-    };
-  };
-  get_system_info_monitoring_system_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SystemResponse"];
-        };
-      };
-    };
-  };
-  get_data_usage_monitoring_data_usage_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["DataUsageResponse"];
-        };
-      };
-    };
-  };
-  get_system_metrics_monitoring_metrics_get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["SystemMetrics"];
-        };
-      };
-    };
-  };
-  read_root__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
+    check_auth_check_get: {
+        parameters: {
+            query: {
+                with_user: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiUser"] | boolean;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    login_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    register_auth_register_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_mask_ai_generate_mask__image_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiMask"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_all_masks_ai_generate_masks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatusResponse"];
+                };
+            };
+        };
+    };
+    get_all_features_features_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiFeature"][];
+                };
+            };
+        };
+    };
+    create_feature_features_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApiFeature"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeatureTypeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_feature_by_id_features__feature_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feature_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiFeature"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_feature_features__feature_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApiFeature"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeatureTypeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_feature_features__feature_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feature_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeatureTypeDeleteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_diseases_diseases_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiDisease"][];
+                };
+            };
+        };
+    };
+    create_disease_diseases_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApiDisease"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiDisease"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_disease_diseases__disease_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                disease_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiDisease"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_disease_diseases__disease_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                disease_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApiDisease"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiDisease"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_disease_diseases__disease_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                disease_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiDisease"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_status_images_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageStatus"];
+                };
+            };
+        };
+    };
+    get_images_all_images_all__page__get: {
+        parameters: {
+            query?: {
+                done?: boolean;
+            };
+            header?: never;
+            path: {
+                page: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImageListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_image_images_upload_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadImageRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiImage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_image_images_delete__image_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stain_image_images_stain__image_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StainingNormalizedImage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stain_image_from_base64_images_stain_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadImageRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StainingNormalizedImage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_mask_masks__image_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiMask"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_mask_masks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaskSaveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_mask_done_masks__mask_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mask_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_system_info_monitoring_system_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemResponse"];
+                };
+            };
+        };
+    };
+    get_data_usage_monitoring_data_usage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataUsageResponse"];
+                };
+            };
+        };
+    };
+    get_system_metrics_monitoring_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SystemMetrics"];
+                };
+            };
+        };
+    };
+    list_diagnoses_diagnosis_get: {
+        parameters: {
+            query?: {
+                skip?: number;
+                limit?: number;
+                disease_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosisRead"][];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_diagnosis_diagnosis_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiagnosisCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosisRead"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_diagnosis_diagnosis__diagnosis_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                diagnosis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosisRead"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_diagnosis_diagnosis__diagnosis_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                diagnosis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiagnosisUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosisRead"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_diagnosis_diagnosis__diagnosis_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                diagnosis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_diagnoses_by_image_diagnosis_image__image_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                image_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosisRead"] | null;
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_root__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
 }

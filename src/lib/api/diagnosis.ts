@@ -1,4 +1,5 @@
 import apiClient from "./client";
+import { components, paths } from "./types";
 
 /**
  * Interface for diagnosis result
@@ -31,6 +32,26 @@ export interface DiagnosisResult {
   areas: DiagnosisArea[];
   metadata?: Record<string, any>;
 }
+
+export type ApiDiagnosis = components["schemas"]["DiagnosisCreate"];
+
+export const SetDiagnosis = async (
+  data: paths["/diagnosis"]["post"]["requestBody"]["content"]["application/json"]
+): Promise<
+  paths["/diagnosis"]["post"]["responses"]["200"]["content"]["application/json"]
+> => {
+  const response = await apiClient.post("/diagnosis", data);
+  return response.data;
+};
+
+export const GetDiagnosisByImageID = async (
+  imageId: paths["/diagnosis/image/{image_id}"]["get"]["parameters"]["path"]["image_id"]
+): Promise<
+  paths["/diagnosis/image/{image_id}"]["get"]["responses"]["200"]["content"]["application/json"]
+> => {
+  const response = await apiClient.get(`/diagnosis/image/${imageId}`);
+  return response.data;
+};
 
 /**
  * Submit image for diagnosis

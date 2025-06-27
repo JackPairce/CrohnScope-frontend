@@ -65,10 +65,11 @@ export default function ImagesContent() {
             className="text-3xl font-bold"
             style={{ color: "var(--foreground)" }}
           >
-            Image Library
+            Histology Library
           </h1>
           <p className="mt-1" style={{ color: "var(--text-muted)" }}>
-            Browse and manage your image collection
+            Browse and manage your histology images. Upload new images to expand
+            our database.
           </p>
         </div>
 

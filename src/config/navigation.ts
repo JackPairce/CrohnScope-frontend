@@ -31,9 +31,14 @@ export const dataProcessingLinks: NavLink[] = [
     icon: "/svgs/feature-management.svg",
   },
   {
-    name: "Image Library",
+    name: "Histology Library",
     href: "/data/images",
     icon: "/svgs/image-management.svg",
+  },
+  {
+    name: "Histology Analysis",
+    href: "/data/analysis",
+    icon: "/svgs/diagnosis.svg",
   },
   {
     name: "Segmentation",
@@ -45,7 +50,8 @@ export const dataProcessingLinks: NavLink[] = [
 const pipelineStepDescriptions: Record<string, string> = {
   "Disease Management": "Manage and create disease types for analysis",
   "Features Management": "Manage and create features for image analysis",
-  "Image Library": "Import and organize microscopy images",
+  "Histology Library": "Import and organize histological images",
+  "Histology Analysis": "Analyze and diagnose histological samples",
   Classification: "Classify and label segmented features",
 };
 
