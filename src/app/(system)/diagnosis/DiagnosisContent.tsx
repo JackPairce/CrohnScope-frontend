@@ -260,7 +260,6 @@ export default function DiagnosisContent() {
         eosin: NdarrayToImgSrc(stainResult.eosin),
       });
 
-      console.log("Stain normalization processing complete");
     } catch (err) {
       console.error("Error processing stain normalization:", err);
       setError("Failed to process stain normalization. Please try again.");
@@ -314,7 +313,6 @@ export default function DiagnosisContent() {
       // Store the original preview URL to display alongside heatmap
       if (previewUrl && !result.heatmapUrl) {
         // If using mock API and no heatmap was generated, apply a filter to create one
-        console.log("No heatmap URL provided by API, generating one...");
         const canvas = document.createElement("canvas");
         const img = new window.Image();
         img.src = previewUrl;
@@ -324,12 +322,6 @@ export default function DiagnosisContent() {
 
         await new Promise<void>((resolve, reject) => {
           img.onload = () => {
-            console.log(
-              "Image loaded successfully:",
-              img.width,
-              "x",
-              img.height
-            );
             resolve();
           };
           img.onerror = (e) => {
@@ -598,12 +590,6 @@ export default function DiagnosisContent() {
           // Generate a data URL for the heatmap
           // Generate a data URL for the heatmap
           const heatmapUrl = canvas.toDataURL("image/png");
-
-          // Debug log the heatmap URL
-          console.log(
-            "Generated heatmap URL:",
-            heatmapUrl?.substring(0, 50) + "..."
-          );
 
           // Make sure to set the heatmap URL on the result object
           result.heatmapUrl = heatmapUrl;
