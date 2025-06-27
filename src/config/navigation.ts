@@ -32,7 +32,7 @@ export const dataProcessingLinks: NavLink[] = [
   },
   {
     name: "Histology Library",
-    href: "/data/images",
+    href: "/data/library",
     icon: "/svgs/image-management.svg",
   },
   {

@@ -166,12 +166,12 @@ const DrawingCanvas = forwardRef<HTMLCanvasElement, any>((props, ref) => {
     if (!isDrawing) return;
     setIsDrawing(false);
     setLastPoint(null);
-    setCurrentMask(
-      await CanvasToMaskArray(
-        drawPreviewCanvasRef.current!,
-        tabs[selectedTab].feature_id
-      )
+    const updated_mask = await CanvasToMaskArray(
+      drawPreviewCanvasRef.current!,
+      tabs[selectedTab].feature_id
     );
+    setCurrentMask(updated_mask);
+    setMask(MergeMaskArrays(currentImage.mask as MaskArray, updated_mask));
     drawingPath = [];
   };
 
@@ -285,6 +285,15 @@ const DrawingCanvas = forwardRef<HTMLCanvasElement, any>((props, ref) => {
   };
 
   useEffect(() => {
+    setCurrentMask(
+      extractTargetMask(
+        currentImage.mask as MaskArray,
+        tabs[selectedTab].feature_id
+      )
+    );
+  }, [currentImage.mask]);
+
+  useEffect(() => {
     if (isOverlaping(currentImage.mask as MaskArray, currentMask)) {
       console.warn("Overlapping detected in mask arrays, merging them.");
     }
@@ -339,7 +348,6 @@ const DrawingCanvas = forwardRef<HTMLCanvasElement, any>((props, ref) => {
       ),
       previousCanvasRef.current
     );
-    setMask(MergeMaskArrays(currentImage.mask as MaskArray, currentMask));
     drawMaskToCanvas(currentMask, drawPreviewCanvasRef.current);
   }, [currentMask]);
 
