@@ -44,3 +44,12 @@ export const setMaskDone = async (
   const response = await apiClient.put(`/masks/${maskId}`);
   return response.data;
 };
+
+export const getRegions = async (
+  mask: paths["/masks/regions"]["post"]["requestBody"]["content"]["application/json"]
+): Promise<
+  paths["/masks/regions"]["post"]["responses"]["200"]["content"]["application/json"]
+> => {
+  const response = await apiClient.post(`/masks/regions`, mask);
+  return response.data;
+};

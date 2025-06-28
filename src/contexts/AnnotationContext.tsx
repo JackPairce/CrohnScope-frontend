@@ -64,7 +64,6 @@ interface AnnotationContextState {
     setImgDim: Dispatch<SetStateAction<{ width: number; height: number }>>;
     setIsLoading: Dispatch<SetStateAction<boolean>>;
     setShowOtherFeatures: Dispatch<SetStateAction<boolean>>;
-    triggerMaskReset: (reset?: boolean) => void;
 
     setTabs: Dispatch<SetStateAction<Tab[]>>;
     setSelectedTab: Dispatch<SetStateAction<number>>;
@@ -116,7 +115,6 @@ const initialAnnotationContext: AnnotationContextState = {
     setIsLoading: () => {},
     generateWithAI: async () => {},
     setCurrentStainView: () => {},
-    triggerMaskReset: () => {},
     saveMask: async () => {
       throw new Error("saveMask function not implemented");
     },
@@ -320,10 +318,6 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
       setSaveStatus,
       setShowOtherFeatures,
       setCurrentImage: handleImageSwitch,
-      triggerMaskReset: (reset?: boolean) => {
-        if (reset) setTriggerMaskReset(0);
-        else setTriggerMaskReset((prev) => prev + 1);
-      },
       setMask: (mask: MaskArray) => {
         if (!currentImage) {
           console.warn("No current image to set mask for.");

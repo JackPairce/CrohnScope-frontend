@@ -1,21 +1,27 @@
 import { useAnnotationContext } from "@/contexts/AnnotationContext";
+import { getRegions } from "@/lib/api";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
+import ContextMenu, { ContextMenuItem } from "../ContextMenu";
 import Loader from "../loader";
-import DrawingCanvas from "./DrawPreview";
+import Toast, { ToastContainer, ToastType } from "../Toast";
+import DrawingCanvas, { extractTargetMask } from "./DrawPreview";
 import TabNavigation from "./TabNavigation";
 import ToolBar from "./ToolBar";
+import { MaskArray } from "./types";
 
 export default function BaseCanvas() {
   const {
     states: {
+      tabs,
       currentImage,
       isLoading,
       imgDim,
       mode,
       currentStainView,
       filters,
+      selectedTab,
     },
-    actions: { setCurrentStainView },
+    actions: { setMask, setCurrentStainView },
   } = useAnnotationContext();
   if (!currentImage) return null;
 
@@ -35,42 +41,147 @@ export default function BaseCanvas() {
     x: 0,
     y: 0,
   });
-  const [showMinimap, setShowMinimap] = useState<boolean>(false);
-  const [triggerResize, setTriggerResize] = useState<boolean>(false);
+  const [wasDrawing, setWasDrawing] = useState<boolean>(false);
 
-  const resizeObserver = new ResizeObserver(() => {
-    setTriggerResize((prev) => !prev);
-  });
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
+
+  const [toasts, setToasts] = useState<
+    Array<{ id: string; message: string; type: ToastType }>
+  >([]);
+  const addToast = (message: string, type: ToastType) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, message, type }]);
+  };
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+  const [currentMask, setCurrentMask] = useState<MaskArray>([]);
+  const [isThereRegion, setIsThereRegion] = useState<boolean>(false);
+  const [isMaskLoading, setIsMaskLoading] = useState(true);
 
   useEffect(() => {
-    if (ContainerRef.current && imgRef.current) {
-      const OriginalimgWidth = imgRef.current.naturalWidth;
-      const OriginalimgHeight = imgRef.current.naturalHeight;
-      const imgWidth = imgRef.current.clientWidth;
-      const imgHeight = imgRef.current.clientHeight;
-
-      const imgRatio = imgWidth / imgHeight;
-      const OriginalimgRatio = OriginalimgWidth / OriginalimgHeight;
-      if (imgRatio > OriginalimgRatio) {
-        ContainerRef.current.style.width = `${imgHeight * OriginalimgRatio}px`;
-      } else {
-        ContainerRef.current.style.height = `${imgWidth / OriginalimgRatio}px`;
-      }
-
-      // Reset zoom and position when image changes
-      setZoom(1);
-
-      // Center the image in the container
-      if (canvasContainerRef.current) {
-        const containerRect =
-          canvasContainerRef.current.getBoundingClientRect();
-        setPosition({
-          x: (containerRect.width - imgWidth) / 2,
-          y: (containerRect.height - imgHeight) / 2,
-        });
-      }
+    let cancelled = false;
+    if (wasDrawing) {
+      setWasDrawing(false);
+      return; // Skip mask extraction if just drawing
     }
-  }, [currentImage.id, triggerResize]);
+    setIsMaskLoading(true);
+    setTimeout(() => {
+      const mask = extractTargetMask(
+        currentImage.mask as MaskArray,
+        tabs[selectedTab].feature_id
+      );
+      setIsThereRegion(
+        [...new Set(mask.map((row) => Array.from(row)).flat())].filter(
+          (value) => value !== 0
+        ).length > 0
+      );
+      if (!cancelled) {
+        setCurrentMask(mask);
+        setIsMaskLoading(false);
+      }
+    }, 0);
+    return () => {
+      cancelled = true;
+    };
+  }, [currentImage, selectedTab]);
+
+  const ContextMenuTools: ContextMenuItem[] = [
+    {
+      type: "dropdown",
+      label: "Move To",
+      items: (() => {
+        // filter current mask to get the region with the same feature_id as tabId
+        if (!isThereRegion) {
+          return "There's no region in current mask.";
+        }
+        return tabs
+          .filter((tab) => tab.feature_id !== tabs[selectedTab].feature_id)
+          .map((tab) => ({
+            type: "action",
+            label: tab.name,
+            onClick: async () => {
+              if (!canvasContainerRef.current || !imgRef.current) return;
+              const canvasRect =
+                canvasContainerRef.current.getBoundingClientRect();
+
+              // Get relative position to the canvas container
+              const relativeX = contextMenuPosition.x - canvasRect.left;
+              const relativeY = contextMenuPosition.y - canvasRect.top;
+
+              // Get current displayed image size
+              const displayWidth = imgRef.current.clientWidth;
+              const displayHeight = imgRef.current.clientHeight;
+
+              // Calculate the scale factor between displayed size and actual image size
+              const scaleX = imgDim.width / displayWidth;
+              const scaleY = imgDim.height / displayHeight;
+
+              // Adjust coordinates relative to container position and zoom, then scale to image dimensions
+              const imageX = Math.round(
+                ((relativeX - position.x) / zoom) * scaleX
+              );
+              const imageY = Math.round(
+                ((relativeY - position.y) / zoom) * scaleY
+              );
+
+              // get region from current mask
+              if (!currentImage || !currentImage.mask) {
+                console.warn(
+                  "No current image or mask set, skipping region move."
+                );
+                return;
+              }
+              await (async (): Promise<void> => {
+                // check if selected coordinates are not empty
+                if (currentMask[imageY][imageX] === 0) {
+                  addToast(
+                    "No region found at the selected position.",
+                    "warning"
+                  );
+                  return;
+                }
+                // get labeled region
+                let labeledRegion = await getRegions(
+                  currentMask.map((row) => Array.from(row))
+                );
+                // get label value of selected region
+                const labelValue = labeledRegion[imageY][imageX];
+                if (!labelValue) {
+                  addToast(
+                    "No label found for the selected region.",
+                    "warning"
+                  );
+                  return;
+                }
+                // set non-selected pixels to 0
+                labeledRegion = labeledRegion.map((row) =>
+                  row.map((value) => (value == labelValue ? tab.feature_id : 0))
+                );
+                const resultMask = currentImage.mask
+                  .map((row, y) =>
+                    Array.from(row).map((value, x) =>
+                      labeledRegion[y][x] == 0 ? value : tab.feature_id
+                    )
+                  )
+                  .map((row) => Uint8Array.from(row));
+                setMask(resultMask);
+                setCurrentMask(
+                  extractTargetMask(resultMask, tabs[selectedTab].feature_id)
+                );
+                return;
+              })();
+              setShowContextMenu(false);
+            },
+          }));
+      })(),
+    },
+  ];
+
   // Handle mouse wheel zoom
   const zoomRef = useRef(zoom);
   useEffect(() => {
@@ -78,6 +189,7 @@ export default function BaseCanvas() {
   }, [zoom]);
   const handleZoom = (e: WheelEvent) => {
     e.preventDefault();
+    if (showContextMenu) setShowContextMenu(false);
     const delta = e.deltaY;
     const prevZoom = zoomRef.current;
     const newZoom = Math.min(
@@ -130,6 +242,14 @@ export default function BaseCanvas() {
   // Handle mouse drag start
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // Only left button
+    if (showContextMenu) {
+      const element = e.target as HTMLElement;
+      // Check  if the click is on a context menu item
+      if (element.closest("canvas")) {
+        setShowContextMenu(false);
+      }
+      return;
+    }
 
     // Prevent drag if clicking on ZoomControls or MiniMap
     const zoomControls = document.querySelector(".zoom-controls");
@@ -151,23 +271,22 @@ export default function BaseCanvas() {
 
   // Handle mouse dragging
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      // Use refs and requestAnimationFrame for smooth drag
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      animationFrameRef.current = requestAnimationFrame(() => {
-        const newX = e.clientX - dragStart.x;
-        const newY = e.clientY - dragStart.y;
-        // Directly update the DOM for smoothness
-        if (ContainerRef.current) {
-          ContainerRef.current.style.left = `${newX}px`;
-          ContainerRef.current.style.top = `${newY}px`;
-        }
-        // Optionally, update state at a throttled interval or only on mouse up
-        positionRef.current = { x: newX, y: newY };
-      });
+    if (!isDragging) return;
+    // Use refs and requestAnimationFrame for smooth drag
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
     }
+    animationFrameRef.current = requestAnimationFrame(() => {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      // Directly update the DOM for smoothness
+      if (ContainerRef.current) {
+        ContainerRef.current.style.left = `${newX}px`;
+        ContainerRef.current.style.top = `${newY}px`;
+      }
+      // Optionally, update state at a throttled interval or only on mouse up
+      positionRef.current = { x: newX, y: newY };
+    });
   };
 
   // Handle mouse drag end
@@ -213,41 +332,56 @@ export default function BaseCanvas() {
   };
   // Add wheel event and keyboard listeners
   useEffect(() => {
+    if (!ContainerRef.current || !imgRef.current || !canvasContainerRef.current)
+      return;
+    // Ensure ContainerRef matches the displayed image dimensions based on imgDim and container size, preserving aspect ratio.
     const container = canvasContainerRef.current;
-    if (container) {
-      container.addEventListener("wheel", handleZoom, { passive: false });
+    if (!container || !imgRef.current || !ContainerRef.current) return;
 
-      // Add keyboard event listener to the window
-      window.addEventListener("keydown", handleKeyDown);
+    // Calculate aspect ratios
+    const imgAspect = imgDim.width / imgDim.height;
+    const containerRect = container.getBoundingClientRect();
+    const containerAspect = containerRect.width / containerRect.height;
+
+    let displayWidth = containerRect.width;
+    let displayHeight = containerRect.height;
+
+    // Adjust dimensions to fit image inside container while preserving aspect ratio
+    if (imgAspect > containerAspect) {
+      // Image is wider than container
+      displayWidth = containerRect.width;
+      displayHeight = displayWidth / imgAspect;
+    } else {
+      // Image is taller than container
+      displayHeight = containerRect.height;
+      displayWidth = displayHeight * imgAspect;
     }
 
+    // Set ContainerRef size to match the displayed image dimensions
+    const imageContainer = ContainerRef.current;
+    imageContainer.style.width = `${displayWidth}px`;
+    imageContainer.style.height = `${displayHeight}px`;
+
+    // Reset zoom and position when image changes
+    setZoom(1);
+
+    // Center the image in the container
+    setPosition({
+      x: (containerRect.width - ContainerRef.current.clientWidth) / 2,
+      y: (containerRect.height - ContainerRef.current.clientHeight) / 2,
+    });
+
+    container.addEventListener("wheel", handleZoom, {
+      passive: false,
+    });
+
+    // Add keyboard event listener to the window
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      if (container) {
-        container.removeEventListener("wheel", handleZoom);
-      }
+      container.removeEventListener("wheel", handleZoom);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [zoom, position]);
-
-  // Show minimap when zoomed in beyond a threshold
-  useEffect(() => {
-    if (zoom > 1.5) {
-      setShowMinimap(true);
-    } else {
-      setShowMinimap(false);
-    }
-  }, [zoom]);
-
-  useEffect(() => {
-    if (ContainerRef.current) {
-      resizeObserver.observe(ContainerRef.current);
-    }
-    return () => {
-      if (ContainerRef.current) {
-        resizeObserver.unobserve(ContainerRef.current);
-      }
-    };
-  }, [ContainerRef]);
+  }, [currentImage.id]);
 
   // Handle double click to zoom in or out
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -310,10 +444,6 @@ export default function BaseCanvas() {
 
     setPosition({ x: newPositionX, y: newPositionY });
   };
-
-  if (isLoading || !imgDim) {
-    return <Loader message="Loading canvas data..." />;
-  }
 
   const ZoomControls = (): ReactNode => (
     <div className="zoom-controls">
@@ -457,6 +587,18 @@ export default function BaseCanvas() {
     </div>
   );
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // Set menu position using screen coordinates
+    setContextMenuPosition({
+      x: e.clientX,
+      y: e.clientY,
+    });
+
+    setShowContextMenu(true);
+  };
+
   return (
     <>
       <TabNavigation />
@@ -466,17 +608,33 @@ export default function BaseCanvas() {
         ref={canvasContainerRef}
         onMouseDown={handleMouseDown}
         onMouseMove={mode == "hand" ? handleMouseMove : undefined}
-        onMouseUp={mode == "hand" ? handleMouseUp : undefined}
+        onMouseUp={mode == "hand" ? handleMouseUp : () => setWasDrawing(true)}
         onMouseLeave={mode == "hand" ? handleMouseUp : undefined}
         onDoubleClick={mode == "hand" ? handleDoubleClick : undefined}
+        onContextMenu={handleContextMenu}
       >
-        {" "}
+        {(isLoading || isMaskLoading) && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 20,
+              background: "rgba(0,0,0,0.6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              pointerEvents: "all",
+            }}
+          >
+            <Loader message="Loading Mask..." />
+          </div>
+        )}{" "}
         {/* Controls bar with zoom and stain view controls */}
         <div className="canvas-controls-bar">
           <ZoomControls />
           <StainControls />
         </div>
-        {showMinimap && <MiniMap />}{" "}
+        {zoom > 1.5 && <MiniMap />}{" "}
         <div
           className="image-container"
           ref={ContainerRef}
@@ -507,9 +665,26 @@ export default function BaseCanvas() {
               }
             }}
           />
-          <DrawingCanvas />
+          <DrawingCanvas currentMask={currentMask} />
         </div>
+        {showContextMenu && (
+          <ContextMenu
+            items={ContextMenuTools}
+            position={contextMenuPosition}
+          />
+        )}
       </div>
+
+      <ToastContainer>
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => removeToast(toast.id)}
+          />
+        ))}
+      </ToastContainer>
     </>
   );
 }

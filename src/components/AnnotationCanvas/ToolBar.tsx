@@ -6,12 +6,19 @@ import { MaskArray, modes, ModesLabels } from "./types";
 
 export default function ToolBar() {
   const {
-    states: { currentImage, mode, brushSize, imgDim, saveStatus },
+    states: {
+      tabs,
+      selectedTab,
+      currentImage,
+      mode,
+      brushSize,
+      imgDim,
+      saveStatus,
+    },
     actions: {
       setMode,
       setBrushSize,
       setSaveStatus,
-      triggerMaskReset,
       setMask,
       saveMask,
       markDone,
@@ -41,6 +48,10 @@ export default function ToolBar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    isGenerated && setIsGenerated(false);
+  }, [currentImage.id]);
 
   // Determine primary action based on current state
   const getPrimaryAction = () => {
@@ -195,7 +206,19 @@ export default function ToolBar() {
             if (
               confirm("Reset this mask to empty? This action cannot be undo.")
             ) {
-              triggerMaskReset();
+              setMask(
+                currentImage.mask.map((row) =>
+                  Uint8Array.from(
+                    Array.from(row).map((px) =>
+                      px == tabs[selectedTab].feature_id ? 0 : px
+                    )
+                  )
+                )
+              );
+              setSaveStatus((prev) => ({
+                ...prev,
+                isModified: true,
+              }));
             }
           }}
           title="Reset Mask"
