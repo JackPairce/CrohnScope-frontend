@@ -87,7 +87,7 @@ export default function DataForm<T extends DataType>({
             <div className="mb-6 flex flex-col items-center ">
               {"img" in formData && (
                 <>
-                  <div className="w-full mt-1 flex items-center justify-center p-2">
+                  <div className="w-80 mt-1 flex items-center justify-center p-2">
                     {formData.img ? (
                       <img
                         src={`data:image/jpeg;base64,${formData.img}`}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useImages } from "@/components/AnnotationCanvas/ImagesNav/useImages";
-import ImageViewer from "@/components/ImageViewer";
+import ImageViewer from "@/components/ImageViewer/ImageViewer";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import {
   ApiDiagnosis,

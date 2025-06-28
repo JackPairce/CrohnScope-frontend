@@ -90,6 +90,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/ai/diagnose": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Diagnose Image */
+    post: operations["diagnose_image_ai_diagnose_post"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/ai/generate-masks": {
     parameters: {
       query?: never;
@@ -787,6 +804,17 @@ export interface components {
       /** Id */
       id: number;
     };
+    /**
+     * DiagnosisResult
+     * @description Result of a diagnosis operation
+     */
+    DiagnosisResult: {
+      HeatMap: components["schemas"]["MaskArray"];
+      /** Confidence */
+      confidence: number;
+      /** Disease Class */
+      disease_class: number;
+    };
     /** DiagnosisUpdate */
     DiagnosisUpdate: {
       /** Disease Id */
@@ -857,6 +885,10 @@ export interface components {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
+    /**
+     * ImageArray
+     * @description 3D array of pixel values (e.g., RGB values)
+     */
     ImageArray: number[][][];
     /**
      * ImageListResponse
@@ -1155,6 +1187,39 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ApiMask"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  diagnose_image_ai_diagnose_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ImageArray"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DiagnosisResult"];
         };
       };
       /** @description Validation Error */

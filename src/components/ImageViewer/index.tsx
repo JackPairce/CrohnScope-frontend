@@ -1,28 +1,136 @@
 "use client";
 
-import { ApiImage } from "@/lib/api";
+import { ApiFeature, ApiImage } from "@/lib/api";
 import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
+import { drawMaskToCanvas } from "../AnnotationCanvas/MaskUtils";
 
 interface ImageViewerProps {
-  image: ApiImage;
+  image: Omit<ApiImage, "is_done"> & { is_done?: boolean };
   onClose: () => void;
   onDelete: (id: number, filename: string) => Promise<boolean>;
-  overlayImage?: string;
+  features?: ApiFeature[];
   sidePanel?: React.JSX.Element;
 }
+type ViewMode = "None" | "HeatMap" | "Features";
 
 export default function ImageViewer({
   image,
   onClose,
   onDelete,
   sidePanel,
-  overlayImage,
+  features,
 }: ImageViewerProps) {
   const [scale, setScale] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const RedCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const GreenCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const ContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    features ? "HeatMap" : "None"
+  );
+
+  // Ref array for feature canvases
+  const featureCanvasRefs = React.useRef<(HTMLCanvasElement | null)[]>([]);
+
+  function getRandomColor() {
+    const hue = Math.floor(Math.random() * 360);
+    return `hsl(${hue}, 80%, 60%)`;
+  }
+
+  useEffect(() => {
+    const mask = image.mask;
+    if (!RedCanvasRef.current || !mask || !ContainerRef.current) return;
+
+    // Calculate aspect ratios
+    const imgAspect = mask[0].length / mask.length;
+    const containerRect = ContainerRef.current.getBoundingClientRect();
+    const containerAspect = containerRect.width / containerRect.height;
+
+    let displayWidth = containerRect.width;
+    let displayHeight = containerRect.height;
+
+    // Adjust dimensions to fit image inside container while preserving aspect ratio
+    if (imgAspect > containerAspect) {
+      // Image is wider than container
+      displayWidth = containerRect.width;
+      displayHeight = displayWidth / imgAspect;
+    } else {
+      // Image is taller than container
+      displayHeight = containerRect.height;
+      displayWidth = displayHeight * imgAspect;
+    }
+
+    // Set ContainerRef size to match the displayed image dimensions
+    const imageContainer = ContainerRef.current;
+    imageContainer.style.width = `${displayWidth}px`;
+    imageContainer.style.height = `${displayHeight}px`;
+
+    // Center the image in the container
+    setPosition({
+      x: (containerRect.width - ContainerRef.current.clientWidth) / 2,
+      y: (containerRect.height - ContainerRef.current.clientHeight) / 2,
+    });
+
+    if (features) {
+      const redFeatures = features
+        .filter((f) => f.diseases.length > 0)
+        .map((f) => f.id);
+      const greenFeatures = features
+        .filter((f) => f.diseases.length === 0)
+        .map((f) => f.id);
+
+      // Draw mask with features
+      // Draw mask for red features (features with diseases)
+      drawMaskToCanvas(
+        mask.map((row, y) =>
+          Uint8Array.from(
+            row.map((value, x) =>
+              // Check if any redFeature covers this pixel
+              redFeatures.includes(value) ? 1 : 0
+            )
+          )
+        ),
+        RedCanvasRef.current
+      );
+      if (GreenCanvasRef.current)
+        drawMaskToCanvas(
+          mask.map((row, y) =>
+            Uint8Array.from(
+              row.map((value, x) =>
+                // Check if any greenFeature covers this pixel
+                greenFeatures.includes(value) ? 1 : 0
+              )
+            )
+          ),
+          GreenCanvasRef.current
+        );
+    } else
+      drawMaskToCanvas(
+        mask.map((row) =>
+          Uint8Array.from(row.map((value) => (value > 0 ? 1 : 0)))
+        ),
+        RedCanvasRef.current
+      );
+  }, [image.mask]);
+
+  useEffect(() => {
+    if (!image.mask || !features) return;
+    features.forEach((feature, index) => {
+      const canvas = featureCanvasRefs.current[index];
+      if (!canvas) return;
+      drawMaskToCanvas(
+        image.mask.map((row) =>
+          Uint8Array.from(row.map((value) => (value === feature.id ? 1 : 0)))
+        ),
+        canvas
+      );
+    });
+  }, [image.mask, features]);
+
+  useEffect(() => {}, [viewMode]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -196,56 +304,119 @@ export default function ImageViewer({
 
           {/* Image container */}
           <div
-            className="w-full h-full overflow-hidden cursor-move image-viewer-container"
+            ref={ContainerRef}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
+            className="relative w-full h-full transition-transform duration-100 overflow-hidden cursor-move image-viewer-container"
+            style={{
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transformOrigin: "center",
+            }}
           >
-            <div
-              className="relative w-full h-full transition-transform duration-100"
-              style={{
-                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                transformOrigin: "center",
-              }}
-            >
-              {/* <div className="relative w-fit h-fit"> */}
-              <Image
-                src={image.src}
-                alt={image.filename}
-                fill
-                className="object-contain"
-                draggable={false}
-              />
-              {/* </div> */}
-              {/* Overlay positioned absolutely to cover the entire image */}
-              {overlayImage && (
-                <Image
-                  src={overlayImage}
-                  alt={"Overlay Image"}
-                  fill
-                  className="object-contain opacity-50 pointer-events-none"
-                  draggable={false}
-                />
-              )}
-            </div>
+            <Image
+              src={image.src}
+              alt={image.filename}
+              fill
+              className="object-contain"
+              draggable={false}
+            />
+            {image.mask && viewMode != "None" && (
+              <>
+                {viewMode == "HeatMap" ? (
+                  <>
+                    <canvas
+                      className="absolute inset-0 pointer-events-none"
+                      ref={RedCanvasRef}
+                      width={image.mask ? image.mask[0].length : 0}
+                      height={image.mask ? image.mask.length : 0}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        opacity: 0.5,
+                        zIndex: 1,
+                        filter:
+                          "brightness(0) saturate(100%) invert(13%) sepia(72%) saturate(6705%) hue-rotate(352deg) brightness(95%) contrast(87%)",
+                      }}
+                    />
+                    {features && (
+                      <canvas
+                        className="absolute inset-0 pointer-events-none"
+                        ref={GreenCanvasRef}
+                        width={image.mask[0].length}
+                        height={image.mask.length}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          opacity: 0.5,
+                          zIndex: 2,
+                          filter:
+                            "brightness(0) saturate(100%) invert(49%) sepia(55%) saturate(579%) hue-rotate(100deg) brightness(94%) contrast(83%)",
+                        }}
+                      />
+                    )}
+                  </>
+                ) : (
+                  features &&
+                  features.map((feature, index) => {
+                    return (
+                      <canvas
+                        key={feature.id}
+                        ref={(el) => {
+                          featureCanvasRefs.current[index] = el;
+                        }}
+                        className="absolute inset-0 pointer-events-none"
+                        width={image.mask![0].length}
+                        height={image.mask!.length}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          opacity: 0.5,
+                          zIndex: 1 + index,
+                          filter: `brightness(0) saturate(100%) invert(43%) sepia(90%) saturate(547%) hue-rotate(${Math.floor(
+                            (360 / features.length) * index
+                          )}deg) brightness(95%) contrast(88%)`,
+                        }}
+                      />
+                    );
+                  })
+                )}
+              </>
+            )}
           </div>
 
           {/* Info footer */}
           <div className="absolute bottom-0 left-0 right-0 z-10 p-4 bg-gradient-to-t from-black/50 to-black/40">
             <div className="flex items-center justify-between text-white">
-              <div className="text-sm opacity-75">
-                {image.filename}
-                <span
-                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                    image.is_done
-                      ? "bg-emerald-700 text-emerald-50"
-                      : "bg-amber-700 text-amber-50"
-                  }`}
-                >
-                  {image.is_done ? "Processed" : "Pending"}
-                </span>
-              </div>
+              {features && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm">View Mode:</label>
+                  <select
+                    value={viewMode}
+                    onChange={(e) => setViewMode(e.target.value as ViewMode)}
+                    className="bg-gray-800 text-white rounded px-2 py-1"
+                  >
+                    <option value="HeatMap">Heat Map</option>
+                    <option value="Features">Show Features</option>
+                    <option value="None">None</option>
+                  </select>
+                </div>
+              )}
+              {image.is_done != undefined && (
+                <div className="text-sm opacity-75">
+                  {image.filename}
+                  <span
+                    className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                      image.is_done
+                        ? "bg-emerald-700 text-emerald-50"
+                        : "bg-amber-700 text-amber-50"
+                    }`}
+                  >
+                    {image.is_done ? "Processed" : "Pending"}
+                  </span>
+                </div>
+              )}
               <div className="text-xs opacity-50">
                 Scroll to zoom • Drag to pan • ESC to close
               </div>
