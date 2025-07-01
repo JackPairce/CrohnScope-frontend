@@ -1,8 +1,8 @@
 "use client";
 
 import { useImages } from "@/components/AnnotationCanvas/ImagesNav/useImages";
+import ImageViewer from "@/components/ImageViewer";
 import ImageElement from "@/components/ImageViewer/ImageElement";
-import ImageViewer from "@/components/ImageViewer/ImageViewer";
 import Loader from "@/components/loader";
 import Toast, { ToastContainer, ToastType } from "@/components/Toast";
 import UploadBtn from "@/components/UploadBtn";

@@ -117,12 +117,13 @@ export default function ImageViewer({
   }, [image.mask]);
 
   useEffect(() => {
-    if (!image.mask || !features) return;
+    const mask = image.mask;
+    if (!mask || !features) return;
     features.forEach((feature, index) => {
       const canvas = featureCanvasRefs.current[index];
       if (!canvas) return;
       drawMaskToCanvas(
-        image.mask.map((row) =>
+        mask.map((row) =>
           Uint8Array.from(row.map((value) => (value === feature.id ? 1 : 0)))
         ),
         canvas
